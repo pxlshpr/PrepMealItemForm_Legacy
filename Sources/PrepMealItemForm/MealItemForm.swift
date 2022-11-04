@@ -6,6 +6,7 @@ import PrepDataTypes
 
 public struct MealItemForm: View {
     
+    @StateObject var viewModel = ViewModel()
     @StateObject var nutrientBreakdownViewModel: NutrientBreakdown.ViewModel
     @State var canBeSaved = true
     @State var isPrepping: Bool
@@ -127,9 +128,13 @@ public struct MealItemForm: View {
                     .foregroundColor(.accentColor)
             }
             FormStyledSection(header: Text("Amount")) {
-                Text("1 cup, chopped • 250g")
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .foregroundColor(.accentColor)
+                HStack {
+                    Text("1 cup, chopped • 250g")
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .foregroundColor(.accentColor)
+//                    Spacer()
+//                    NutritionSummary(dataProvider: viewModel)
+                }
             }
             Divider().padding(.vertical)
             FormStyledSection(header: goalsHeader) {
@@ -252,4 +257,42 @@ struct MealItemForm_Previews: PreviewProvider {
     static var previews: some View {
         MealItemFormPreview()
     }
+}
+
+extension MealItemForm {
+    class ViewModel: ObservableObject {
+        
+    }
+}
+
+extension MealItemForm.ViewModel: NutritionSummaryProvider {
+    var forMeal: Bool {
+        false
+    }
+    
+    var isMarkedAsCompleted: Bool {
+        false
+    }
+    
+    var showQuantityAsSummaryDetail: Bool {
+        false
+    }
+    
+    var energyAmount: Double {
+        234
+    }
+    
+    var carbAmount: Double {
+        56
+    }
+    
+    var fatAmount: Double {
+        38
+    }
+    
+    var proteinAmount: Double {
+        25
+    }
+    
+    
 }
