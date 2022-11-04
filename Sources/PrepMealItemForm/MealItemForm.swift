@@ -151,7 +151,7 @@ public struct MealItemForm: View {
             Text("How this \(isPrepping ? "will affect" : "affects") your goal")
             Spacer()
             Text("Remaining")
-                .foregroundColor(Color(.quaternaryLabel))
+                .foregroundColor(Color(.tertiaryLabel))
         }
     }
     
@@ -165,17 +165,17 @@ public struct MealItemForm: View {
             let carbGoal = Double.random(in: 80...350)
             nutrientBreakdownViewModel.carbViewModel.goal = carbGoal
             nutrientBreakdownViewModel.carbViewModel.food = Double.random(in: 0...carbGoal)
-            nutrientBreakdownViewModel.carbViewModel.increment = Double.random(in: 0...400)
+            nutrientBreakdownViewModel.carbViewModel.increment = Double.random(in: 0...200)
 
             let fatGoal = Double.random(in: 20...120)
             nutrientBreakdownViewModel.fatViewModel.goal = fatGoal
             nutrientBreakdownViewModel.fatViewModel.food = Double.random(in: 0...fatGoal)
-            nutrientBreakdownViewModel.fatViewModel.increment = Double.random(in: 0...200)
+            nutrientBreakdownViewModel.fatViewModel.increment = Double.random(in: 0...100)
 
             let proteinGoal = Double.random(in: 90...270)
             nutrientBreakdownViewModel.proteinViewModel.goal = proteinGoal
             nutrientBreakdownViewModel.proteinViewModel.food = Double.random(in: 0...proteinGoal)
-            nutrientBreakdownViewModel.proteinViewModel.increment = Double.random(in: 0...150)
+            nutrientBreakdownViewModel.proteinViewModel.increment = Double.random(in: 0...100)
 
         }
     }
