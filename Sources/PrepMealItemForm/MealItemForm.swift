@@ -81,9 +81,6 @@ public struct MealItemForm: View {
             Divider().padding(.vertical)
             FormStyledSection(header: goalsHeader) {
                 NutrientBreakdown(viewModel: nutrientBreakdownViewModel)
-                Text("Goal increment goes here")
-                    .foregroundColor(Color(.tertiaryLabel))
-                    .frame(maxWidth: .infinity, alignment: .leading)
             }
             FormStyledSection {
                 Text("Food Label goes here")
@@ -104,10 +101,10 @@ public struct MealItemForm: View {
         HStack {
             Text("How this will affect your goal")
             Spacer()
-            Button(showingTotal ? "DAY" : "FOOD") {
-                withAnimation {
+            Button(showingTotal ? "TOTAL" : "FOOD") {
+//                withAnimation {
                     showingTotal.toggle()
-                }
+//                }
             }
             .foregroundColor(.accentColor)
         }
