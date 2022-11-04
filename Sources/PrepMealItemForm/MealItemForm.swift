@@ -15,9 +15,9 @@ public struct MealItemForm: View {
             component: .energy,
             goal: 2000,
             burned: 0,
-            food: 1200,
+            food: 50,
             eaten: nil,
-            increment: 50
+            increment: 0
         )
         let carb = FoodMeter.ViewModel(
             component: .carb,
@@ -64,6 +64,9 @@ public struct MealItemForm: View {
             content
                 .navigationTitle(isPrepping ? "Prep Food" : "Log Food")
                 .navigationBarTitleDisplayMode(.large)
+                .onAppear {
+                    refresh()
+                }
         }
     }
     
@@ -89,6 +92,8 @@ public struct MealItemForm: View {
     var saveButton: some View {
         var publicButton: some View {
             FormPrimaryButton(title: "\(isPrepping ? "Prep" : "Log")") {
+                print("We here")
+                refresh()
 //                guard let data = foodFormOutput(shouldPublish: true) else {
 //                    return
 //                }
@@ -129,9 +134,7 @@ public struct MealItemForm: View {
                 NutrientBreakdown(viewModel: nutrientBreakdownViewModel)
             }
             FormStyledSection {
-                Text("Food Label goes here")
-                    .foregroundColor(Color(.tertiaryLabel))
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                foodLabel
             }
         }
         .safeAreaInset(edge: .bottom) { safeAreaInset }
@@ -147,15 +150,36 @@ public struct MealItemForm: View {
         HStack {
             Text("How this \(isPrepping ? "will affect" : "affects") your goal")
             Spacer()
-            Button(showingTotal ? "TOTAL" : "FOOD") {
-//                withAnimation {
-                    showingTotal.toggle()
-//                }
-            }
-            .foregroundColor(.accentColor)
+            Text("Remaining")
+                .foregroundColor(Color(.quaternaryLabel))
         }
     }
     
+    func refresh() {
+        withAnimation(.interactiveSpring()) {
+            let energyGoal = Double.random(in: 1500...2500)
+            nutrientBreakdownViewModel.energyViewModel.goal = energyGoal
+            nutrientBreakdownViewModel.energyViewModel.food = Double.random(in: 0...energyGoal)
+            nutrientBreakdownViewModel.energyViewModel.increment = Double.random(in: 0...1000)
+            
+            let carbGoal = Double.random(in: 80...350)
+            nutrientBreakdownViewModel.carbViewModel.goal = carbGoal
+            nutrientBreakdownViewModel.carbViewModel.food = Double.random(in: 0...carbGoal)
+            nutrientBreakdownViewModel.carbViewModel.increment = Double.random(in: 0...400)
+
+            let fatGoal = Double.random(in: 20...120)
+            nutrientBreakdownViewModel.fatViewModel.goal = fatGoal
+            nutrientBreakdownViewModel.fatViewModel.food = Double.random(in: 0...fatGoal)
+            nutrientBreakdownViewModel.fatViewModel.increment = Double.random(in: 0...200)
+
+            let proteinGoal = Double.random(in: 90...270)
+            nutrientBreakdownViewModel.proteinViewModel.goal = proteinGoal
+            nutrientBreakdownViewModel.proteinViewModel.food = Double.random(in: 0...proteinGoal)
+            nutrientBreakdownViewModel.proteinViewModel.increment = Double.random(in: 0...150)
+
+        }
+    }
+
     @ViewBuilder
     var safeAreaInset: some View {
         if canBeSaved {
@@ -188,12 +212,12 @@ public struct MealItemForm: View {
         let microsBinding = Binding<[NutrientType : FoodLabelValue]>(
             get: {
                 [
-                    .saturatedFat : .init(amount: 22),
-                    .sugars : .init(amount: 28),
-                    .calcium : .init(amount: 230),
-                    .sodium : .init(amount: 1640),
-                    .transFat : .init(amount: 2),
-                    .dietaryFiber : .init(amount: 6)
+                    .saturatedFat : .init(amount: 22, unit: .g),
+                    .sugars : .init(amount: 28, unit: .g),
+                    .calcium : .init(amount: 230, unit: .mg),
+                    .sodium : .init(amount: 1640, unit: .mg),
+                    .transFat : .init(amount: 2, unit: .g),
+                    .dietaryFiber : .init(amount: 6, unit: .g)
                 ]
             },
             set: { _ in }
