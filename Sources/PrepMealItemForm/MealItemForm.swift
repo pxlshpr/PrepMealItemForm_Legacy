@@ -124,10 +124,12 @@ public struct MealItemForm: View {
             FormStyledSection(header: Text("Meal")) {
                 Text("10:30 am • Pre-workout Meal")
                     .frame(maxWidth: .infinity, alignment: .leading)
+                    .foregroundColor(.accentColor)
             }
             FormStyledSection(header: Text("Amount")) {
                 Text("1 cup, chopped • 250g")
                     .frame(maxWidth: .infinity, alignment: .leading)
+                    .foregroundColor(.accentColor)
             }
             Divider().padding(.vertical)
             FormStyledSection(header: goalsHeader) {
@@ -142,6 +144,7 @@ public struct MealItemForm: View {
             nutrientBreakdownViewModel.haveGoal = true
             nutrientBreakdownViewModel.showingDetails = false
             nutrientBreakdownViewModel.includeBurnedCalories = false
+            nutrientBreakdownViewModel.includeHeaderRow = false
         }
     }
     
