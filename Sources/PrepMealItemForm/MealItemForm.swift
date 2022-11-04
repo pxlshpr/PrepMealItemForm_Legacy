@@ -125,13 +125,13 @@ public struct MealItemForm: View {
             FormStyledSection(header: Text("Meal")) {
                 Text("10:30 am • Pre-workout Meal")
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .foregroundColor(.accentColor)
+//                    .foregroundColor(.accentColor)
             }
             FormStyledSection(header: Text("Amount")) {
                 HStack {
                     Text("1 cup, chopped • 250g")
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .foregroundColor(.accentColor)
+//                        .foregroundColor(.accentColor)
 //                    Spacer()
 //                    NutritionSummary(dataProvider: viewModel)
                 }
