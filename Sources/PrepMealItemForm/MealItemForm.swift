@@ -102,7 +102,7 @@ public struct MealItemForm: View {
     @State var showingTotal = true
     var goalsHeader: some View {
         HStack {
-            Text("How this affects your goal")
+            Text("How this will affect your goal")
             Spacer()
             Button(showingTotal ? "DAY" : "FOOD") {
                 withAnimation {
