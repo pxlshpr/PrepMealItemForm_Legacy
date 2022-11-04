@@ -2,10 +2,13 @@ import SwiftUI
 import SwiftUISugar
 import FoodLabel
 import PrepViews
+import PrepDataTypes
 
 public struct MealItemForm: View {
     
     @StateObject var nutrientBreakdownViewModel: NutrientBreakdown.ViewModel
+    @State var canBeSaved = true
+    @State var isPrepping: Bool
     
     public init() {
         let energy = FoodMeter.ViewModel(
@@ -53,17 +56,60 @@ public struct MealItemForm: View {
 //        @Published var includeBurnedCalories: Bool = true
         
         _nutrientBreakdownViewModel = StateObject(wrappedValue: viewModel)
+        _isPrepping = State(initialValue: Int.random(in: 0...1) == 0)
     }
     
     public var body: some View {
         NavigationView {
             content
-                .navigationTitle(Int.random(in: 0...1) == 0 ? "Prep Food" : "Log Food")
+                .navigationTitle(isPrepping ? "Prep Food" : "Log Food")
                 .navigationBarTitleDisplayMode(.large)
         }
     }
     
     var content: some View {
+        ZStack {
+            formLayer
+            buttonsLayer
+        }
+    }
+    
+    @ViewBuilder
+    var buttonsLayer: some View {
+        if canBeSaved {
+            VStack {
+                Spacer()
+                saveButton
+            }
+            .edgesIgnoringSafeArea(.bottom)
+            .transition(.move(edge: .bottom))
+        }
+    }
+    
+    var saveButton: some View {
+        var publicButton: some View {
+            FormPrimaryButton(title: "\(isPrepping ? "Prep" : "Log")") {
+//                guard let data = foodFormOutput(shouldPublish: true) else {
+//                    return
+//                }
+//                didSave(data)
+//                dismiss()
+            }
+        }
+        
+        return VStack(spacing: 0) {
+            Divider()
+            VStack {
+                publicButton
+                    .padding(.vertical)
+            }
+            /// ** REMOVE THIS HARDCODED VALUE for the safe area bottom inset **
+            .padding(.bottom, 30)
+        }
+        .background(.thinMaterial)
+    }
+
+    var formLayer: some View {
         FormStyledScrollView {
             FormStyledSection {
                 Text("🥕 Carrots, Organic, Woolworths")
@@ -99,7 +145,7 @@ public struct MealItemForm: View {
     @State var showingTotal = true
     var goalsHeader: some View {
         HStack {
-            Text("How this will affect your goal")
+            Text("How this \(isPrepping ? "will affect" : "affects") your goal")
             Spacer()
             Button(showingTotal ? "TOTAL" : "FOOD") {
 //                withAnimation {
@@ -118,8 +164,54 @@ public struct MealItemForm: View {
         }
     }
     
-    var canBeSaved: Bool {
-        false
+    var foodLabel: FoodLabel {
+        let energyBinding = Binding<FoodLabelValue>(
+            get: { .init(amount: 234, unit: .kcal)  },
+            set: { _ in }
+        )
+
+        let carbBinding = Binding<Double>(
+            get: { 56 },
+            set: { _ in }
+        )
+
+        let fatBinding = Binding<Double>(
+            get: { 38  },
+            set: { _ in }
+        )
+
+        let proteinBinding = Binding<Double>(
+            get: { 25 },
+            set: { _ in }
+        )
+        
+        let microsBinding = Binding<[NutrientType : FoodLabelValue]>(
+            get: {
+                [
+                    .saturatedFat : .init(amount: 22),
+                    .sugars : .init(amount: 28),
+                    .calcium : .init(amount: 230),
+                    .sodium : .init(amount: 1640),
+                    .transFat : .init(amount: 2),
+                    .dietaryFiber : .init(amount: 6)
+                ]
+            },
+            set: { _ in }
+        )
+        
+        let amountBinding = Binding<String>(
+            get: { "1 cup, chopped" },
+            set: { _ in }
+        )
+
+        return FoodLabel(
+            energyValue: energyBinding,
+            carb: carbBinding,
+            fat: fatBinding,
+            protein: proteinBinding,
+            nutrients: microsBinding,
+            amountPerString: amountBinding
+        )
     }
 }
 
