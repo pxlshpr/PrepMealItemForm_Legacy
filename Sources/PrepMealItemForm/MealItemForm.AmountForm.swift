@@ -112,7 +112,8 @@ extension MealItemForm {
     public struct AmountForm: View {
         
         @Environment(\.colorScheme) var colorScheme
-        
+        @Environment(\.dismiss) var dismiss
+
         let food: Food
         
         var amount: Binding<Double?>
@@ -189,8 +190,9 @@ public extension MealItemForm.AmountForm {
             Image(systemName: "chevron.up.chevron.down")
                 .imageScale(.large)
                 .foregroundColor(.white)
+//                .foregroundColor(.accentColor)
                 .frame(width: 44, height: 44)
-                .background(colorScheme == .light ? .ultraThickMaterial : .ultraThinMaterial)
+//                .background(colorScheme == .light ? .ultraThickMaterial : .ultraThinMaterial)
                 .background(Color.accentColor)
                 .cornerRadius(10)
 //                .overlay(
@@ -212,6 +214,7 @@ public extension MealItemForm.AmountForm {
         var saveButton: some View {
             FormSecondaryButton(title: "Done") {
                 Haptics.feedback(style: .rigid)
+                dismiss()
             }
         }
 
