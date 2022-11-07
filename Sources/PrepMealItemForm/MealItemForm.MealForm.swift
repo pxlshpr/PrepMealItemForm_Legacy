@@ -71,8 +71,7 @@ public extension MealItemForm.MealForm {
     }
     
     func didTapMealItem(_ timelineItem: TimelineItem?) {
-        guard let timelineItem else { return }
-        Haptics.successFeedback()
+        Haptics.feedback(style: .rigid)
         dismiss()
     }
     
