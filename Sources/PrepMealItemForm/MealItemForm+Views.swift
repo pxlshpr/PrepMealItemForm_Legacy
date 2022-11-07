@@ -59,6 +59,7 @@ extension MealItemForm {
     
     var amountButton: some View {
         Button {
+//            showingAmountForm = true
             path.append(.amount(food))
         } label: {
             buttonLabel(
@@ -109,8 +110,8 @@ extension MealItemForm {
 
     var mealButton: some View {
         Button {
-            showingMealPicker = true
-//            path.append(.meal(food))
+//            showingMealPicker = true
+            path.append(.meal(food))
         } label: {
             buttonLabel(
                 heading: "Meal",

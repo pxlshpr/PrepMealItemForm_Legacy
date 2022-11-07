@@ -67,15 +67,6 @@ public extension MealItemForm.MealForm {
             Haptics.successFeedback()
             dismiss()
         })
-        .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
-                Button {
-                    dismiss()
-                } label: {
-                    closeButtonLabel
-                }
-            }
-        }
     }
     
     func didTapOnNewItem() {

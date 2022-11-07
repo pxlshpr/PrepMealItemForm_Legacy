@@ -111,6 +111,8 @@ public extension FoodValue {
 extension MealItemForm {
     public struct AmountForm: View {
         
+        @Environment(\.colorScheme) var colorScheme
+        
         let food: Food
         
         var amount: Binding<Double?>
@@ -156,31 +158,86 @@ public extension MealItemForm.AmountForm {
         }
     }
     
+    func stepButton(step: Int) -> some View {
+        Button {
+            Haptics.feedback(style: .soft)
+            let amount = self.amount.wrappedValue ?? 0
+            self.amount.wrappedValue = amount + Double(step)
+        } label: {
+            Text("\(step > 0 ? "+" : "-") \(abs(step))")
+            .monospacedDigit()
+            .foregroundColor(.accentColor)
+            .frame(width: 44, height: 44)
+            .background(colorScheme == .light ? .ultraThickMaterial : .ultraThinMaterial)
+            .cornerRadius(10)
+            .overlay(
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .stroke(
+                        Color.accentColor.opacity(0.7),
+                        style: StrokeStyle(lineWidth: 0.5, dash: [3])
+                    )
+            )
+        }
+        .disabled(!amountCanBeStepped(by: step))
+    }
+    
+    var unitBottomButton: some View {
+        Button {
+            Haptics.feedback(style: .soft)
+            showingUnitPicker = true
+        } label: {
+            Image(systemName: "chevron.up.chevron.down")
+                .imageScale(.large)
+                .foregroundColor(.white)
+                .frame(width: 44, height: 44)
+                .background(colorScheme == .light ? .ultraThickMaterial : .ultraThinMaterial)
+                .background(Color.accentColor)
+                .cornerRadius(10)
+//                .overlay(
+//                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+//                        .stroke(
+//                            Color.accentColor.opacity(0.7),
+//                            style: StrokeStyle(lineWidth: 0.5, dash: [3])
+//                        )
+//                )
+        }
+    }
+    
+    func amountCanBeStepped(by step: Int) -> Bool {
+        let amount = self.amount.wrappedValue ?? 0
+        return amount + Double(step) > 0
+    }
+    
     var bottomButtons: some View {
-        Text("OK")
-//        var saveButton: some View {
-//            FormPrimaryButton(title: "Done") {
-//                print("We here")
-//            }
-//        }
-//
-//        return VStack(spacing: 0) {
-//            Divider()
-//            VStack {
-//                HStack {
-////                    amountButton
-////                    mealButton
-//                }
-//                .padding(.horizontal)
-//                .padding(.horizontal)
-//                saveButton
-//            }
-//            .padding(.bottom)
-//            .padding(.top, 10)
-//            /// ** REMOVE THIS HARDCODED VALUE for the safe area bottom inset **
-//            .padding(.bottom, 30)
-//        }
-//        .background(.thinMaterial)
+        var saveButton: some View {
+            FormSecondaryButton(title: "Done") {
+                Haptics.feedback(style: .rigid)
+            }
+        }
+
+        return VStack(spacing: 0) {
+            Divider()
+            VStack {
+                HStack {
+                    stepButton(step: -50)
+                    stepButton(step: -10)
+                    stepButton(step: -1)
+//                    Text("•")
+//                        .foregroundColor(Color(.quaternaryLabel))
+                    unitBottomButton
+                    stepButton(step: 1)
+                    stepButton(step: 10)
+                    stepButton(step: 50)
+                }
+                .frame(maxWidth: .infinity)
+                saveButton
+            }
+            .padding(.bottom)
+            .padding(.top, 10)
+            /// ** REMOVE THIS HARDCODED VALUE for the safe area bottom inset **
+            .padding(.bottom, 30)
+        }
+        .background(.thinMaterial)
     }
     
     var equivalentSection: some View {

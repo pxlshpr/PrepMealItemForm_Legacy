@@ -17,7 +17,8 @@ public struct MealItemForm: View {
     @State var isPrepping: Bool
     
     @State var showingMealPicker = false
-    
+    @State var showingAmountForm = false
+
     @ObservedObject var newMealItem: TimelineItem
     let dayMeals: [DayMeal]
 
@@ -45,6 +46,7 @@ public struct MealItemForm: View {
         content
             .navigationTitle(isPrepping ? "Prep Food" : "Log Food")
             .sheet(isPresented: $showingMealPicker) { mealPicker }
+            .sheet(isPresented: $showingAmountForm) { amountForm }
     }
     
     var content: some View {
@@ -71,6 +73,16 @@ public struct MealItemForm: View {
             MealItemForm.MealForm(
                 mealItem: newMealItem,
                 dayMeals: dayMeals
+            )
+        }
+    }
+    
+    var amountForm: some View {
+        NavigationView {
+            MealItemForm.AmountForm(
+                food: food,
+                amount: amount,
+                unit: unit
             )
         }
     }
