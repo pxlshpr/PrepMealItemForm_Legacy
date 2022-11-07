@@ -16,10 +16,9 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/pxlshpr/FoodLabel", from: "0.0.29"),
-        .package(url: "https://github.com/pxlshpr/PrepDataTypes", from: "0.0.115"),
-        .package(url: "https://github.com/pxlshpr/PrepFoodForm", from: "0.1.52"),
-        .package(url: "https://github.com/pxlshpr/PrepViews", from: "0.0.31"),
-        .package(url: "https://github.com/pxlshpr/SwiftUISugar", from: "0.0.232"),
+        .package(url: "https://github.com/pxlshpr/PrepDataTypes", from: "0.0.118"),
+        .package(url: "https://github.com/pxlshpr/PrepViews", from: "0.0.32"),
+        .package(url: "https://github.com/pxlshpr/SwiftUISugar", from: "0.0.234"),
         .package(url: "https://github.com/pxlshpr/Timeline", from: "0.0.66"),
     ],
     targets: [
@@ -30,7 +29,6 @@ let package = Package(
             dependencies: [
                 .product(name: "FoodLabel", package: "foodlabel"),
                 .product(name: "PrepDataTypes", package: "prepdatatypes"),
-                .product(name: "PrepFoodForm", package: "prepfoodform"),
                 .product(name: "PrepViews", package: "prepviews"),
                 .product(name: "SwiftUISugar", package: "swiftuisugar"),
                 .product(name: "Timeline", package: "timeline"),

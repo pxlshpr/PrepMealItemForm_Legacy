@@ -2,9 +2,9 @@ import SwiftUI
 import PrepDataTypes
 import SwiftHaptics
 import SwiftUISugar
-import PrepFoodForm
+import PrepViews
 
-extension FormSize {
+public extension FormSize {
     init?(foodSize: FoodSize, in sizes: [FoodSize]) {
         let volumePrefixUnit: FormUnit?
         if let volumePrefixExplicitUnit = foodSize.volumePrefixExplicitUnit {
@@ -30,12 +30,13 @@ extension FormSize {
     }
 }
 
-extension Array where Element == FoodSize {
+public extension Array where Element == FoodSize {
     func sizeMatchingUnitSizeInFoodValue(_ foodValue: FoodValue) -> FoodSize? {
         first(where: { $0.id == foodValue.sizeUnitId })
     }
 }
-extension FormUnit {
+
+public extension FormUnit {
     
     init?(foodValue: FoodValue, in sizes: [FoodSize]) {
         switch foodValue.unitType {
@@ -66,7 +67,7 @@ extension FormUnit {
     }
 }
 
-extension Food {
+public extension Food {
     var formSizes: [FormSize] {
         info.sizes.compactMap { foodSize in
             FormSize(foodSize: foodSize, in: info.sizes)
@@ -79,7 +80,7 @@ extension Food {
     }
 }
 
-extension FoodValue {
+public extension FoodValue {
     func unitDescription(sizes: [FoodSize]) -> String {
         switch self.unitType {
         case .serving:
@@ -106,20 +107,21 @@ extension FoodValue {
         }
     }
 }
+
 extension MealItemForm {
     public struct AmountForm: View {
         
         let food: Food
         
-        @Binding var amount: Double
+        var amount: Binding<Double?>
         @Binding var unit: FormUnit
 
         @FocusState var isFocused: Bool
         @State var showingUnitPicker = false
         
-        public init(food: Food, amount: Binding<Double>, unit: Binding<FormUnit>) {
+        public init(food: Food, amount: Binding<Double?>, unit: Binding<FormUnit>) {
             self.food = food
-            _amount = amount
+            self.amount = amount
             _unit = unit
         }
     }
@@ -128,22 +130,57 @@ extension MealItemForm {
 public extension MealItemForm.AmountForm {
 
     var body: some View {
-        content
-            .navigationTitle("Amount")
-            .sheet(isPresented: $showingUnitPicker) { unitPicker }
-            .onAppear {
-                isFocused = true
+        ZStack {
+            content
+            VStack {
+                Spacer()
+                bottomButtons
             }
+            .edgesIgnoringSafeArea(.bottom)
+            .transition(.move(edge: .bottom))
+        }
+        .navigationTitle("Amount")
+        .sheet(isPresented: $showingUnitPicker) { unitPicker }
+        .onAppear {
+//            isFocused = true
+        }
     }
     
     var content: some View {
         FormStyledScrollView {
             textFieldSection
-            equivalentSection
-            nutrientsSummarySection
-            goalIncrementSection
-            mealIncrementSection
+//            equivalentSection
+//            nutrientsSummarySection
+//            goalIncrementSection
+//            mealIncrementSection
         }
+    }
+    
+    var bottomButtons: some View {
+        Text("OK")
+//        var saveButton: some View {
+//            FormPrimaryButton(title: "Done") {
+//                print("We here")
+//            }
+//        }
+//
+//        return VStack(spacing: 0) {
+//            Divider()
+//            VStack {
+//                HStack {
+////                    amountButton
+////                    mealButton
+//                }
+//                .padding(.horizontal)
+//                .padding(.horizontal)
+//                saveButton
+//            }
+//            .padding(.bottom)
+//            .padding(.top, 10)
+//            /// ** REMOVE THIS HARDCODED VALUE for the safe area bottom inset **
+//            .padding(.bottom, 30)
+//        }
+//        .background(.thinMaterial)
     }
     
     var equivalentSection: some View {
@@ -180,8 +217,10 @@ public extension MealItemForm.AmountForm {
         } label: {
             HStack(spacing: 5) {
                 Text(unit.shortDescription)
+                    .font(.title)
                 Image(systemName: "chevron.up.chevron.down")
-                    .imageScale(.small)
+                    .font(.title3)
+//                    .imageScale(.large)
             }
         }
         .buttonStyle(.borderless)
@@ -190,7 +229,7 @@ public extension MealItemForm.AmountForm {
     var unitPicker: some View {
         UnitPicker(
             pickedUnit: unit,
-            includeServing: true,
+            includeServing: food.info.serving != nil,
             sizes: food.formSizes,
             servingDescription: food.servingDescription,
             allowAddSize: false,
@@ -220,16 +259,7 @@ public extension MealItemForm.AmountForm {
     }
 
     var headerString: String {
-//        switch field.value.doubleValue.unit {
-//        case .serving:
-            return "Servings"
-//        case .weight:
-//            return "Weight"
-//        case .volume:
-//            return "Volume"
-//        case .size:
-//            return "Size"
-//        }
+        unit.unitType.description
     }
     
     //MARK: - TextField Section
@@ -255,12 +285,13 @@ public extension MealItemForm.AmountForm {
     
     var textField: some View {
         let binding = Binding<String>(
-            get: { amount.cleanAmount },
+            get: { amount.wrappedValue?.cleanAmount ?? "" },
             set: {
                 guard let double = Double($0) else {
+                    amount.wrappedValue = nil
                     return
                 }
-                amount = double
+                amount.wrappedValue = double
             }
         )
         
@@ -274,8 +305,7 @@ public extension MealItemForm.AmountForm {
     }
 
     var textFieldFont: Font {
-//        return field.value.string.isEmpty ? .body : .largeTitle
-        return .body
+        amount.wrappedValue == nil ? .body : .largeTitle
     }
 
     
@@ -292,21 +322,9 @@ public extension MealItemForm.AmountForm {
             }
         }
     }
-    
-    var navigationTrailingContent: some ToolbarContent {
-        ToolbarItem(placement: .navigationBarTrailing) {
-            saveButton
-        }
-    }
-    
-    @ViewBuilder
-    var saveButton: some View {
-        Button("Save") {
-//            saveAndDismiss()
-        }
-//        .disabled(!isDirty)
-    }
+
 }
+
 
 struct MealItemAmountFormPreview: View {
     var body: some View {

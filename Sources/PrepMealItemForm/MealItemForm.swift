@@ -21,7 +21,19 @@ public struct MealItemForm: View {
     @ObservedObject var newMealItem: TimelineItem
     let dayMeals: [DayMeal]
 
-    public init(food: Food, path: Binding<[MealItemRoute]>, newMealItem: TimelineItem, dayMeals: [DayMeal]) {
+    var amount: Binding<Double?>
+    var unit: Binding<FormUnit>
+    
+    public init(
+        food: Food,
+        path: Binding<[MealItemRoute]>,
+        amount: Binding<Double?>,
+        unit: Binding<FormUnit>,
+        newMealItem: TimelineItem,
+        dayMeals: [DayMeal]
+    ) {
+        self.amount = amount
+        self.unit = unit
         self.food = food
         self.newMealItem = newMealItem
         self.dayMeals = dayMeals
@@ -54,60 +66,6 @@ public struct MealItemForm: View {
         }
     }
     
-    func buttonLabel(
-        heading: String,
-        title: String,
-        detail: String? = nil
-    ) -> some View {
-        VStack(spacing: 2) {
-            Text(heading)
-                .textCase(.uppercase)
-                .font(.caption2)
-                .foregroundColor(Color(.tertiaryLabel))
-            VStack {
-                Text(title)
-                    .font(.headline)
-                if let detail {
-                    Text(detail)
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                }
-            }
-            .foregroundColor(.accentColor)
-            .padding(.vertical)
-            .frame(maxWidth: .infinity, alignment: .center)
-            .background(
-                .thickMaterial
-            )
-            .cornerRadius(10)
-        }
-    }
-    
-    var amountButton: some View {
-        Button {
-            path.append(.amount(food))
-        } label: {
-            buttonLabel(
-                heading: "Amount",
-                title: "1 cup, chopped",
-                detail: "250g"
-            )
-        }
-    }
-
-    var mealButton: some View {
-        Button {
-            showingMealPicker = true
-//            path.append(.meal(food))
-        } label: {
-            buttonLabel(
-                heading: "Meal",
-                title: "10:30 am",
-                detail: "Pre-workout Meal"
-            )
-        }
-    }
-    
     var mealPicker: some View {
         NavigationView {
             MealItemForm.MealForm(
@@ -115,32 +73,6 @@ public struct MealItemForm: View {
                 dayMeals: dayMeals
             )
         }
-    }
-    
-    var saveButton: some View {
-        var publicButton: some View {
-            FormPrimaryButton(title: "\(isPrepping ? "Prep" : "Log")") {
-                print("We here")
-            }
-        }
-        
-        return VStack(spacing: 0) {
-            Divider()
-            VStack {
-                HStack {
-                    amountButton
-                    mealButton
-                }
-                .padding(.horizontal)
-                .padding(.horizontal)
-                publicButton
-            }
-            .padding(.bottom)
-            .padding(.top, 10)
-            /// ** REMOVE THIS HARDCODED VALUE for the safe area bottom inset **
-            .padding(.bottom, 30)
-        }
-        .background(.thinMaterial)
     }
 
     var headerBackgroundColor: Color {
