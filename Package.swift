@@ -20,6 +20,7 @@ let package = Package(
         .package(url: "https://github.com/pxlshpr/PrepFoodForm", from: "0.1.52"),
         .package(url: "https://github.com/pxlshpr/PrepViews", from: "0.0.31"),
         .package(url: "https://github.com/pxlshpr/SwiftUISugar", from: "0.0.232"),
+        .package(url: "https://github.com/pxlshpr/Timeline", from: "0.0.66"),
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
@@ -32,6 +33,7 @@ let package = Package(
                 .product(name: "PrepFoodForm", package: "prepfoodform"),
                 .product(name: "PrepViews", package: "prepviews"),
                 .product(name: "SwiftUISugar", package: "swiftuisugar"),
+                .product(name: "Timeline", package: "timeline"),
             ]),
         .testTarget(
             name: "PrepMealItemFormTests",
