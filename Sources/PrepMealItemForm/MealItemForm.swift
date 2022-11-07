@@ -3,6 +3,7 @@ import SwiftUISugar
 import FoodLabel
 import PrepViews
 import PrepDataTypes
+import SwiftHaptics
 
 public struct MealItemForm: View {
     
@@ -10,8 +11,11 @@ public struct MealItemForm: View {
     
     let food: Food
     
-    @Binding var path: [MealItemRoute]
+    let namespace: Namespace.ID
     
+    @Binding var path: [MealItemRoute]
+    @Binding var isPresented: Bool
+
     @StateObject var viewModel = ViewModel()
     @State var canBeSaved = true
     @State var isPrepping: Bool
@@ -28,10 +32,12 @@ public struct MealItemForm: View {
     public init(
         food: Food,
         path: Binding<[MealItemRoute]>,
+        isPresented: Binding<Bool>,
         amount: Binding<Double?>,
         unit: Binding<FormUnit>,
         newMealItem: TimelineItem,
-        dayMeals: [DayMeal]
+        dayMeals: [DayMeal],
+        namespace: Namespace.ID
     ) {
         self.amount = amount
         self.unit = unit
@@ -40,6 +46,8 @@ public struct MealItemForm: View {
         self.dayMeals = dayMeals
         _isPrepping = State(initialValue: Int.random(in: 0...1) == 0)
         _path = path
+        _isPresented = isPresented
+        self.namespace = namespace
     }
     
     public var body: some View {
@@ -47,6 +55,18 @@ public struct MealItemForm: View {
             .navigationTitle(isPrepping ? "Prep Food" : "Log Food")
             .sheet(isPresented: $showingMealPicker) { mealPicker }
             .sheet(isPresented: $showingAmountForm) { amountForm }
+            .toolbar { trailingCloseButton }
+    }
+    
+    var trailingCloseButton: some ToolbarContent {
+        ToolbarItem(placement: .navigationBarTrailing) {
+            Button {
+                Haptics.feedback(style: .soft)
+                isPresented = false
+            } label: {
+                closeButtonLabel
+            }
+        }
     }
     
     var content: some View {
@@ -72,7 +92,8 @@ public struct MealItemForm: View {
         NavigationView {
             MealItemForm.MealForm(
                 mealItem: newMealItem,
-                dayMeals: dayMeals
+                dayMeals: dayMeals,
+                isPresented: $isPresented
             )
         }
     }
@@ -82,7 +103,9 @@ public struct MealItemForm: View {
             MealItemForm.AmountForm(
                 food: food,
                 amount: amount,
-                unit: unit
+                unit: unit,
+                isPresented: $isPresented,
+                namespace: namespace
             )
         }
     }
@@ -95,9 +118,7 @@ public struct MealItemForm: View {
     
     var formLayer: some View {
         FormStyledScrollView {
-            FormStyledSection(
-//                backgroundColor: headerBackgroundColor
-            ) {
+            FormStyledSection {
                 HStack {
                     FoodCell(
                         food: food,

@@ -131,14 +131,17 @@ extension MealItemForm {
 }
 
 struct MealItemFormPreview: View {
+    @Namespace var namespace
     var body: some View {
         MealItemForm(
             food: .init(mockName: "Cheese", emoji: "🧀"),
             path: .constant([]),
+            isPresented: .constant(true),
             amount: .constant(nil),
             unit: .constant(.size(.init(name: "sleeve"), nil)),
             newMealItem: TimelineItem(name: "New Meal", date: Date()),
-            dayMeals: []
+            dayMeals: [],
+            namespace: namespace
         )
     }
 }

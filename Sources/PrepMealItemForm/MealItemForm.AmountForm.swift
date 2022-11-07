@@ -4,131 +4,73 @@ import SwiftHaptics
 import SwiftUISugar
 import PrepViews
 
-public extension FormSize {
-    init?(foodSize: FoodSize, in sizes: [FoodSize]) {
-        let volumePrefixUnit: FormUnit?
-        if let volumePrefixExplicitUnit = foodSize.volumePrefixExplicitUnit {
-            guard let formUnit = FormUnit(volumeExplicitUnit: volumePrefixExplicitUnit) else {
-                return nil
-            }
-            volumePrefixUnit = formUnit
-        } else {
-            volumePrefixUnit = nil
-        }
-        
-        guard let unit = FormUnit(foodValue: foodSize.value, in: sizes) else {
-            return nil
-        }
-        
-        self.init(
-            quantity: foodSize.quantity,
-            volumePrefixUnit: volumePrefixUnit,
-            name: foodSize.name,
-            amount: foodSize.value.value,
-            unit: unit
-        )
-    }
-}
-
-public extension Array where Element == FoodSize {
-    func sizeMatchingUnitSizeInFoodValue(_ foodValue: FoodValue) -> FoodSize? {
-        first(where: { $0.id == foodValue.sizeUnitId })
-    }
-}
-
-public extension FormUnit {
-    
-    init?(foodValue: FoodValue, in sizes: [FoodSize]) {
-        switch foodValue.unitType {
-        case .serving:
-            self = .serving
-        case .weight:
-            guard let weightUnit = foodValue.weightUnit else {
-                return nil
-            }
-            self = .weight(weightUnit)
-        case .volume:
-            guard let volumeUnit = foodValue.volumeExplicitUnit?.volumeUnit else {
-                return nil
-            }
-            self = .volume(volumeUnit)
-        case .size:
-            guard let foodSize = sizes.sizeMatchingUnitSizeInFoodValue(foodValue),
-                  let formSize = FormSize(foodSize: foodSize, in: sizes)
-            else {
-                return nil
-            }
-            self = .size(formSize, foodValue.sizeUnitVolumePrefixExplicitUnit?.volumeUnit)
-        }
-    }
-    
-    init?(volumeExplicitUnit: VolumeExplicitUnit) {
-        self = .volume(volumeExplicitUnit.volumeUnit)
-    }
-}
-
-public extension Food {
-    var formSizes: [FormSize] {
-        info.sizes.compactMap { foodSize in
-            FormSize(foodSize: foodSize, in: info.sizes)
-        }
-    }
-    
-    var servingDescription: String? {
-        guard let serving = info.serving else { return nil }
-        return "\(serving.value.cleanAmount) \(serving.unitDescription(sizes: info.sizes))"
-    }
-}
-
-public extension FoodValue {
-    func unitDescription(sizes: [FoodSize]) -> String {
-        switch self.unitType {
-        case .serving:
-            return "serving"
-        case .weight:
-            guard let weightUnit else {
-                return "invalid weight"
-            }
-            return weightUnit.shortDescription
-        case .volume:
-            guard let volumeUnit = volumeExplicitUnit?.volumeUnit else {
-                return "invalid volume"
-            }
-            return volumeUnit.shortDescription
-        case .size:
-            guard let size = sizes.sizeMatchingUnitSizeInFoodValue(self) else {
-                return "invalid size"
-            }
-            if let volumePrefixUnit = size.volumePrefixExplicitUnit?.volumeUnit {
-                return "\(volumePrefixUnit.shortDescription) \(size.name)"
-            } else {
-                return size.name
-            }
-        }
-    }
-}
-
 extension MealItemForm {
     public struct AmountForm: View {
+        
+        class ViewModel: ObservableObject {
+            
+        }
         
         @Environment(\.colorScheme) var colorScheme
         @Environment(\.dismiss) var dismiss
 
+        @StateObject var viewModel = ViewModel()
         let food: Food
+        let namespace: Namespace.ID
         
         var amount: Binding<Double?>
         @Binding var unit: FormUnit
 
         @FocusState var isFocused: Bool
         @State var showingUnitPicker = false
+        @Binding var isPresented: Bool
         
-        public init(food: Food, amount: Binding<Double?>, unit: Binding<FormUnit>) {
+        public init(
+            food: Food,
+            amount: Binding<Double?>,
+            unit: Binding<FormUnit>,
+            isPresented: Binding<Bool>,
+            namespace: Namespace.ID
+        ) {
             self.food = food
             self.amount = amount
             _unit = unit
+            _isPresented = isPresented
+            self.namespace = namespace
         }
     }
 }
+
+extension MealItemForm.AmountForm.ViewModel: NutritionSummaryProvider {
+    var forMeal: Bool {
+        false
+    }
+    
+    var isMarkedAsCompleted: Bool {
+        false
+    }
+    
+    var showQuantityAsSummaryDetail: Bool {
+        false
+    }
+    
+    var energyAmount: Double {
+        234
+    }
+    
+    var carbAmount: Double {
+        56
+    }
+    
+    var fatAmount: Double {
+        38
+    }
+    
+    var proteinAmount: Double {
+        25
+    }
+}
+
 
 public extension MealItemForm.AmountForm {
 
@@ -142,11 +84,10 @@ public extension MealItemForm.AmountForm {
             .edgesIgnoringSafeArea(.bottom)
             .transition(.move(edge: .bottom))
         }
+        .scrollDismissesKeyboard(.immediately)
         .navigationTitle("Amount")
         .sheet(isPresented: $showingUnitPicker) { unitPicker }
-        .onAppear {
-//            isFocused = true
-        }
+        .toolbar { trailingCloseButton }
     }
     
     var content: some View {
@@ -159,6 +100,17 @@ public extension MealItemForm.AmountForm {
         }
     }
     
+    var trailingCloseButton: some ToolbarContent {
+        ToolbarItem(placement: .navigationBarTrailing) {
+            Button {
+                Haptics.feedback(style: .soft)
+                isPresented = false
+            } label: {
+                closeButtonLabel
+            }
+        }
+    }
+
     func stepButton(step: Int) -> some View {
         Button {
             Haptics.feedback(style: .soft)
@@ -189,19 +141,19 @@ public extension MealItemForm.AmountForm {
         } label: {
             Image(systemName: "chevron.up.chevron.down")
                 .imageScale(.large)
-                .foregroundColor(.white)
-//                .foregroundColor(.accentColor)
+//                .foregroundColor(.white)
+                .foregroundColor(.accentColor)
                 .frame(width: 44, height: 44)
-//                .background(colorScheme == .light ? .ultraThickMaterial : .ultraThinMaterial)
-                .background(Color.accentColor)
+                .background(colorScheme == .light ? .ultraThickMaterial : .ultraThinMaterial)
+//                .background(Color.accentColor)
                 .cornerRadius(10)
-//                .overlay(
-//                    RoundedRectangle(cornerRadius: 10, style: .continuous)
-//                        .stroke(
-//                            Color.accentColor.opacity(0.7),
-//                            style: StrokeStyle(lineWidth: 0.5, dash: [3])
-//                        )
-//                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        .stroke(
+                            Color.accentColor.opacity(0.7),
+                            style: StrokeStyle(lineWidth: 0.5, dash: [3])
+                        )
+                )
         }
     }
     
@@ -387,12 +339,17 @@ public extension MealItemForm.AmountForm {
 
 
 struct MealItemAmountFormPreview: View {
+    
+    @Namespace var namespace
+    
     var body: some View {
         NavigationStack {
             MealItemForm.AmountForm(
                 food: Food(mockName: "Cheese", emoji: "🧀"),
                 amount: .constant(1),
-                unit: .constant(.weight(.g))
+                unit: .constant(.weight(.g)),
+                isPresented: .constant(true),
+                namespace: namespace
             )
         }
     }
@@ -403,3 +360,111 @@ struct MealItemAmountForm_Previews: PreviewProvider {
         MealItemAmountFormPreview()
     }
 }
+
+//MARK: - TO be moved
+
+
+public extension FormSize {
+    init?(foodSize: FoodSize, in sizes: [FoodSize]) {
+        let volumePrefixUnit: FormUnit?
+        if let volumePrefixExplicitUnit = foodSize.volumePrefixExplicitUnit {
+            guard let formUnit = FormUnit(volumeExplicitUnit: volumePrefixExplicitUnit) else {
+                return nil
+            }
+            volumePrefixUnit = formUnit
+        } else {
+            volumePrefixUnit = nil
+        }
+        
+        guard let unit = FormUnit(foodValue: foodSize.value, in: sizes) else {
+            return nil
+        }
+        
+        self.init(
+            quantity: foodSize.quantity,
+            volumePrefixUnit: volumePrefixUnit,
+            name: foodSize.name,
+            amount: foodSize.value.value,
+            unit: unit
+        )
+    }
+}
+
+public extension Array where Element == FoodSize {
+    func sizeMatchingUnitSizeInFoodValue(_ foodValue: FoodValue) -> FoodSize? {
+        first(where: { $0.id == foodValue.sizeUnitId })
+    }
+}
+
+public extension FormUnit {
+    
+    init?(foodValue: FoodValue, in sizes: [FoodSize]) {
+        switch foodValue.unitType {
+        case .serving:
+            self = .serving
+        case .weight:
+            guard let weightUnit = foodValue.weightUnit else {
+                return nil
+            }
+            self = .weight(weightUnit)
+        case .volume:
+            guard let volumeUnit = foodValue.volumeExplicitUnit?.volumeUnit else {
+                return nil
+            }
+            self = .volume(volumeUnit)
+        case .size:
+            guard let foodSize = sizes.sizeMatchingUnitSizeInFoodValue(foodValue),
+                  let formSize = FormSize(foodSize: foodSize, in: sizes)
+            else {
+                return nil
+            }
+            self = .size(formSize, foodValue.sizeUnitVolumePrefixExplicitUnit?.volumeUnit)
+        }
+    }
+    
+    init?(volumeExplicitUnit: VolumeExplicitUnit) {
+        self = .volume(volumeExplicitUnit.volumeUnit)
+    }
+}
+
+public extension Food {
+    var formSizes: [FormSize] {
+        info.sizes.compactMap { foodSize in
+            FormSize(foodSize: foodSize, in: info.sizes)
+        }
+    }
+    
+    var servingDescription: String? {
+        guard let serving = info.serving else { return nil }
+        return "\(serving.value.cleanAmount) \(serving.unitDescription(sizes: info.sizes))"
+    }
+}
+
+public extension FoodValue {
+    func unitDescription(sizes: [FoodSize]) -> String {
+        switch self.unitType {
+        case .serving:
+            return "serving"
+        case .weight:
+            guard let weightUnit else {
+                return "invalid weight"
+            }
+            return weightUnit.shortDescription
+        case .volume:
+            guard let volumeUnit = volumeExplicitUnit?.volumeUnit else {
+                return "invalid volume"
+            }
+            return volumeUnit.shortDescription
+        case .size:
+            guard let size = sizes.sizeMatchingUnitSizeInFoodValue(self) else {
+                return "invalid size"
+            }
+            if let volumePrefixUnit = size.volumePrefixExplicitUnit?.volumeUnit {
+                return "\(volumePrefixUnit.shortDescription) \(size.name)"
+            } else {
+                return size.name
+            }
+        }
+    }
+}
+

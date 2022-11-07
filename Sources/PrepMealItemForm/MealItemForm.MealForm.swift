@@ -11,12 +11,15 @@ extension MealItemForm {
         
         @StateObject var viewModel = ViewModel()
         
+        @Binding var isPresented: Bool
+        
         let timelineItems: [TimelineItem]
         let mealItem: TimelineItem?
         
-        public init(mealItem: TimelineItem?, dayMeals: [DayMeal]) {
+        public init(mealItem: TimelineItem?, dayMeals: [DayMeal], isPresented: Binding<Bool>) {
             self.timelineItems = dayMeals.map { TimelineItem(dayMeal: $0) }
             self.mealItem = mealItem
+            _isPresented = isPresented
         }
     }
 }
@@ -60,15 +63,30 @@ public extension MealItemForm.MealForm {
             didTapOnNewItem: didTapOnNewItem,
             delegate: viewModel
         )
+        .background(Color(.systemGroupedBackground))
         .navigationTitle("Pick a Meal")
         .navigationBarTitleDisplayMode(.large)
-        .onChange(of: viewModel.tappedMealItem, perform: { newValue in
-            guard let newValue else  { return }
-            Haptics.successFeedback()
-            dismiss()
-        })
+        .onChange(of: viewModel.tappedMealItem, perform: didTapMealItem)
+        .toolbar { trailingCloseButton }
     }
     
+    func didTapMealItem(_ timelineItem: TimelineItem?) {
+        guard let timelineItem else { return }
+        Haptics.successFeedback()
+        dismiss()
+    }
+    
+    var trailingCloseButton: some ToolbarContent {
+        ToolbarItem(placement: .navigationBarTrailing) {
+            Button {
+                Haptics.feedback(style: .soft)
+                isPresented = false
+            } label: {
+                closeButtonLabel
+            }
+        }
+    }
+
     func didTapOnNewItem() {
         
     }
