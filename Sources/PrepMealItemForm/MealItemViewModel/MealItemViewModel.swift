@@ -114,7 +114,7 @@ extension MealItemViewModel {
         
         return food
             .possibleUnits(without: unit)
-            .compactMap { food.convert(currentQuantity, to: $0) }
+            .compactMap { currentQuantity.convert(to: $0) }
     }
     
     var currentQuantity: FoodQuantity? {
