@@ -7,70 +7,20 @@ import PrepViews
 extension MealItemForm {
     public struct AmountForm: View {
         
-        class ViewModel: ObservableObject {
-            
-        }
-        
+        @EnvironmentObject var viewModel: MealItemForm.ViewModel
+
         @Environment(\.colorScheme) var colorScheme
         @Environment(\.dismiss) var dismiss
-
-        @StateObject var viewModel = ViewModel()
-        let food: Food
-        let namespace: Namespace.ID
-        
-        var amount: Binding<Double?>
-        @Binding var unit: FormUnit
-
-        @FocusState var isFocused: Bool
-        @State var showingUnitPicker = false
         @Binding var isPresented: Bool
         
-        public init(
-            food: Food,
-            amount: Binding<Double?>,
-            unit: Binding<FormUnit>,
-            isPresented: Binding<Bool>,
-            namespace: Namespace.ID
-        ) {
-            self.food = food
-            self.amount = amount
-            _unit = unit
+        @FocusState var isFocused: Bool
+        @State var showingUnitPicker = false
+        
+        public init(isPresented: Binding<Bool>) {
             _isPresented = isPresented
-            self.namespace = namespace
         }
     }
 }
-
-extension MealItemForm.AmountForm.ViewModel: NutritionSummaryProvider {
-    var forMeal: Bool {
-        false
-    }
-    
-    var isMarkedAsCompleted: Bool {
-        false
-    }
-    
-    var showQuantityAsSummaryDetail: Bool {
-        false
-    }
-    
-    var energyAmount: Double {
-        234
-    }
-    
-    var carbAmount: Double {
-        56
-    }
-    
-    var fatAmount: Double {
-        38
-    }
-    
-    var proteinAmount: Double {
-        25
-    }
-}
-
 
 public extension MealItemForm.AmountForm {
 
@@ -114,8 +64,7 @@ public extension MealItemForm.AmountForm {
     func stepButton(step: Int) -> some View {
         Button {
             Haptics.feedback(style: .soft)
-            let amount = self.amount.wrappedValue ?? 0
-            self.amount.wrappedValue = amount + Double(step)
+            viewModel.stepAmount(by: step)
         } label: {
             Text("\(step > 0 ? "+" : "-") \(abs(step))")
             .monospacedDigit()
@@ -131,7 +80,7 @@ public extension MealItemForm.AmountForm {
                     )
             )
         }
-        .disabled(!amountCanBeStepped(by: step))
+        .disabled(!viewModel.amountCanBeStepped(by: step))
     }
     
     var unitBottomButton: some View {
@@ -155,11 +104,6 @@ public extension MealItemForm.AmountForm {
                         )
                 )
         }
-    }
-    
-    func amountCanBeStepped(by step: Int) -> Bool {
-        let amount = self.amount.wrappedValue ?? 0
-        return amount + Double(step) > 0
     }
     
     var bottomButtons: some View {
@@ -228,7 +172,7 @@ public extension MealItemForm.AmountForm {
             showingUnitPicker = true
         } label: {
             HStack(spacing: 5) {
-                Text(unit.shortDescription)
+                Text(viewModel.unitDescription)
                     .font(.title)
                 Image(systemName: "chevron.up.chevron.down")
                     .font(.title3)
@@ -238,40 +182,16 @@ public extension MealItemForm.AmountForm {
         .buttonStyle(.borderless)
     }
 
+    @ViewBuilder
     var unitPicker: some View {
         UnitPicker(
-            pickedUnit: unit,
-            includeServing: food.info.serving != nil,
-            sizes: food.formSizes,
-            servingDescription: food.servingDescription,
+            pickedUnit: viewModel.unit,
+            includeServing: viewModel.shouldShowServingInUnitPicker,
+            sizes: viewModel.foodSizes,
+            servingDescription: viewModel.servingDescription,
             allowAddSize: false,
-            didPickUnit:
-                { unit in
-                    setUnit(unit)
-                }
+            didPickUnit: viewModel.didPickUnit
         )
-    }
-
-    func setNewValue(_ value: FoodLabelValue) {
-//        setAmount(value.amount)
-//        setUnit(value.unit?.formUnit ?? .serving)
-//        fields.updateFormState()
-    }
-
-    func setAmount(_ amount: Double) {
-//        field.value.doubleValue.double = amount
-    }
-
-    func didSave() {
-//        fields.amountChanged()
-    }
-
-    func setUnit(_ unit: FormUnit) {
-        self.unit = unit
-    }
-
-    var headerString: String {
-        unit.unitType.description
     }
     
     //MARK: - TextField Section
@@ -282,7 +202,7 @@ public extension MealItemForm.AmountForm {
         }
         
         var header: some View {
-            Text(headerString)
+            Text(viewModel.amountHeaderString)
         }
         
         return FormStyledSection(header: header, footer: footer) {
@@ -297,13 +217,13 @@ public extension MealItemForm.AmountForm {
     
     var textField: some View {
         let binding = Binding<String>(
-            get: { amount.wrappedValue?.cleanAmount ?? "" },
+            get: { viewModel.amount?.cleanAmount ?? "" },
             set: {
                 guard let double = Double($0) else {
-                    amount.wrappedValue = nil
+                    viewModel.amount = nil
                     return
                 }
-                amount.wrappedValue = double
+                viewModel.amount = double
             }
         )
         
@@ -317,7 +237,7 @@ public extension MealItemForm.AmountForm {
     }
 
     var textFieldFont: Font {
-        amount.wrappedValue == nil ? .body : .largeTitle
+        viewModel.amount == nil ? .body : .largeTitle
     }
 
     
@@ -335,30 +255,6 @@ public extension MealItemForm.AmountForm {
         }
     }
 
-}
-
-
-struct MealItemAmountFormPreview: View {
-    
-    @Namespace var namespace
-    
-    var body: some View {
-        NavigationStack {
-            MealItemForm.AmountForm(
-                food: Food(mockName: "Cheese", emoji: "🧀"),
-                amount: .constant(1),
-                unit: .constant(.weight(.g)),
-                isPresented: .constant(true),
-                namespace: namespace
-            )
-        }
-    }
-}
-
-struct MealItemAmountForm_Previews: PreviewProvider {
-    static var previews: some View {
-        MealItemAmountFormPreview()
-    }
 }
 
 //MARK: - TO be moved

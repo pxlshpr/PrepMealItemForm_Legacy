@@ -2,7 +2,7 @@ import SwiftUI
 import PrepDataTypes
 import SwiftUISugar
 
-extension MealItemForm {
+extension MealItemForm.Summary {
     
     
     func buttonLabel(
@@ -57,22 +57,9 @@ extension MealItemForm {
         )
     }
     
-    var amountButton: some View {
-        Button {
-//            showingAmountForm = true
-            path.append(.amount(food))
-        } label: {
-            buttonLabel(
-                heading: "Amount",
-                title: amountTitle,
-                detail: amountDetail
-            )
-        }
-    }
-    
-    var saveButton: some View {
+    var bottomButtons: some View {
         var saveButton: some View {
-            FormPrimaryButton(title: "\(isPrepping ? "Prep" : "Log")") {
+            FormPrimaryButton(title: viewModel.saveButtonTitle) {
                 print("We here")
             }
         }
@@ -81,8 +68,8 @@ extension MealItemForm {
             Divider()
             VStack {
                 HStack {
-                    amountButton
-                    mealButton
+                    amountLink
+                    mealLink
                 }
                 .padding(.horizontal)
                 .padding(.horizontal)
@@ -96,27 +83,26 @@ extension MealItemForm {
         .background(.thinMaterial)
     }
     
-    var amountTitle: String? {
-        guard let amount = amount.wrappedValue else {
-            return nil
-        }
-        return "\(amount.cleanAmount) \(unit.wrappedValue.shortDescription)"
-    }
-    
-    var amountDetail: String? {
-        //TODO: Get an equivalent value here
-        ""
-    }
-
-    var mealButton: some View {
-        Button {
-//            showingMealPicker = true
-            path.append(.meal(food))
+    var mealLink: some View {
+        NavigationLink {
+            mealPicker
         } label: {
             buttonLabel(
                 heading: "Meal",
                 title: mealTitle,
                 detail: mealDetail
+            )
+        }
+    }
+    
+    var amountLink: some View {
+        NavigationLink {
+            amountForm
+        } label: {
+            buttonLabel(
+                heading: "Amount",
+                title: viewModel.amountTitle,
+                detail: viewModel.amountDetail
             )
         }
     }
@@ -127,27 +113,5 @@ extension MealItemForm {
     
     var mealDetail: String? {
         newMealName(for: Date())
-    }
-}
-
-struct MealItemFormPreview: View {
-    @Namespace var namespace
-    var body: some View {
-        MealItemForm(
-            food: .init(mockName: "Cheese", emoji: "🧀"),
-            path: .constant([]),
-            isPresented: .constant(true),
-            amount: .constant(nil),
-            unit: .constant(.size(.init(name: "sleeve"), nil)),
-            newMealItem: TimelineItem(name: "New Meal", date: Date()),
-            dayMeals: [],
-            namespace: namespace
-        )
-    }
-}
-
-struct MealItemForm_Previews: PreviewProvider {
-    static var previews: some View {
-        MealItemFormPreview()
     }
 }
