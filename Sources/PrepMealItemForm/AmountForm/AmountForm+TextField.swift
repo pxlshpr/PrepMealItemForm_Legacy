@@ -45,7 +45,7 @@ extension MealItemForm.AmountForm {
     @ViewBuilder
     var unitPicker: some View {
         UnitPicker(
-            pickedUnit: viewModel.unit,
+            pickedUnit: viewModel.unit.formUnit,
             includeServing: viewModel.shouldShowServingInUnitPicker,
             sizes: viewModel.foodSizes,
             servingDescription: viewModel.servingDescription,

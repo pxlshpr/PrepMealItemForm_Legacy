@@ -5,7 +5,7 @@ class MealItemViewModel: ObservableObject {
     @Published var food: Food
     @Published var dayMeals: [DayMeal]
     
-    @Published var unit: FormUnit = .serving
+    @Published var unit: FoodQuantity.Unit = .serving
 
     @Published var internalAmountDouble: Double?
     @Published var internalAmountString: String = ""
@@ -54,7 +54,7 @@ class MealItemViewModel: ObservableObject {
         guard let internalAmountDouble else {
             return nil
         }
-        return "\(internalAmountDouble.cleanAmount) \(unit.shortDescription)"
+        return "\(internalAmountDouble.cleanAmount) (unit descrition)"
     }
     
     var amountDetail: String? {
@@ -95,12 +95,16 @@ class MealItemViewModel: ObservableObject {
         food.servingDescription
     }
     
-    func didPickUnit(_ unit: FormUnit) {
+    func didPickUnit(_ formUnit: FormUnit) {
+        //TODO: Use user's volume units here
+        guard let unit = FoodQuantity.Unit(formUnit: formUnit, food: food, userVolumeUnits: .defaultUnits) else {
+            return
+        }
         self.unit = unit
     }
     
     func didPickQuantity(_ quantity: FoodQuantity) {
-        self.amount = quantity.amount
+        self.amount = quantity.value
         self.unit = quantity.unit
     }
     var amountHeaderString: String {
@@ -108,12 +112,13 @@ class MealItemViewModel: ObservableObject {
     }
 }
 
+
 extension MealItemViewModel {
     var equivalentQuantities: [FoodQuantity]? {
         guard let currentQuantity else { return nil }
         
         return food
-            .possibleUnits(without: unit)
+            .possibleUnits(without: unit, using: .defaultUnits)
             .compactMap { currentQuantity.convert(to: $0) }
     }
     
