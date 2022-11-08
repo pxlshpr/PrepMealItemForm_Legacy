@@ -15,6 +15,7 @@ extension MealItemForm {
         @Binding var isPresented: Bool
         
         @FocusState var isFocused: Bool
+        @State var animatedIsFocused: Bool = false
         @State var showingUnitPicker = false
         
         public init(isPresented: Binding<Bool>) {
@@ -32,7 +33,7 @@ public extension MealItemForm.AmountForm {
                 Spacer()
                 bottomButtons
             }
-//            .edgesIgno.,ringSafeArea(.bottom)
+//            .edgesIgnoringSafeArea(.bottom)
             .transition(.move(edge: .bottom))
         }
         .scrollDismissesKeyboard(.immediately)
@@ -40,6 +41,13 @@ public extension MealItemForm.AmountForm {
         .sheet(isPresented: $showingUnitPicker) { unitPicker }
         .toolbar { trailingCloseButton }
         .onAppear(perform: appeared)
+        .onChange(of: isFocused, perform: isFocusedChanged)
+    }
+    
+    func isFocusedChanged(to newValue: Bool) {
+        withAnimation {
+            animatedIsFocused = newValue
+        }
     }
     
     func appeared() {

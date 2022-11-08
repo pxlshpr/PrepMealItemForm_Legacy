@@ -14,28 +14,31 @@ extension MealItemForm.AmountForm {
     var bottomButtons: some View {
         VStack(spacing: 0) {
             Divider()
-            VStack {
-                stepButtons
-                .frame(maxWidth: .infinity)
-                saveButton
-            }
-            .padding(.bottom)
-            .padding(.top, 10)
-            .padding(.bottom, 30) /// Harcoded for safe area bottom inset
+            stepButtons
+                .padding(.horizontal)
+                .padding(.top, 10)
+                .padding(.bottom, 10)
         }
         .background(.thinMaterial)
     }
     
+    var dotSeparator: some View {
+        Text("•")
+            .font(.system(size: 20))
+            .foregroundColor(Color(.quaternaryLabel))
+    }
     
     var stepButtons: some View {
         HStack {
             stepButton(step: -50)
             stepButton(step: -10)
             stepButton(step: -1)
-            unitBottomButton
+            dotSeparator
             stepButton(step: 1)
             stepButton(step: 10)
             stepButton(step: 50)
+            dotSeparator
+            unitBottomButton
         }
     }
 
@@ -47,7 +50,9 @@ extension MealItemForm.AmountForm {
             Text("\(step > 0 ? "+" : "-") \(abs(step))")
             .monospacedDigit()
             .foregroundColor(.accentColor)
-            .frame(width: 44, height: 44)
+            .frame(maxWidth: .infinity)
+            .frame(height: 44)
+//            .frame(width: 44, height: 44)
             .background(colorScheme == .light ? .ultraThickMaterial : .ultraThinMaterial)
             .cornerRadius(10)
             .overlay(
@@ -82,5 +87,19 @@ extension MealItemForm.AmountForm {
                         )
                 )
         }
+    }
+}
+
+struct AmountFormPreview: View {
+    @StateObject var viewModel = MealItemViewModel(food: .init(mockName: "Cheese", emoji: "🧀"), meal: nil, dayMeals: [])
+    var body: some View {
+        MealItemForm.AmountForm(isPresented: .constant(true))
+            .environmentObject(viewModel)
+    }
+}
+
+struct AmountForm_Previews: PreviewProvider {
+    static var previews: some View {
+        AmountFormPreview()
     }
 }
