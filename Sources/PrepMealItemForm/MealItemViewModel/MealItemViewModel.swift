@@ -5,10 +5,40 @@ class MealItemViewModel: ObservableObject {
     @Published var food: Food
     @Published var dayMeals: [DayMeal]
     
-    @Published var amount: Double? = 1
     @Published var unit: FormUnit = .serving
 
+    @Published var internalAmountDouble: Double?
+    @Published var internalAmountString: String = ""
+
     @Published var meal: Meal? = nil
+    
+    var amount: Double? {
+        get {
+            return internalAmountDouble
+        }
+        set {
+            internalAmountDouble = newValue
+            internalAmountString = newValue?.cleanAmount ?? ""
+        }
+    }
+    
+    var amountString: String {
+        get {
+            return internalAmountString
+        }
+        set {
+            guard !newValue.isEmpty else {
+                internalAmountDouble = nil
+                internalAmountString = newValue
+                return
+            }
+            guard let double = Double(newValue) else {
+                return
+            }
+            self.internalAmountDouble = double
+            self.internalAmountString = newValue
+        }
+    }
     
     init(food: Food, meal: Meal? = nil, dayMeals: [DayMeal]) {
         self.food = food
@@ -21,10 +51,10 @@ class MealItemViewModel: ObservableObject {
     }
     
     var amountTitle: String? {
-        guard let amount else {
+        guard let internalAmountDouble else {
             return nil
         }
-        return "\(amount.cleanAmount) \(unit.shortDescription)"
+        return "\(internalAmountDouble.cleanAmount) \(unit.shortDescription)"
     }
     
     var amountDetail: String? {
@@ -45,7 +75,7 @@ class MealItemViewModel: ObservableObject {
     }
     
     func amountCanBeStepped(by step: Int) -> Bool {
-        let amount = self.amount ?? 0
+        let amount = self.internalAmountDouble ?? 0
         return amount + Double(step) > 0
     }
     
@@ -69,7 +99,26 @@ class MealItemViewModel: ObservableObject {
         self.unit = unit
     }
     
+    func didPickQuantity(_ quantity: FormQuantity) {
+        self.amount = quantity.amount
+        self.unit = quantity.unit
+    }
     var amountHeaderString: String {
         unit.unitType.description
     }
+}
+
+extension MealItemViewModel {
+    var equivalentQuantities: [FormQuantity]? {
+        guard let currentQuantity else { return nil }
+        
+        return food
+            .possibleUnits(without: unit)
+            .compactMap { food.convert(currentQuantity, to: $0) }
+    }
+    
+    var currentQuantity: FormQuantity? {
+        guard let internalAmountDouble else { return nil }
+        return FormQuantity(amount: internalAmountDouble, unit: unit)
+    }    
 }

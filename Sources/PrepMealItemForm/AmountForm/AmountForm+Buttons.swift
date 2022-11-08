@@ -89,17 +89,3 @@ extension MealItemForm.AmountForm {
         }
     }
 }
-
-struct AmountFormPreview: View {
-    @StateObject var viewModel = MealItemViewModel(food: .init(mockName: "Cheese", emoji: "🧀"), meal: nil, dayMeals: [])
-    var body: some View {
-        MealItemForm.AmountForm(isPresented: .constant(true))
-            .environmentObject(viewModel)
-    }
-}
-
-struct AmountForm_Previews: PreviewProvider {
-    static var previews: some View {
-        AmountFormPreview()
-    }
-}

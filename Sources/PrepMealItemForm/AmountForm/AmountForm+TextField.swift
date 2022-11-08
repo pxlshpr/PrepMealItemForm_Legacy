@@ -6,13 +6,9 @@ extension MealItemForm.AmountForm {
     
     var textField: some View {
         let binding = Binding<String>(
-            get: { viewModel.amount?.cleanAmount ?? "" },
+            get: { viewModel.amountString },
             set: {
-                guard let double = Double($0) else {
-                    viewModel.amount = nil
-                    return
-                }
-                viewModel.amount = double
+                viewModel.amountString = $0
             }
         )
         
@@ -59,7 +55,7 @@ extension MealItemForm.AmountForm {
     }
     
     var textFieldFont: Font {
-        viewModel.amount == nil ? .body : .largeTitle
+        viewModel.internalAmountDouble == nil ? .body : .largeTitle
     }
 
 }

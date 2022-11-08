@@ -3,32 +3,35 @@ import SwiftUISugar
 
 extension MealItemForm.AmountForm {
     var textFieldSection: some View {
-        var footer: some View {
-            Text("This is how much of this food you are logging.")
-        }
-        
         var header: some View {
             Text(viewModel.amountHeaderString)
         }
         
-        return FormStyledSection(header: header, footer: footer) {
+        return FormStyledSection(header: header) {
             HStack {
                 textField
                 unitButton
             }
         }
     }
+    
+    var equivalentSection: some View {
+        var footer: some View {
+            Text("These alternative quantities match what you've entered.")
+        }
+        
+        var header: some View {
+            Text("Equivalent Quantities")
+        }
+
+        return FormStyledSection(header: header, footer: footer) {
+            quantitiesGrid
+        }
+    }
 }
 
 //TODO: Bring these in one by one
 extension MealItemForm.AmountForm {
-    
-    var equivalentSection: some View {
-        FormStyledSection(header: Text("Equivalent Amounts")) {
-            Text("Show other values that this converts to as fill options which the user can tap to replace the amount with. So if they've typed in 1.5 serving, there would be an option for '3 pieces' (assuming a serving is 2 pieces), and another one saying '45 g' (assuming a piece is 15g). This serves the dual purposes of presenting the equivalent amounts to the user in addition to allowing them to select them to use them without converting it themselves. **Also include any density based conversions here**.")
-                .foregroundColor(.secondary)
-        }
-    }
     
     var nutrientsSummarySection: some View {
         FormStyledSection(header: Text("Nutrients")) {

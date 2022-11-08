@@ -57,7 +57,7 @@ public extension MealItemForm.AmountForm {
     var content: some View {
         FormStyledScrollView {
             textFieldSection
-//            equivalentSection
+            equivalentSection
 //            nutrientsSummarySection
 //            goalIncrementSection
 //            mealIncrementSection

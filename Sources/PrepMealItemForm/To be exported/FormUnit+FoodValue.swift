@@ -1,6 +1,10 @@
 import PrepDataTypes
 
 public extension FormUnit {
+
+    init?(foodValue: FoodValue, in food: Food) {
+        self.init(foodValue: foodValue, in: food.info.sizes)
+    }
     
     init?(foodValue: FoodValue, in sizes: [FoodSize]) {
         switch foodValue.unitType {
