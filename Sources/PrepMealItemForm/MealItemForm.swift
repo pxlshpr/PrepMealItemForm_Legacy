@@ -6,92 +6,21 @@ import PrepFoodSearch
 
 public struct MealItemForm: View {
     
-    class ViewModel: ObservableObject {
-        @Published var food: Food? = nil
-        @Published var meal: Meal? = nil
-        
-        @Published var amount: Double? = 1
-        @Published var unit: FormUnit = .serving
-        
-        @Published var dayMeals: [DayMeal]
-        
-        init(meal: Meal? = nil, dayMeals: [DayMeal]) {
-            self.meal = meal
-            self.dayMeals = dayMeals
-        }
-        
-        var timelineItems: [TimelineItem] {
-            dayMeals.map { TimelineItem(dayMeal: $0) }
-        }
-        
-        var amountTitle: String? {
-            guard let amount else {
-                return nil
-            }
-            return "\(amount.cleanAmount) \(unit.shortDescription)"
-        }
-        
-        var amountDetail: String? {
-            //TODO: Get the primary equivalent value here
-            ""
-        }
-        
-        var saveButtonTitle: String {
-            guard let meal else {
-                return "Prep"
-            }
-            return meal.day.date < Date() ? "Log" : "Prep"
-        }
-        
-        func stepAmount(by step: Int) {
-            let amount = self.amount ?? 0
-            self.amount = amount + Double(step)
-        }
-        
-        func amountCanBeStepped(by step: Int) -> Bool {
-            let amount = self.amount ?? 0
-            return amount + Double(step) > 0
-        }
-        
-        var unitDescription: String {
-            unit.shortDescription
-        }
-        
-        var shouldShowServingInUnitPicker: Bool {
-            food?.info.serving != nil
-        }
-        
-        var foodSizes: [FormSize] {
-            food?.formSizes ?? []
-        }
-        
-        var servingDescription: String? {
-            food?.servingDescription
-        }
-        
-        func didPickUnit(_ unit: FormUnit) {
-            self.unit = unit
-        }
-        
-        var amountHeaderString: String {
-            unit.unitType.description
-        }
-    }
-    
-    @StateObject var viewModel: ViewModel
-    
     @State var path: [MealItemRoute] = []
     @Binding var isPresented: Bool
     @State var foodToShowMacrosFor: Food? = nil
 
+    let meal: Meal?
+    let dayMeals: [DayMeal]
+    
     public init(
         meal: Meal? = nil,
         dayMeals: [DayMeal] = [],
         isPresented: Binding<Bool>
     ) {
+        self.meal = meal
+        self.dayMeals = dayMeals
         _isPresented = isPresented
-        let viewModel = ViewModel(meal: meal, dayMeals: dayMeals)
-        _viewModel = StateObject(wrappedValue: viewModel)
     }
     
     public var body: some View {
@@ -100,9 +29,6 @@ public struct MealItemForm: View {
                 dataProvider: DataManager.shared,
                 didTapFood: {
                     Haptics.feedback(style: .soft)
-                    //TODO: Set this to the last amount the user had used for this food if available
-                    viewModel.food = $0
-                    viewModel.unit = $0.defaultFormUnit
                     path = [MealItemRoute.summary($0)]
                 },
                 didTapMacrosIndicatorForFood: {
@@ -113,11 +39,9 @@ public struct MealItemForm: View {
             .navigationDestination(for: MealItemRoute.self) { route in
                 switch route {
                 case .summary(let food):
-                    mealItemForm(for: food)
-                case .amount(let food):
-                    amountForm(for: food)
-                case .meal(let food):
-                    mealForm(for: food)
+                    summaryForm(for: food)
+                default:
+                    Color.red
                 }
             }
             .sheet(item: $foodToShowMacrosFor) { macrosView(for: $0) }
@@ -125,19 +49,14 @@ public struct MealItemForm: View {
         .interactiveDismissDisabled(!path.isEmpty)
     }
     
-    func mealItemForm(for food: Food) -> some View {
-        Summary(path: $path, isPresented: $isPresented)
-            .environmentObject(viewModel)
-    }
-    
-    func amountForm(for food: Food) -> some View {
-        AmountForm(isPresented: $isPresented)
-            .environmentObject(viewModel)
-    }
-    
-    func mealForm(for food: Food) -> some View {
-        MealForm(isPresented: $isPresented)
-            .environmentObject(viewModel)
+    func summaryForm(for food: Food) -> some View {
+        Summary(
+            food: food,
+            meal: meal,
+            dayMeals: dayMeals,
+            path: $path,
+            isPresented: $isPresented
+        )
     }
     
     func macrosView(for food: Food) -> some View {
@@ -158,35 +77,3 @@ extension Food {
     }
 }
 
-import PrepViews
-
-extension MealItemForm.ViewModel: NutritionSummaryProvider {
-    
-    var forMeal: Bool {
-        false
-    }
-    
-    var isMarkedAsCompleted: Bool {
-        false
-    }
-    
-    var showQuantityAsSummaryDetail: Bool {
-        false
-    }
-    
-    var energyAmount: Double {
-        234
-    }
-    
-    var carbAmount: Double {
-        56
-    }
-    
-    var fatAmount: Double {
-        38
-    }
-    
-    var proteinAmount: Double {
-        25
-    }
-}

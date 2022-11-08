@@ -8,7 +8,7 @@ import SwiftHaptics
 extension MealItemForm {
     struct Summary: View {
         
-        @EnvironmentObject var viewModel: MealItemForm.ViewModel
+        @StateObject var viewModel: MealItemViewModel
         
         @Environment(\.colorScheme) var colorScheme
         
@@ -21,9 +21,15 @@ extension MealItemForm {
         @State var showingAmountForm = false
         
         public init(
+            food: Food,
+            meal: Meal? = nil,
+            dayMeals: [DayMeal] = [],
             path: Binding<[MealItemRoute]>,
             isPresented: Binding<Bool>
         ) {
+            let viewModel = MealItemViewModel(food: food, meal: meal, dayMeals: dayMeals)
+            _viewModel = StateObject(wrappedValue: viewModel)
+
             _path = path
             _isPresented = isPresented
         }
@@ -68,17 +74,13 @@ extension MealItemForm.Summary {
     }
     
     var mealPicker: some View {
-        NavigationView {
-            MealItemForm.MealForm(isPresented: $isPresented)
-                .environmentObject(viewModel)
-        }
+        MealItemForm.MealPicker(isPresented: $isPresented)
+            .environmentObject(viewModel)
     }
     
     var amountForm: some View {
-        NavigationView {
-            MealItemForm.MealForm(isPresented: $isPresented)
-                .environmentObject(viewModel)
-        }
+        MealItemForm.AmountForm(isPresented: $isPresented)
+            .environmentObject(viewModel)
     }
 
     var trailingCloseButton: some ToolbarContent {
@@ -100,20 +102,18 @@ extension MealItemForm.Summary {
     
     @ViewBuilder
     var foodSection: some View {
-        if let food = viewModel.food {
-            FormStyledSection {
-                HStack {
-                    FoodCell(
-                        food: food,
-                        showMacrosIndicator: false
-                    )
-                    Spacer()
-                    NutritionSummary(
-                        dataProvider: viewModel,
-                        showMacrosIndicator: true
-                    )
-                    .fixedSize(horizontal: true, vertical: false)
-                }
+        FormStyledSection {
+            HStack {
+                FoodCell(
+                    food: viewModel.food,
+                    showMacrosIndicator: false
+                )
+                Spacer()
+                NutritionSummary(
+                    dataProvider: viewModel,
+                    showMacrosIndicator: true
+                )
+                .fixedSize(horizontal: true, vertical: false)
             }
         }
     }

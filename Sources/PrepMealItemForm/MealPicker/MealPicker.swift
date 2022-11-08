@@ -5,9 +5,9 @@ import SwiftUISugar
 import SwiftHaptics
 
 extension MealItemForm {
-    public struct MealForm: View {
+    public struct MealPicker: View {
         
-        @EnvironmentObject var viewModel: MealItemForm.ViewModel
+        @EnvironmentObject var viewModel: MealItemViewModel
         
         @Environment(\.dismiss) var dismiss
         @Binding var isPresented: Bool
@@ -18,12 +18,13 @@ extension MealItemForm {
     }
 }
 
-public extension MealItemForm.MealForm {
+public extension MealItemForm.MealPicker {
     
     var body: some View {
         Timeline(
             items: viewModel.timelineItems,
             newItem: nil, //mealItem,
+            shouldStylizeTappableItems: true,
             didTapItem: didTapItem,
             didTapOnNewItem: didTapOnNewItem
         )
