@@ -17,7 +17,7 @@ extension MealItemForm.AmountForm {
         }
     }
     
-    func quantityButton(for quantity: FormQuantity) -> some View {
+    func quantityButton(for quantity: FoodQuantity) -> some View {
         Button {
             viewModel.didPickQuantity(quantity)
         } label: {
