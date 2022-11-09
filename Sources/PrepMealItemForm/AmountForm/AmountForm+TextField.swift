@@ -7,8 +7,10 @@ extension MealItemForm.AmountForm {
     var textField: some View {
         let binding = Binding<String>(
             get: { viewModel.amountString },
-            set: {
-                viewModel.amountString = $0
+            set: { newValue in
+                withAnimation {
+                    viewModel.amountString = newValue
+                }
             }
         )
         

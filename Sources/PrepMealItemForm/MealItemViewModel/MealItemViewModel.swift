@@ -114,8 +114,8 @@ class MealItemViewModel: ObservableObject {
 
 
 extension MealItemViewModel {
-    var equivalentQuantities: [FoodQuantity]? {
-        guard let currentQuantity else { return nil }
+    var equivalentQuantities: [FoodQuantity] {
+        guard let currentQuantity else { return [] }
         
         return food
             .possibleUnits(without: unit, using: .defaultUnits)

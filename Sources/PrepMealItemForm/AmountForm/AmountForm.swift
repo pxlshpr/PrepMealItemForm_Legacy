@@ -10,6 +10,7 @@ extension MealItemForm {
         
         @EnvironmentObject var viewModel: MealItemViewModel
 
+        @Namespace var namespace
         @Environment(\.colorScheme) var colorScheme
         @Environment(\.dismiss) var dismiss
         @Binding var isPresented: Bool
@@ -17,6 +18,9 @@ extension MealItemForm {
         @FocusState var isFocused: Bool
         @State var animatedIsFocused: Bool = false
         @State var showingUnitPicker = false
+        
+        @State var showingEquivalentQuantitiesInGrid = false
+        @State var equivalentQuantities: [FoodQuantity] = []
         
         public init(isPresented: Binding<Bool>) {
             _isPresented = isPresented

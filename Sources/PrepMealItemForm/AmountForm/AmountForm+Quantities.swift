@@ -1,33 +1,55 @@
 import SwiftUI
 import SwiftUISugar
 import PrepDataTypes
+import SwiftHaptics
 
 extension MealItemForm.AmountForm {
     
     @ViewBuilder
+    var quantitiesContent: some View {
+        if showingEquivalentQuantitiesInGrid {
+            quantitiesGrid
+        } else {
+            quantitiesScrollView
+        }
+    }
+    
     var quantitiesGrid: some View {
-        if let quantities = viewModel.equivalentQuantities {
-            FlowLayout(
-                mode: .scrollable,
-                items: quantities,
-                itemSpacing: 4,
-                shouldAnimateHeight: .constant(true)
-            ) { quantity in
-                quantityButton(for: quantity)
+        FlowLayout(
+            mode: .scrollable,
+            items: viewModel.equivalentQuantities,
+            itemSpacing: 4,
+            shouldAnimateHeight: .constant(true)
+        ) { quantity in
+            quantityButton(for: quantity)
+        }
+        .padding(.horizontal, 17)
+    }
+    
+    var quantitiesScrollView: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack {
+                ForEach(viewModel.equivalentQuantities, id: \.self) { quantity in
+                    quantityButton(for: quantity)
+                }
             }
+            .padding(.horizontal, 17)
         }
     }
     
     func quantityButton(for quantity: FoodQuantity) -> some View {
         Button {
+            Haptics.feedback(style: .rigid)
             viewModel.didPickQuantity(quantity)
         } label: {
             ZStack {
                 Capsule(style: .continuous)
                     .foregroundColor(Color(.secondarySystemFill))
                 HStack(spacing: 5) {
-                    Text(quantity.description)
-                        .foregroundColor(.primary)
+                    Text(quantity.value.cleanAmount)
+                        .foregroundColor(Color(.tertiaryLabel))
+                    Text(quantity.unit.shortDescription)
+                        .foregroundColor(Color(.secondaryLabel))
                 }
                 .frame(height: 25)
                 .padding(.horizontal, 12)
@@ -35,6 +57,7 @@ extension MealItemForm.AmountForm {
             }
             .fixedSize(horizontal: true, vertical: true)
         }
+        .matchedGeometryEffect(id: quantity.description, in: namespace)
     }
 }
 

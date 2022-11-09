@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftUISugar
+import SwiftHaptics
 
 extension MealItemForm.AmountForm {
     var textFieldSection: some View {
@@ -16,16 +17,27 @@ extension MealItemForm.AmountForm {
     }
     
     var equivalentSection: some View {
-        var footer: some View {
-            Text("These alternative quantities match what you've entered.")
-        }
-        
         var header: some View {
-            Text("Equivalent Quantities")
+            HStack {
+                Text("Similar Quantities")
+                Spacer()
+                Button {
+                    Haptics.feedback(style: .soft)
+                    withAnimation {
+                        showingEquivalentQuantitiesInGrid.toggle()
+                    }
+                } label: {
+                    Image(systemName: showingEquivalentQuantitiesInGrid ? "square.grid.3x2.fill" : "square.grid.3x2")
+                }
+            }
         }
 
-        return FormStyledSection(header: header, footer: footer) {
-            quantitiesGrid
+        return Group {
+            if !viewModel.equivalentQuantities.isEmpty {
+                FormStyledSection(header: header, horizontalPadding: 0) {
+                    quantitiesContent
+                }
+            }
         }
     }
 }
