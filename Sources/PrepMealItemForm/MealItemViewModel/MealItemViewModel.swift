@@ -54,7 +54,7 @@ class MealItemViewModel: ObservableObject {
         guard let internalAmountDouble else {
             return nil
         }
-        return "\(internalAmountDouble.cleanAmount) (unit descrition)"
+        return "\(internalAmountDouble.cleanAmount) \(unit.shortDescription)"
     }
     
     var amountDetail: String? {
