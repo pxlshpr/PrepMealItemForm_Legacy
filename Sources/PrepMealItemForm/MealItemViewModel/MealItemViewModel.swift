@@ -125,7 +125,7 @@ extension MealItemViewModel {
     var currentQuantity: FoodQuantity? {
         guard let internalAmountDouble else { return nil }
         return FoodQuantity(
-            amount: internalAmountDouble,
+            value: internalAmountDouble,
             unit: unit,
             food: food
         )
