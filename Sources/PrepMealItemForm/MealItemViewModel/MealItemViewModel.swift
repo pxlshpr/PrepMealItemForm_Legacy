@@ -92,7 +92,7 @@ class MealItemViewModel: ObservableObject {
     }
     
     var servingDescription: String? {
-        food.servingDescription
+        food.servingDescription(using: .defaultUnits)
     }
     
     func didPickUnit(_ formUnit: FormUnit) {
@@ -116,10 +116,8 @@ class MealItemViewModel: ObservableObject {
 extension MealItemViewModel {
     var equivalentQuantities: [FoodQuantity] {
         guard let currentQuantity else { return [] }
-        
-        return food
-            .possibleUnits(without: unit, using: .defaultUnits)
-            .compactMap { currentQuantity.convert(to: $0) }
+        let quantities = currentQuantity.equivalentQuantities(using: .defaultUnits)
+        return quantities
     }
     
     var currentQuantity: FoodQuantity? {

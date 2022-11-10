@@ -36,6 +36,7 @@ extension MealItemForm.AmountForm {
             HStack(spacing: 5) {
                 Text(viewModel.unitDescription)
                     .font(.title)
+                    .multilineTextAlignment(.trailing)
                 Image(systemName: "chevron.up.chevron.down")
                     .font(.title3)
 //                    .imageScale(.large)
