@@ -1,5 +1,6 @@
 import SwiftUI
 import PrepDataTypes
+import PrepCoreDataStack
 
 class MealItemViewModel: ObservableObject {
     @Published var food: Food
@@ -92,14 +93,16 @@ class MealItemViewModel: ObservableObject {
     }
     
     var servingDescription: String? {
-        food.servingDescription(using: .defaultUnits)
+        food.servingDescription(using: DataManager.shared.userVolumeUnits)
     }
     
     func didPickUnit(_ formUnit: FormUnit) {
-        //TODO: Use user's volume units here
-        guard let unit = FoodQuantity.Unit(formUnit: formUnit, food: food, userVolumeUnits: .defaultUnits) else {
-            return
-        }
+        guard let unit = FoodQuantity.Unit(
+            formUnit: formUnit,
+            food: food,
+            userVolumeUnits: DataManager.shared.userVolumeUnits)
+        else { return }
+        
         self.unit = unit
     }
     
@@ -116,7 +119,7 @@ class MealItemViewModel: ObservableObject {
 extension MealItemViewModel {
     var equivalentQuantities: [FoodQuantity] {
         guard let currentQuantity else { return [] }
-        let quantities = currentQuantity.equivalentQuantities(using: .defaultUnits)
+        let quantities = currentQuantity.equivalentQuantities(using: DataManager.shared.userVolumeUnits)
         return quantities
     }
     
