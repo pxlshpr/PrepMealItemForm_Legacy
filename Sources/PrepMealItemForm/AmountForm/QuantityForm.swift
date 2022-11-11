@@ -6,7 +6,7 @@ import PrepViews
 import Combine
 
 extension MealItemForm {
-    public struct AmountForm: View {
+    public struct QuantityForm: View {
         
         @EnvironmentObject var viewModel: MealItemViewModel
 
@@ -28,7 +28,7 @@ extension MealItemForm {
     }
 }
 
-public extension MealItemForm.AmountForm {
+public extension MealItemForm.QuantityForm {
 
     var body: some View {
         ZStack {
@@ -41,7 +41,7 @@ public extension MealItemForm.AmountForm {
             .transition(.move(edge: .bottom))
         }
         .scrollDismissesKeyboard(.immediately)
-        .navigationTitle("Amount")
+        .navigationTitle("Quantity")
         .sheet(isPresented: $showingUnitPicker) { unitPicker }
         .toolbar { trailingCloseButton }
         .onAppear(perform: appeared)

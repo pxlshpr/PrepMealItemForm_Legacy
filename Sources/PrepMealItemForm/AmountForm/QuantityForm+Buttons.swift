@@ -2,7 +2,7 @@ import SwiftUI
 import SwiftUISugar
 import SwiftHaptics
 
-extension MealItemForm.AmountForm {
+extension MealItemForm.QuantityForm {
 
     var saveButton: some View {
         FormSecondaryButton(title: "Done") {
@@ -34,11 +34,11 @@ extension MealItemForm.AmountForm {
             stepButton(step: -10)
             stepButton(step: -1)
             dotSeparator
+            unitBottomButton
+            dotSeparator
             stepButton(step: 1)
             stepButton(step: 10)
             stepButton(step: 50)
-            dotSeparator
-            unitBottomButton
         }
     }
 

@@ -2,7 +2,7 @@ import SwiftUI
 import Combine
 import PrepViews
 
-extension MealItemForm.AmountForm {
+extension MealItemForm.QuantityForm {
     
     var textField: some View {
         let binding = Binding<String>(
@@ -47,9 +47,11 @@ extension MealItemForm.AmountForm {
     
     @ViewBuilder
     var unitPicker: some View {
-        UnitPicker(
+        UnitPickerGridTiered(
             pickedUnit: viewModel.unit.formUnit,
             includeServing: viewModel.shouldShowServingInUnitPicker,
+            includeWeights: viewModel.shouldShowWeightUnits,
+            includeVolumes: viewModel.shouldShowVolumeUnits,
             sizes: viewModel.foodSizes,
             servingDescription: viewModel.servingDescription,
             allowAddSize: false,
@@ -60,5 +62,4 @@ extension MealItemForm.AmountForm {
     var textFieldFont: Font {
         viewModel.internalAmountDouble == nil ? .body : .largeTitle
     }
-
 }

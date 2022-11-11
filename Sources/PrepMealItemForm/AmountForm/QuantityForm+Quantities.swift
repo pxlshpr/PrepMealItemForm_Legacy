@@ -3,7 +3,7 @@ import SwiftUISugar
 import PrepDataTypes
 import SwiftHaptics
 
-extension MealItemForm.AmountForm {
+extension MealItemForm.QuantityForm {
     
     @ViewBuilder
     var quantitiesContent: some View {
@@ -64,7 +64,7 @@ extension MealItemForm.AmountForm {
 struct AmountFormPreview: View {
     @StateObject var viewModel = MealItemViewModel(food: .init(mockName: "Cheese", emoji: "🧀"), meal: nil, dayMeals: [])
     var body: some View {
-        MealItemForm.AmountForm(isPresented: .constant(true))
+        MealItemForm.QuantityForm(isPresented: .constant(true))
             .environmentObject(viewModel)
     }
 }

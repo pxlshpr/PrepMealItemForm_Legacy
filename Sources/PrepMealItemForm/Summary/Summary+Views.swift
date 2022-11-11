@@ -100,7 +100,7 @@ extension MealItemForm.Summary {
             amountForm
         } label: {
             buttonLabel(
-                heading: "Amount",
+                heading: "Quantity",
                 title: viewModel.amountTitle,
                 detail: viewModel.amountDetail
             )

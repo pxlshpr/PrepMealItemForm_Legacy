@@ -113,6 +113,14 @@ class MealItemViewModel: ObservableObject {
     var amountHeaderString: String {
         unit.unitType.description
     }
+    
+    var shouldShowWeightUnits: Bool {
+        food.canBeMeasuredInWeight
+    }
+    
+    var shouldShowVolumeUnits: Bool {
+        food.canBeMeasuredInVolume
+    }
 }
 
 

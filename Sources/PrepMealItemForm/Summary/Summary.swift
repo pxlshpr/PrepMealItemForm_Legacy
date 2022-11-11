@@ -79,7 +79,7 @@ extension MealItemForm.Summary {
     }
     
     var amountForm: some View {
-        MealItemForm.AmountForm(isPresented: $isPresented)
+        MealItemForm.QuantityForm(isPresented: $isPresented)
             .environmentObject(viewModel)
     }
 

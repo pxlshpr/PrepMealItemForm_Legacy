@@ -2,7 +2,7 @@ import SwiftUI
 import SwiftUISugar
 import SwiftHaptics
 
-extension MealItemForm.AmountForm {
+extension MealItemForm.QuantityForm {
     var textFieldSection: some View {
         var header: some View {
             Text(viewModel.amountHeaderString)
@@ -43,7 +43,7 @@ extension MealItemForm.AmountForm {
 }
 
 //TODO: Bring these in one by one
-extension MealItemForm.AmountForm {
+extension MealItemForm.QuantityForm {
     
     var nutrientsSummarySection: some View {
         FormStyledSection(header: Text("Nutrients")) {
