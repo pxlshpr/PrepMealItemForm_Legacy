@@ -19,7 +19,7 @@ let package = Package(
         .package(url: "https://github.com/pxlshpr/FoodLabel", from: "0.0.29"),
         .package(url: "https://github.com/pxlshpr/PrepDataTypes", from: "0.0.183"),
         .package(url: "https://github.com/pxlshpr/PrepFoodSearch", from: "0.0.43"),
-        .package(url: "https://github.com/pxlshpr/PrepViews", from: "0.0.50"),
+        .package(url: "https://github.com/pxlshpr/PrepViews", from: "0.0.52"),
         .package(url: "https://github.com/pxlshpr/SwiftUISugar", from: "0.0.234"),
         .package(url: "https://github.com/pxlshpr/Timeline", from: "0.0.68"),
     ],
