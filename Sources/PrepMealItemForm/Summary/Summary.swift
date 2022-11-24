@@ -54,9 +54,9 @@ extension MealItemForm.Summary {
     var formLayer: some View {
         FormStyledScrollView {
             foodSection
-//            mealSection
-//            quantitySection
-            foodLabelSection
+            mealSection
+            quantitySection
+//            foodLabelSection
         }
         .safeAreaInset(edge: .bottom) { safeAreaInset }
     }
@@ -120,18 +120,31 @@ extension MealItemForm.Summary {
     
     var mealSection: some View {
         FormStyledSection(header: Text("Meal")) {
-            Text("10:30 am • Pre-workout Meal")
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .foregroundColor(.accentColor)
+            NavigationLink {
+                mealPicker
+            } label: {
+                Text("10:30 am • Pre-workout Meal")
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .foregroundColor(.accentColor)
+            }
         }
     }
     
     var quantitySection: some View {
         FormStyledSection(header: Text("Quantity")) {
-            HStack {
-                Text("1 cup, chopped • 250g")
+            NavigationLink {
+                amountForm
+            } label: {
+                HStack {
+                    VStack(alignment: .leading) {
+                        Text("1 cup, chopped")
+                        Text("250 g")
+                    }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .foregroundColor(.accentColor)
+                    Spacer()
+                    MiniMeters()
+                }
             }
         }
     }

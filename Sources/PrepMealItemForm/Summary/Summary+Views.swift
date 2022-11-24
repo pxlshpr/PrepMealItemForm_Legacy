@@ -67,12 +67,12 @@ extension MealItemForm.Summary {
         return VStack(spacing: 0) {
             Divider()
             VStack {
-                HStack {
-                    amountLink
-                    mealLink
-                }
-                .padding(.horizontal)
-                .padding(.horizontal)
+//                HStack {
+//                    amountLink
+//                    mealLink
+//                }
+//                .padding(.horizontal)
+//                .padding(.horizontal)
                 saveButton
             }
             .padding(.bottom)
