@@ -123,7 +123,12 @@ extension MealItemForm.Summary {
             NavigationLink {
                 mealPicker
             } label: {
-                Text("10:30 am • Pre-workout Meal")
+                HStack {
+                    Text("10:30 am")
+                    Spacer()
+                    Text("Pre-Workout Meal")
+                }
+//                Text("10:30 am • Pre-workout Meal")
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .foregroundColor(.accentColor)
             }
@@ -136,15 +141,13 @@ extension MealItemForm.Summary {
                 amountForm
             } label: {
                 HStack {
-                    VStack(alignment: .leading) {
-                        Text("1 cup, chopped")
-                        Text("250 g")
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .foregroundColor(.accentColor)
+                    Text("1 cup, chopped")
                     Spacer()
-                    MiniMeters()
+                    Text("250 g")
+//                    MiniMeters()
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .foregroundColor(.accentColor)
             }
         }
     }
