@@ -142,6 +142,7 @@ public extension MealItemForm {
                 Spacer()
                 VStack(alignment: .trailing, spacing: 2) {
                     Text("Pre-Workout Meal")
+                        .multilineTextAlignment(.trailing)
                         .foregroundColor(.accentColor)
                     Text("10:30 am")
                         .font(.footnote)
@@ -168,16 +169,18 @@ public extension MealItemForm {
         FormStyledSection(horizontalPadding: 0) {
             VStack {
                 foodLink
-                    .padding(.horizontal, 20)
-                
+                    .padding(.leading, 17)
+                    .padding(.trailing, 17)
+
                 Divider()
                     .padding(.top, 5)
                     .padding(.bottom, 10)
                     .padding(.leading, 50)
 
                 mealLink
-                .padding(.horizontal, 20)
-                
+                    .padding(.leading, 17)
+                    .padding(.trailing, 17)
+
                 Divider()
                     .padding(.top, 5)
                     .padding(.bottom, 10)
@@ -186,11 +189,16 @@ public extension MealItemForm {
                 HStack {
                     Text("Amount")
                         .foregroundColor(.secondary)
+                        .onTapGesture {
+                            Haptics.feedback(style: .soft)
+                            isFocused = true
+                        }
                     Spacer()
                     textField
                     unitButton
                 }
-                .padding(.horizontal, 20)
+                .padding(.leading, 17)
+                .padding(.trailing, 17)
                 .padding(.bottom, 5)
             }
         }
