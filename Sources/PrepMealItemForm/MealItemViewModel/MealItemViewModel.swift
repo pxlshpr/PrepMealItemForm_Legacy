@@ -4,8 +4,16 @@ import PrepCoreDataStack
 import PrepMocks
 import PrepViews
 
+public enum MealItemFormRoute {
+    case mealItemForm
+    case food
+    case meal
+}
+
 public class MealItemViewModel: ObservableObject {
     
+    @Published var path: [MealItemFormRoute] = []
+
     @Published var food: Food?
     @Published var dayMeals: [DayMeal]
     
@@ -22,7 +30,7 @@ public class MealItemViewModel: ObservableObject {
 
     @Published var mealFoodItem: MealFoodItem
     
-    public init(food: Food? = nil, day: Day? = nil, meal: Meal? = nil, dayMeals: [DayMeal]) {
+    public init(food: Food? = nil, day: Day? = nil, meal: Meal? = nil, dayMeals: [DayMeal] = []) {
         self.day = day
         self.food = food
         self.meal = meal

@@ -8,80 +8,103 @@ public extension MealItemForm {
     
     struct FoodSearch: View {
         
-        @State var path: [Route] = []
-        @Binding var isPresented: Bool
+        @Environment(\.dismiss) var dismiss
         @State var foodToShowMacrosFor: Food? = nil
         
-        @StateObject var viewModel: MealItemViewModel
+        let isInitialFoodSearch: Bool
         
-        let day: Day?
-        let meal: Meal?
-        let dayMeals: [DayMeal]
+        @ObservedObject var viewModel: MealItemViewModel
+        @Binding var isPresented: Bool
         
         public init(
-            meal: Meal? = nil,
-            dayMeals: [DayMeal] = [],
-            day: Day?,
+            viewModel: MealItemViewModel? = nil,
             isPresented: Binding<Bool>
         ) {
-            self.meal = meal
-            self.dayMeals = dayMeals
-            self.day = day
+            self.isInitialFoodSearch = viewModel == nil
+            if let viewModel {
+                self.viewModel = viewModel
+            } else {
+                _viewModel = ObservedObject(initialValue: MealItemViewModel())
+            }
             _isPresented = isPresented
-            
-            let viewModel = MealItemViewModel(
-                food: nil,
-                day: day,
-                meal: meal,
-                dayMeals: dayMeals
-            )
-            _viewModel = StateObject(wrappedValue: viewModel)
         }
     }
 }
 
 extension MealItemForm.FoodSearch {
     
+    @ViewBuilder
     public var body: some View {
-        NavigationStack(path: $path) {
-            FoodSearch(
-                dataProvider: DataManager.shared,
-                didTapFood: {
-                    Haptics.feedback(style: .soft)
-                    viewModel.food = $0
-                    path = [Route.form]
-                },
-                didTapMacrosIndicatorForFood: {
-                    Haptics.feedback(style: .soft)
-                    foodToShowMacrosFor = $0
-                }
-            )
-            .navigationDestination(for: Route.self) { route in
+        if isInitialFoodSearch {
+            navigationStack
+        } else {
+            foodSearch
+        }
+    }
+
+    var navigationStack: some View {
+        NavigationStack(path: $viewModel.path) {
+            foodSearch
+            .navigationDestination(for: MealItemFormRoute.self) { route in
                 switch route {
-                case .form:
-                    form
+                case .mealItemForm:
+                    MealItemForm(viewModel: viewModel, isPresented: $isPresented)
+                case .food:
+                    MealItemForm.FoodSearch(
+                        viewModel: viewModel,
+                        isPresented: $isPresented
+                    )
+                case .meal:
+                    mealPicker
                 }
             }
-            .sheet(item: $foodToShowMacrosFor) { macrosView(for: $0) }
         }
-        .interactiveDismissDisabled(!path.isEmpty)
     }
     
-    var form: some View {
-        MealItemForm(
-            viewModel: viewModel,
-            isPresented: $isPresented
+    var mealPicker: some View {
+        MealItemForm.MealPicker(isPresented: $isPresented) { pickedMeal in
+            NotificationCenter.default.post(name: .didPickMeal, object: nil, userInfo: [Notification.Keys.meal: pickedMeal])
+        }
+        .environmentObject(viewModel)
+    }
+
+    var foodSearch: some View {
+        func didTapFood(_ food: Food) {
+            Haptics.feedback(style: .soft)
+            viewModel.food = food
+            
+            if isInitialFoodSearch {
+                viewModel.path = [.mealItemForm]
+            } else {
+                dismiss()
+            }
+        }
+        
+        func didTapMacrosIndicatorForFood(_ food: Food) {
+            Haptics.feedback(style: .soft)
+            foodToShowMacrosFor = food
+        }
+        
+        func didTapClose() {
+            Haptics.feedback(style: .soft)
+            isPresented = false
+        }
+        
+        return FoodSearch(
+            dataProvider: DataManager.shared,
+            shouldDelayContents: isInitialFoodSearch,
+            didTapClose: didTapClose,
+            didTapFood: didTapFood,
+            didTapMacrosIndicatorForFood: didTapMacrosIndicatorForFood
         )
+        .sheet(item: $foodToShowMacrosFor) { macrosView(for: $0) }
+        .navigationBarBackButtonHidden(viewModel.food == nil)
     }
     
     func macrosView(for food: Food) -> some View {
         Text("Macros for: \(food.name)")
             .presentationDetents([.medium, .large])
-    }
-    
-    public enum Route: Hashable {
-        case form
-    }
+    }    
 }
 
 extension Food {

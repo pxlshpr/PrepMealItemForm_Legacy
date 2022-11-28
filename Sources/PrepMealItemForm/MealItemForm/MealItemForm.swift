@@ -18,85 +18,141 @@ public struct MealItemForm: View {
     @ObservedObject var viewModel: MealItemViewModel
     @Binding var isPresented: Bool
     
+    @FocusState var isFocused: Bool
+    
+    let alreadyInNavigationStack: Bool
+    
+    public init(meal: Meal? = nil, food: Food? = nil, day: Day? = nil, isPresented: Binding<Bool>) {
+        let viewModel = MealItemViewModel(
+            food: food,
+            day: day,
+            meal: meal,
+            dayMeals: day?.meals ?? []
+        )
+        self.viewModel = viewModel
+        _isPresented = isPresented
+        alreadyInNavigationStack = false
+    }
+    
     public init(viewModel: MealItemViewModel, isPresented: Binding<Bool>) {
         self.viewModel = viewModel
         _isPresented = isPresented
+        alreadyInNavigationStack = true
     }
 }
 
 public extension MealItemForm {
     
+    @ViewBuilder
     var body: some View {
-        Self._printChanges()
-        return content
-            .navigationTitle("Log Food")
-            .toolbar { trailingCloseButton }
-            .scrollDismissesKeyboard(.interactively)
+        if alreadyInNavigationStack {
+            content
+        } else {
+            navigationStack
+        }
+    }
+    
+    var navigationStack: some View {
+        NavigationStack(path: $viewModel.path) {
+            content
+                .navigationDestination(for: MealItemFormRoute.self, destination: navigationDestination)
+        }
     }
     
     var content: some View {
-        ZStack {
-            formLayer
-            buttonsLayer
+        formLayer
+            .navigationTitle("\(viewModel.saveButtonTitle) Food")
+            .toolbar { trailingContents }
+            .toolbar { leadingContents }
+            .scrollDismissesKeyboard(.interactively)
+            .interactiveDismissDisabled(isFocused)
+            .navigationBarBackButtonHidden(true)
+//            .navigationDestination(for: MealItemFormRoute.self, destination: navigationDestination)
+    }
+    
+    @ViewBuilder
+    func navigationDestination(for route: MealItemFormRoute) -> some View {
+        switch route {
+        case .food:
+            FoodSearch(
+                viewModel: viewModel,
+                isPresented: $isPresented
+            )
+        case .meal:
+            mealPicker
+        case .mealItemForm:
+            EmptyView()
+        }
+    }
+    
+    var foodLink: some View {
+        Button {
+            viewModel.path.append(.food)
+        } label: {
+            HStack {
+                FoodCell(
+                    food: FoodMock.peanutButter,
+                    showMacrosIndicator: false
+                )
+                .fixedSize(horizontal: false, vertical: true)
+                Spacer()
+                NutritionSummary(
+                    dataProvider: viewModel,
+                    showMacrosIndicator: true
+                )
+                .fixedSize(horizontal: true, vertical: false)
+                Image(systemName: "chevron.right")
+                    .imageScale(.small)
+                    .fontWeight(.medium)
+                    .foregroundColor(Color(.tertiaryLabel))
+            }
+        }
+    }
+    
+    var mealLink: some View {
+        Button {
+            viewModel.path.append(.meal)
+        } label: {
+            HStack {
+                Text("Meal")
+                    .foregroundColor(.secondary)
+                Spacer()
+                VStack(alignment: .trailing, spacing: 2) {
+                    Text("Pre-Workout Meal")
+                        .foregroundColor(.accentColor)
+                    Text("10:30 am")
+                        .font(.footnote)
+                        .foregroundColor(.secondary)
+                        .padding(.vertical, 3)
+                        .padding(.horizontal, 10)
+                        .background(
+                            RoundedRectangle(cornerRadius: 5)
+                                .foregroundColor(Color(.secondarySystemFill))
+                        )
+                }
+                Image(systemName: "chevron.right")
+                    .imageScale(.small)
+                    .fontWeight(.medium)
+                    .foregroundColor(Color(.tertiaryLabel))
+            }
+//                Text("10:30 am • Pre-workout Meal")
+                .frame(maxWidth: .infinity, alignment: .leading)
+//                    .foregroundColor(.accentColor)
         }
     }
     
     var detailsSection: some View {
         FormStyledSection(horizontalPadding: 0) {
             VStack {
-                HStack {
-                    FoodCell(
-                        food: FoodMock.peanutButter,
-                        showMacrosIndicator: false
-                    )
-                    .fixedSize(horizontal: false, vertical: true)
-                    Spacer()
-                    NutritionSummary(
-                        dataProvider: viewModel,
-                        showMacrosIndicator: true
-                    )
-                    .fixedSize(horizontal: true, vertical: false)
-                    Image(systemName: "chevron.right")
-                        .imageScale(.small)
-                        .fontWeight(.medium)
-                        .foregroundColor(Color(.tertiaryLabel))
-                }
-                .padding(.horizontal, 20)
+                foodLink
+                    .padding(.horizontal, 20)
                 
                 Divider()
                     .padding(.top, 5)
                     .padding(.bottom, 10)
                     .padding(.leading, 50)
 
-                NavigationLink {
-                    mealPicker
-                } label: {
-                    HStack {
-                        Text("Meal")
-                            .foregroundColor(.secondary)
-                        Spacer()
-                        VStack(alignment: .trailing, spacing: 2) {
-                            Text("Pre-Workout Meal")
-                                .foregroundColor(.accentColor)
-                            Text("10:30 am")
-                                .font(.footnote)
-                                .foregroundColor(.secondary)
-                                .padding(.vertical, 3)
-                                .padding(.horizontal, 10)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 5)
-                                        .foregroundColor(Color(.secondarySystemFill))
-                                )
-                        }
-                        Image(systemName: "chevron.right")
-                            .imageScale(.small)
-                            .fontWeight(.medium)
-                            .foregroundColor(Color(.tertiaryLabel))
-                    }
-    //                Text("10:30 am • Pre-workout Meal")
-                        .frame(maxWidth: .infinity, alignment: .leading)
-    //                    .foregroundColor(.accentColor)
-                }
+                mealLink
                 .padding(.horizontal, 20)
                 
                 Divider()
@@ -127,7 +183,7 @@ public extension MealItemForm {
 //            quantitySection
 //            foodLabelSection
         }
-        .safeAreaInset(edge: .bottom) { safeAreaInset }
+//        .safeAreaInset(edge: .bottom) { safeAreaInset }
     }
     
     var metersSection: some View {
@@ -156,15 +212,6 @@ public extension MealItemForm {
     var mealPicker: some View {
         MealItemForm.MealPicker(isPresented: $isPresented) { pickedMeal in
             NotificationCenter.default.post(name: .didPickMeal, object: nil, userInfo: [Notification.Keys.meal: pickedMeal])
-//            viewModel.meal = Meal(
-//                id: pickedMeal.id,
-//                day: viewModel.day!,
-//                name: pickedMeal.name,
-//                time: pickedMeal.time,
-//                foodItems: pickedMeal.foodItems,
-//                syncStatus: .notSynced,
-//                updatedAt: 0
-//            )
         }
         .environmentObject(viewModel)
     }
@@ -174,8 +221,22 @@ public extension MealItemForm {
             .environmentObject(viewModel)
     }
 
-    var trailingCloseButton: some ToolbarContent {
+    var trailingContents: some ToolbarContent {
         ToolbarItem(placement: .navigationBarTrailing) {
+            if canBeSaved {
+                Button {
+//                    Haptics.feedback(style: .soft)
+//                    isPresented = false
+                } label: {
+                    Text(viewModel.saveButtonTitle)
+//                    closeButtonLabel
+                }
+            }
+        }
+    }
+
+    var leadingContents: some ToolbarContent {
+        ToolbarItem(placement: .navigationBarLeading) {
             Button {
                 Haptics.feedback(style: .soft)
                 isPresented = false
@@ -184,7 +245,7 @@ public extension MealItemForm {
             }
         }
     }
-    
+
     var headerBackgroundColor: Color {
         colorScheme == .dark ?
         Color(.systemFill) :
@@ -342,11 +403,10 @@ public extension MealItemForm {
         
         return TextField("Required", text: binding)
             .multilineTextAlignment(.trailing)
-//            .focused($isFocused)
+            .focused($isFocused)
 //            .font(textFieldFont)
-            .keyboardType(.decimalPad)
+//            .keyboardType(.decimalPad)
 //            .frame(minHeight: 50)
-            .scrollDismissesKeyboard(.interactively)
             .onReceive(NotificationCenter.default.publisher(for: UITextField.textDidBeginEditingNotification)) { obj in
                 if let textField = obj.object as? UITextField {
                     textField.selectedTextRange = textField.textRange(from: textField.beginningOfDocument, to: textField.endOfDocument)
@@ -453,17 +513,17 @@ extension MealItemForm {
         .background(.thinMaterial)
     }
     
-    var mealLink: some View {
-        NavigationLink {
-            mealPicker
-        } label: {
-            buttonLabel(
-                heading: "Meal",
-                title: mealTitle,
-                detail: mealDetail
-            )
-        }
-    }
+//    var mealLink: some View {
+//        NavigationLink {
+//            mealPicker
+//        } label: {
+//            buttonLabel(
+//                heading: "Meal",
+//                title: mealTitle,
+//                detail: mealDetail
+//            )
+//        }
+//    }
     
     var amountLink: some View {
         NavigationLink {
@@ -496,7 +556,6 @@ struct MealItemFormPreview: View {
     var body: some View {
         NavigationView {
             MealItemForm(
-                viewModel: mockViewModel,
                 isPresented: .constant(true)
             )
         }
