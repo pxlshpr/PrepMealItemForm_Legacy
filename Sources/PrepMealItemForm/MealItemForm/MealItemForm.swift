@@ -85,26 +85,29 @@ public extension MealItemForm {
         }
     }
     
+    @ViewBuilder
     var foodLink: some View {
-        Button {
-            viewModel.path.append(.food)
-        } label: {
-            HStack {
-                FoodCell(
-                    food: FoodMock.peanutButter,
-                    showMacrosIndicator: false
-                )
-                .fixedSize(horizontal: false, vertical: true)
-                Spacer()
-                NutritionSummary(
-                    dataProvider: viewModel,
-                    showMacrosIndicator: true
-                )
-                .fixedSize(horizontal: true, vertical: false)
-                Image(systemName: "chevron.right")
-                    .imageScale(.small)
-                    .fontWeight(.medium)
-                    .foregroundColor(Color(.tertiaryLabel))
+        if let food = viewModel.food {
+            Button {
+                viewModel.path.append(.food)
+            } label: {
+                HStack {
+                    FoodCell(
+                        food: food,
+                        showMacrosIndicator: false
+                    )
+                    .fixedSize(horizontal: false, vertical: true)
+                    Spacer()
+                    NutritionSummary(
+                        dataProvider: viewModel,
+                        showMacrosIndicator: true
+                    )
+                    .fixedSize(horizontal: true, vertical: false)
+                    Image(systemName: "chevron.right")
+                        .imageScale(.small)
+                        .fontWeight(.medium)
+                        .foregroundColor(Color(.tertiaryLabel))
+                }
             }
         }
     }

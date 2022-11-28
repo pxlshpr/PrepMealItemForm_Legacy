@@ -48,6 +48,8 @@ public class MealItemViewModel: ObservableObject {
         )
 
         NotificationCenter.default.addObserver(self, selector: #selector(didPickMeal), name: .didPickMeal, object: nil)
+        
+        setFoodItem()
     }
     
     @objc func didPickMeal(notification: Notification) {
