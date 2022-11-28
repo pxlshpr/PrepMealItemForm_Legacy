@@ -2,16 +2,17 @@ import SwiftUI
 import PrepDataTypes
 import PrepCoreDataStack
 import PrepMocks
+import PrepViews
 
-class MealItemViewModel: ObservableObject {
+public class MealItemViewModel: ObservableObject {
     
-    @Published var food: Food
+    @Published var food: Food?
     @Published var dayMeals: [DayMeal]
     
     @Published var unit: FoodQuantity.Unit = .serving
 
-    @Published var internalAmountDouble: Double?
-    @Published var internalAmountString: String = ""
+    @Published var internalAmountDouble: Double? = 1
+    @Published var internalAmountString: String = "1"
 
 //    @Published var meal: Meal? = nil
     @Published var meal: Meal? = nil
@@ -21,7 +22,7 @@ class MealItemViewModel: ObservableObject {
 
     @Published var mealFoodItem: MealFoodItem
     
-    init(food: Food, day: Day? = nil, meal: Meal? = nil, dayMeals: [DayMeal]) {
+    public init(food: Food? = nil, day: Day? = nil, meal: Meal? = nil, dayMeals: [DayMeal]) {
         self.day = day
         self.food = food
         self.meal = meal
@@ -30,11 +31,14 @@ class MealItemViewModel: ObservableObject {
         if let meal {
             self.dayMeal = DayMeal(from: meal)
         }
+        //TODO: Handle this in a better way
+        /// [ ] Try making `mealFoodItem` nil and set it as that if we don't get a food here
+        /// [ ] Try and get this fed in with an existing `FoodItem`, from which we create this when editing!
         self.mealFoodItem = MealFoodItem(
-            food: food,
+            food: food ?? FoodMock.peanutButter,
             amount: .init(0, .g)
         )
-        
+
         NotificationCenter.default.addObserver(self, selector: #selector(didPickMeal), name: .didPickMeal, object: nil)
     }
     
@@ -58,6 +62,7 @@ class MealItemViewModel: ObservableObject {
     }
     
     func setFoodItem() {
+        guard let food else { return }
         self.mealFoodItem = MealFoodItem(
             food: food,
             amount: amountValue
@@ -122,22 +127,26 @@ class MealItemViewModel: ObservableObject {
     }
     
     var shouldShowServingInUnitPicker: Bool {
-        food.info.serving != nil
+        guard let food else { return false }
+        return food.info.serving != nil
     }
     
     var foodSizes: [FormSize] {
-        food.formSizes
+        food?.formSizes ?? []
     }
     
     var servingDescription: String? {
-        food.servingDescription(using: DataManager.shared.userVolumeUnits)
+        food?.servingDescription(using: DataManager.shared.userVolumeUnits)
     }
     
     func didPickUnit(_ formUnit: FormUnit) {
-        guard let unit = FoodQuantity.Unit(
-            formUnit: formUnit,
-            food: food,
-            userVolumeUnits: DataManager.shared.userVolumeUnits)
+        guard
+            let food,
+            let unit = FoodQuantity.Unit(
+                formUnit: formUnit,
+                food: food,
+                userVolumeUnits: DataManager.shared.userVolumeUnits
+            )
         else { return }
         
         self.unit = unit
@@ -153,11 +162,11 @@ class MealItemViewModel: ObservableObject {
     }
     
     var shouldShowWeightUnits: Bool {
-        food.canBeMeasuredInWeight
+        food?.canBeMeasuredInWeight ?? false
     }
     
     var shouldShowVolumeUnits: Bool {
-        food.canBeMeasuredInVolume
+        food?.canBeMeasuredInVolume ?? false
     }
     
     var amountValue: FoodValue {
@@ -227,11 +236,45 @@ extension MealItemViewModel {
     }
     
     var currentQuantity: FoodQuantity? {
-        guard let internalAmountDouble else { return nil }
+        guard
+            let food,
+            let internalAmountDouble
+        else { return nil }
+        
         return FoodQuantity(
             value: internalAmountDouble,
             unit: unit,
             food: food
         )
     }    
+}
+
+extension MealItemViewModel: NutritionSummaryProvider {
+    public var forMeal: Bool {
+        false
+    }
+    
+    public var isMarkedAsCompleted: Bool {
+        false
+    }
+    
+    public var showQuantityAsSummaryDetail: Bool {
+        false
+    }
+    
+    public var energyAmount: Double {
+        120
+    }
+    
+    public var carbAmount: Double {
+        69
+    }
+    
+    public var fatAmount: Double {
+        13
+    }
+    
+    public var proteinAmount: Double {
+        45
+    }
 }
