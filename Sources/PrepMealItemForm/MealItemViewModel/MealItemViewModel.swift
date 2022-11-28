@@ -47,9 +47,7 @@ public class MealItemViewModel: ObservableObject {
             amount: .init(0, .g)
         )
 
-        NotificationCenter.default.addObserver(self, selector: #selector(didPickMeal), name: .didPickMeal, object: nil)
-        
-        setFoodItem()
+        NotificationCenter.default.addObserver(self, selector: #selector(didPickMeal), name: .didPickMeal, object: nil)        
     }
     
     @objc func didPickMeal(notification: Notification) {
@@ -60,6 +58,12 @@ public class MealItemViewModel: ObservableObject {
         self.dayMeal = dayMeal
     }
 
+    func setFood(_ food: Food) {
+        self.food = food
+        //TODO: Select default unit and amount, if we don't already have the last one used available
+        self.setFoodItem()
+    }
+    
     var amount: Double? {
         get {
             return internalAmountDouble

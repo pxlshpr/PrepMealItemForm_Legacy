@@ -71,8 +71,8 @@ extension MealItemForm.FoodSearch {
     var foodSearch: some View {
         func didTapFood(_ food: Food) {
             Haptics.feedback(style: .soft)
-            viewModel.food = food
-            
+            viewModel.setFood(food)
+
             if isInitialFoodSearch {
                 viewModel.path = [.mealItemForm]
             } else {
