@@ -277,18 +277,18 @@ extension MealItemViewModel: NutritionSummaryProvider {
     }
     
     public var energyAmount: Double {
-        120
+        mealFoodItem.scaledValue(for: .energy)
     }
     
     public var carbAmount: Double {
-        69
+        mealFoodItem.scaledValue(for: .carb)
     }
     
     public var fatAmount: Double {
-        13
+        mealFoodItem.scaledValue(for: .fat)
     }
     
     public var proteinAmount: Double {
-        45
+        mealFoodItem.scaledValue(for: .protein)
     }
 }

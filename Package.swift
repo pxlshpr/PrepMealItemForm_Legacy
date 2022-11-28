@@ -17,9 +17,9 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/pxlshpr/PrepCoreDataStack", from: "0.0.20"),
         .package(url: "https://github.com/pxlshpr/FoodLabel", from: "0.0.29"),
-        .package(url: "https://github.com/pxlshpr/PrepDataTypes", from: "0.0.186"),
+        .package(url: "https://github.com/pxlshpr/PrepDataTypes", from: "0.0.198"),
         .package(url: "https://github.com/pxlshpr/PrepFoodSearch", from: "0.0.47"),
-        .package(url: "https://github.com/pxlshpr/PrepViews", from: "0.0.52"),
+        .package(url: "https://github.com/pxlshpr/PrepViews", from: "0.0.75"),
         .package(url: "https://github.com/pxlshpr/SwiftUISugar", from: "0.0.234"),
         .package(url: "https://github.com/pxlshpr/Timeline", from: "0.0.68"),
     ],

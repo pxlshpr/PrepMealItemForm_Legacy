@@ -35,11 +35,14 @@ extension MealItemForm.FoodSearch {
     
     @ViewBuilder
     public var body: some View {
-        if isInitialFoodSearch {
-            navigationStack
-        } else {
-            foodSearch
+        Group {
+            if isInitialFoodSearch {
+                navigationStack
+            } else {
+                foodSearch
+            }
         }
+        .interactiveDismissDisabled(!viewModel.path.isEmpty)
     }
 
     var navigationStack: some View {
