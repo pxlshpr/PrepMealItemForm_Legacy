@@ -11,9 +11,14 @@ extension MealItemForm {
         
         @Environment(\.dismiss) var dismiss
         @Binding var isPresented: Bool
-        
-        public init(isPresented: Binding<Bool>) {
+      
+        let didTapMeal: (DayMeal) -> ()
+        public init(
+            isPresented: Binding<Bool>,
+            didTapMeal: @escaping ((DayMeal) -> ())
+        ) {
             _isPresented = isPresented
+            self.didTapMeal = didTapMeal
         }
     }
 }
@@ -36,6 +41,9 @@ public extension MealItemForm.MealPicker {
     
     func didTapItem(_ item: TimelineItem) {
         Haptics.feedback(style: .rigid)
+        if let meal = viewModel.dayMeals.first(where: { $0.id.uuidString == item.id }) {
+            didTapMeal(meal)
+        }
         dismiss()
     }
 

@@ -4,6 +4,11 @@ import FoodLabel
 import PrepViews
 import PrepDataTypes
 import SwiftHaptics
+import PrepCoreDataStack
+
+public extension Notification.Name {
+    static var didPickMeal: Notification.Name { return .init("didPickMeal") }
+}
 
 extension MealItemForm {
     struct Summary: View {
@@ -12,25 +17,26 @@ extension MealItemForm {
         
         @Environment(\.colorScheme) var colorScheme
         
-        @Binding var path: [MealItemRoute]
         @Binding var isPresented: Bool
 
         @State var canBeSaved = true
         
-        @State var showingMealPicker = false
-        @State var showingAmountForm = false
-        
         public init(
             food: Food,
             meal: Meal? = nil,
+            day: Day? = nil,
             dayMeals: [DayMeal] = [],
-            path: Binding<[MealItemRoute]>,
             isPresented: Binding<Bool>
         ) {
-            let viewModel = MealItemViewModel(food: food, meal: meal, dayMeals: dayMeals)
+            let viewModel = MealItemViewModel(
+                food: food,
+                day: day,
+                meal: meal,
+                dayMeals: dayMeals
+            )
             _viewModel = StateObject(wrappedValue: viewModel)
 
-            _path = path
+//            _path = path
             _isPresented = isPresented
         }
     }
@@ -39,7 +45,8 @@ extension MealItemForm {
 extension MealItemForm.Summary {
     
     public var body: some View {
-        content
+        Self._printChanges()
+        return content
             .navigationTitle("Log Food")
             .toolbar { trailingCloseButton }
     }
@@ -55,10 +62,23 @@ extension MealItemForm.Summary {
         FormStyledScrollView {
             foodSection
             mealSection
-            quantitySection
+            textFieldSection
+            metersSection
+//            quantitySection
 //            foodLabelSection
         }
         .safeAreaInset(edge: .bottom) { safeAreaInset }
+    }
+    
+    var metersSection: some View {
+        MealItemMeters(
+            foodItem: $viewModel.mealFoodItem,
+            meal: $viewModel.dayMeal,
+            day: viewModel.day, //TODO: Get
+            userUnits: DataManager.shared.user?.units ?? .standard,
+//            bodyProfile: viewModel.day?.bodyProfile //TODO: We need to load the Day's bodyProfile here once supported
+            bodyProfile: DataManager.shared.user?.bodyProfile
+        )
     }
     
     @ViewBuilder
@@ -74,8 +94,19 @@ extension MealItemForm.Summary {
     }
     
     var mealPicker: some View {
-        MealItemForm.MealPicker(isPresented: $isPresented)
-            .environmentObject(viewModel)
+        MealItemForm.MealPicker(isPresented: $isPresented) { pickedMeal in
+            NotificationCenter.default.post(name: .didPickMeal, object: nil, userInfo: [Notification.Keys.meal: pickedMeal])
+//            viewModel.meal = Meal(
+//                id: pickedMeal.id,
+//                day: viewModel.day!,
+//                name: pickedMeal.name,
+//                time: pickedMeal.time,
+//                foodItems: pickedMeal.foodItems,
+//                syncStatus: .notSynced,
+//                updatedAt: 0
+//            )
+        }
+        .environmentObject(viewModel)
     }
     
     var amountForm: some View {
@@ -124,13 +155,19 @@ extension MealItemForm.Summary {
                 mealPicker
             } label: {
                 HStack {
-                    Text("10:30 am")
-                    Spacer()
                     Text("Pre-Workout Meal")
+                        .foregroundColor(.primary)
+                    Spacer()
+                    Text("10:30 am")
+                        .foregroundColor(.secondary)
+                    Image(systemName: "chevron.right")
+                        .imageScale(.small)
+                        .fontWeight(.medium)
+                        .foregroundColor(Color(.tertiaryLabel))
                 }
 //                Text("10:30 am • Pre-workout Meal")
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .foregroundColor(.accentColor)
+//                    .foregroundColor(.accentColor)
             }
         }
     }
@@ -142,12 +179,18 @@ extension MealItemForm.Summary {
             } label: {
                 HStack {
                     Text("1 cup, chopped")
+                        .foregroundColor(.primary)
                     Spacer()
                     Text("250 g")
+                        .foregroundColor(.secondary)
 //                    MiniMeters()
+                    Image(systemName: "chevron.right")
+                        .imageScale(.small)
+                        .fontWeight(.medium)
+                        .foregroundColor(Color(.tertiaryLabel))
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .foregroundColor(.accentColor)
+//                .foregroundColor(.accentColor)
             }
         }
     }
@@ -214,5 +257,90 @@ extension MealItemForm.Summary {
             nutrients: microsBinding,
             amountPerString: amountBinding
         )
+    }
+    
+    var textFieldSection: some View {
+        var header: some View {
+            Text(viewModel.amountHeaderString)
+        }
+        
+        return FormStyledSection(header: header) {
+            HStack {
+                textField
+                unitButton
+            }
+        }
+    }
+    
+    var textField: some View {
+        let binding = Binding<String>(
+            get: { viewModel.amountString },
+            set: { newValue in
+                withAnimation {
+                    viewModel.amountString = newValue
+                }
+            }
+        )
+        
+        return TextField("Required", text: binding)
+            .multilineTextAlignment(.leading)
+//            .focused($isFocused)
+//            .font(textFieldFont)
+            .keyboardType(.decimalPad)
+//            .frame(minHeight: 50)
+            .scrollDismissesKeyboard(.interactively)
+            .onReceive(NotificationCenter.default.publisher(for: UITextField.textDidBeginEditingNotification)) { obj in
+                if let textField = obj.object as? UITextField {
+                    textField.selectedTextRange = textField.textRange(from: textField.beginningOfDocument, to: textField.endOfDocument)
+                }
+            }
+    }
+
+    
+    var unitButton: some View {
+        Button {
+//            showingUnitPicker = true
+        } label: {
+            HStack(spacing: 5) {
+                Text(viewModel.unitDescription)
+//                    .font(.title)
+                    .multilineTextAlignment(.trailing)
+                Image(systemName: "chevron.up.chevron.down")
+                    .imageScale(.small)
+//                    .font(.title3)
+//                    .imageScale(.large)
+            }
+        }
+        .buttonStyle(.borderless)
+    }
+}
+
+extension MealItemViewModel: NutritionSummaryProvider {
+    var forMeal: Bool {
+        false
+    }
+    
+    var isMarkedAsCompleted: Bool {
+        false
+    }
+    
+    var showQuantityAsSummaryDetail: Bool {
+        false
+    }
+    
+    var energyAmount: Double {
+        120
+    }
+    
+    var carbAmount: Double {
+        69
+    }
+    
+    var fatAmount: Double {
+        13
+    }
+    
+    var proteinAmount: Double {
+        45
     }
 }

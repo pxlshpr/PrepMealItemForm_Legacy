@@ -10,16 +10,19 @@ public struct MealItemForm: View {
     @Binding var isPresented: Bool
     @State var foodToShowMacrosFor: Food? = nil
 
+    let day: Day?
     let meal: Meal?
     let dayMeals: [DayMeal]
     
     public init(
         meal: Meal? = nil,
         dayMeals: [DayMeal] = [],
+        day: Day?,
         isPresented: Binding<Bool>
     ) {
         self.meal = meal
         self.dayMeals = dayMeals
+        self.day = day
         _isPresented = isPresented
     }
     
@@ -53,8 +56,8 @@ public struct MealItemForm: View {
         Summary(
             food: food,
             meal: meal,
+            day: day,
             dayMeals: dayMeals,
-            path: $path,
             isPresented: $isPresented
         )
     }

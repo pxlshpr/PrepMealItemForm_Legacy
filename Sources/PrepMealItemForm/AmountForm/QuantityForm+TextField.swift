@@ -17,9 +17,9 @@ extension MealItemForm.QuantityForm {
         return TextField("Required", text: binding)
             .multilineTextAlignment(.leading)
             .focused($isFocused)
-            .font(textFieldFont)
+//            .font(textFieldFont)
             .keyboardType(.decimalPad)
-            .frame(minHeight: 50)
+//            .frame(minHeight: 50)
             .scrollDismissesKeyboard(.interactively)
             .onReceive(NotificationCenter.default.publisher(for: UITextField.textDidBeginEditingNotification)) { obj in
                 if let textField = obj.object as? UITextField {
@@ -35,10 +35,11 @@ extension MealItemForm.QuantityForm {
         } label: {
             HStack(spacing: 5) {
                 Text(viewModel.unitDescription)
-                    .font(.title)
+//                    .font(.title)
                     .multilineTextAlignment(.trailing)
                 Image(systemName: "chevron.up.chevron.down")
-                    .font(.title3)
+                    .imageScale(.small)
+//                    .font(.title3)
 //                    .imageScale(.large)
             }
         }
