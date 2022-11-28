@@ -41,8 +41,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pxlshpr/PrepDataTypes",
       "state" : {
-        "revision" : "64842daf480c4f59c4e4d5e364d4c2f0fe66b350",
-        "version" : "0.0.183"
+        "revision" : "bec26f48fd76dd62fdc64132d5fffcfc245c88cf",
+        "version" : "0.0.199"
       }
     },
     {
@@ -50,8 +50,17 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pxlshpr/PrepFoodSearch",
       "state" : {
-        "revision" : "39050e5733876ab18ac37e50c4e157ec85a18c87",
-        "version" : "0.0.43"
+        "revision" : "dbf51474dd4efbb41b3440617c9d4434853166b7",
+        "version" : "0.0.47"
+      }
+    },
+    {
+      "identity" : "prepmocks",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/pxlshpr/PrepMocks",
+      "state" : {
+        "revision" : "ecf161115522677d7b28a47f7bf2b4ac50831251",
+        "version" : "0.0.3"
       }
     },
     {
@@ -68,8 +77,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pxlshpr/PrepViews",
       "state" : {
-        "revision" : "0f4d82ebce19364c15cae290f49fe2eb1ebfc1a2",
-        "version" : "0.0.50"
+        "revision" : "b1de991619adb71c10db01b5d83499998a503bb2",
+        "version" : "0.0.76"
       }
     },
     {
@@ -97,6 +106,15 @@
       "state" : {
         "revision" : "dae4323f90b8f1fce72e35e12ac67eb6ac1b0226",
         "version" : "0.0.35"
+      }
+    },
+    {
+      "identity" : "swiftuipager",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/fermoya/SwiftUIPager",
+      "state" : {
+        "revision" : "4ddc04c801aac143090bb14cf26603a3bf9c74cb",
+        "version" : "2.5.0"
       }
     },
     {
