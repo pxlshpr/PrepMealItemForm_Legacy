@@ -18,12 +18,16 @@ public extension MealItemForm {
         
         @State var searchIsFocused: Bool = false
         
+        let didComplete: ((MealFoodItem, DayMeal, Day?) -> ())?
+        
         public init(
             day: Day? = nil,
             meal: Meal? = nil,
             viewModel: MealItemViewModel? = nil,
-            isPresented: Binding<Bool>
+            isPresented: Binding<Bool>,
+            didComplete: ((MealFoodItem, DayMeal, Day?) -> ())? = nil
         ) {
+            self.didComplete = didComplete
             self.isInitialFoodSearch = viewModel == nil
             if let viewModel {
                 self.viewModel = viewModel
@@ -62,7 +66,11 @@ extension MealItemForm.Search {
             .navigationDestination(for: MealItemFormRoute.self) { route in
                 switch route {
                 case .mealItemForm:
-                    MealItemForm(viewModel: viewModel, isPresented: $isPresented)
+                    MealItemForm(
+                        viewModel: viewModel,
+                        isPresented: $isPresented,
+                        didComplete: didComplete
+                    )
                 case .food:
                     MealItemForm.Search(
                         viewModel: viewModel,

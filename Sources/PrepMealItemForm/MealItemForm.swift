@@ -23,11 +23,18 @@ public struct MealItemForm: View {
     @State var canBeSaved = true
 
     let alreadyInNavigationStack: Bool
-    
+    let didComplete: ((MealFoodItem, DayMeal, Day?) -> ())?
+
     @ObservedObject var viewModel: MealItemViewModel
     @Binding var isPresented: Bool
     
-    public init(meal: Meal? = nil, food: Food? = nil, day: Day? = nil, isPresented: Binding<Bool>) {
+    public init(
+        meal: Meal? = nil,
+        food: Food? = nil,
+        day: Day? = nil,
+        isPresented: Binding<Bool>,
+        didComplete: ((MealFoodItem, DayMeal, Day?) -> ())? = nil
+    ) {
         let viewModel = MealItemViewModel(
             food: food,
             day: day,
@@ -35,12 +42,18 @@ public struct MealItemForm: View {
             dayMeals: day?.meals ?? []
         )
         self.viewModel = viewModel
+        self.didComplete = didComplete
         _isPresented = isPresented
         alreadyInNavigationStack = false
     }
     
-    public init(viewModel: MealItemViewModel, isPresented: Binding<Bool>) {
+    public init(
+        viewModel: MealItemViewModel,
+        isPresented: Binding<Bool>,
+        didComplete: ((MealFoodItem, DayMeal, Day?) -> ())? = nil
+    ) {
         self.viewModel = viewModel
+        self.didComplete = didComplete
         _isPresented = isPresented
         alreadyInNavigationStack = true
     }
@@ -290,7 +303,7 @@ public extension MealItemForm {
             if canBeSaved {
                 Button {
                     Haptics.feedback(style: .soft)
-                    //TODO: Actually save it
+                    didComplete?(viewModel.mealFoodItem, viewModel.dayMeal, viewModel.day)
                     isPresented = false
                 } label: {
                     Text("Add")
