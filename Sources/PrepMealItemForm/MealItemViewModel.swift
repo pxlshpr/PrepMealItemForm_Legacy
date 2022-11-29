@@ -28,6 +28,8 @@ public class MealItemViewModel: ObservableObject {
 
     @Published var mealFoodItem: MealFoodItem
     
+    @Published var isAnimatingAmountChange = false
+
     public init(food: Food? = nil, day: Day? = nil, meal: Meal? = nil, dayMeals: [DayMeal] = []) {
         self.day = day
         self.food = food
@@ -138,8 +140,15 @@ public class MealItemViewModel: ObservableObject {
     }
     
     func stepAmount(by step: Int) {
-        let amount = self.amount ?? 0
-        self.amount = amount + Double(step)
+        isAnimatingAmountChange = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+            let amount = self.amount ?? 0
+            self.amount = amount + Double(step)
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                self.isAnimatingAmountChange = false
+            }
+        }
     }
     
     func amountCanBeStepped(by step: Int) -> Bool {

@@ -282,15 +282,33 @@ public extension MealItemForm {
             }
         )
         
-        return TextField("Required", text: binding)
-            .multilineTextAlignment(.trailing)
-            .focused($isFocused)
-            .keyboardType(.decimalPad)
-            .onReceive(NotificationCenter.default.publisher(for: UITextField.textDidBeginEditingNotification)) { obj in
-                if let textField = obj.object as? UITextField {
-                    textField.selectedTextRange = textField.textRange(from: textField.beginningOfDocument, to: textField.endOfDocument)
+        var actualTextField: some View {
+            TextField("Required", text: binding)
+                .multilineTextAlignment(.trailing)
+                .font(.system(size: 16, weight: .regular, design: .default))
+                .frame(height: 30)
+                .focused($isFocused)
+                .keyboardType(.decimalPad)
+                .onReceive(NotificationCenter.default.publisher(for: UITextField.textDidBeginEditingNotification)) { obj in
+                    if let textField = obj.object as? UITextField {
+                        textField.selectedTextRange = textField.textRange(from: textField.beginningOfDocument, to: textField.endOfDocument)
+                    }
                 }
+        }
+        
+        var animatedNumber: some View {
+            Color.clear
+                .animatedMealItemAmount(value: viewModel.amount ?? 0)
+        }
+        
+        return ZStack {
+            if viewModel.isAnimatingAmountChange, viewModel.amount?.isInteger == true {
+                animatedNumber
+            } else {
+                actualTextField
             }
+        }
+        .animation(.default, value: viewModel.amount)
     }
 
     
@@ -306,6 +324,12 @@ public extension MealItemForm {
             }
         }
         .buttonStyle(.borderless)
+    }
+}
+
+extension Double {
+    var isInteger: Bool {
+        floor(self) == self
     }
 }
 
@@ -391,6 +415,54 @@ extension MealItemForm {
     }
 }
 
+struct AnimatableMealItemAmountModifier: AnimatableModifier {
+    
+    var value: Double
+    
+    let fontSize: CGFloat = 16
+    
+    var animatableData: Int {
+        get { Int(value.rounded()) }
+        set { value = Double(newValue) }
+    }
+    
+    var uiFont: UIFont {
+        UIFont.systemFont(ofSize: fontSize, weight: .regular)
+    }
+    
+    var size: CGSize {
+        uiFont.fontSize(for: value.cleanAmount)
+    }
+
+    func body(content: Content) -> some View {
+        content
+            .frame(width: 100, height: 30)
+            .overlay(
+                HStack {
+                    Spacer()
+                    Text(value.cleanAmount)
+                        .font(.system(size: fontSize, weight: .regular, design: .default))
+                        .offset(x: 1)
+                }
+            )
+    }
+}
+
+extension Int: VectorArithmetic {
+    mutating public func scale(by rhs: Double) {
+        self = Int(Double(self) * rhs)
+    }
+
+    public var magnitudeSquared: Double {
+        Double(self * self)
+    }
+}
+
+extension View {
+    func animatedMealItemAmount(value: Double) -> some View {
+        modifier(AnimatableMealItemAmountModifier(value: value))
+    }
+}
 
 //MARK: - 👁‍🗨 Previews
 
