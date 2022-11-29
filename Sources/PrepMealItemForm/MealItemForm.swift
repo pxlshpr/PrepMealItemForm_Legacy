@@ -21,7 +21,8 @@ public struct MealItemForm: View {
     @State var showingDietsPicker = false
     
     @State var canBeSaved = true
-
+    @State var showingEquivalentQuantities: Bool = false
+    
     let alreadyInNavigationStack: Bool
     let didComplete: ((MealFoodItem, DayMeal, Day?) -> ())?
 
@@ -29,7 +30,7 @@ public struct MealItemForm: View {
     @Binding var isPresented: Bool
     
     public init(
-        meal: Meal? = nil,
+        dayMeal: DayMeal? = nil,
         food: Food? = nil,
         day: Day? = nil,
         isPresented: Binding<Bool>,
@@ -38,7 +39,7 @@ public struct MealItemForm: View {
         let viewModel = MealItemViewModel(
             food: food,
             day: day,
-            meal: meal,
+            dayMeal: dayMeal,
             dayMeals: day?.meals ?? []
         )
         self.viewModel = viewModel
@@ -57,12 +58,9 @@ public struct MealItemForm: View {
         _isPresented = isPresented
         alreadyInNavigationStack = true
     }
-}
-
-public extension MealItemForm {
     
     @ViewBuilder
-    var body: some View {
+    public var body: some View {
         Group {
             if alreadyInNavigationStack {
                 content
@@ -118,12 +116,13 @@ public extension MealItemForm {
         
         var amountRow: some View {
             HStack {
-                Text("Amount")
+                Text("Quantity")
                     .foregroundColor(.secondary)
                     .onTapGesture {
                         Haptics.feedback(style: .soft)
                         isFocused = true
                     }
+                equivalentSizesButton
                 Spacer()
                 textField
                 unitButton
@@ -145,6 +144,73 @@ public extension MealItemForm {
         }
     }
     
+    @ViewBuilder
+    var equivalentSizesButton: some View {
+        if !viewModel.equivalentQuantities.isEmpty {
+            Button {
+                Haptics.feedback(style: .soft)
+                withAnimation {
+                    showingEquivalentQuantities.toggle()
+                }
+            } label: {
+//                Image(systemName: "square.grid.3x2")
+                Image(systemName: "rectangle.grid.2x2")
+                    .font(.caption)
+                    .imageScale(.medium)
+            }
+            .sheet(isPresented: $showingEquivalentQuantities) { equivalentSizesSheet }
+        }
+    }
+    
+    var equivalentSizesSheet: some View {
+        var footer: some View {
+            Text("These are quantities in the other units for this food that equals what you've entered. Select one to use it instead.")
+        }
+        
+        return NavigationView {
+            FormStyledScrollView {
+                FormStyledSection(footer: footer, horizontalPadding: 0) {
+                    FlowLayout(
+                        mode: .scrollable,
+                        items: viewModel.equivalentQuantities,
+                        itemSpacing: 4,
+                        shouldAnimateHeight: .constant(true)
+                    ) { quantity in
+                        quantityButton(for: quantity)
+                    }
+                    .padding(.horizontal, 17)
+                }
+            }
+            .navigationTitle("Similar Quantities")
+            .navigationBarTitleDisplayMode(.inline)
+        }
+        .presentationDetents([.height(400)])
+        .presentationDragIndicator(.hidden)
+    }
+    
+    func quantityButton(for quantity: FoodQuantity) -> some View {
+        Button {
+            Haptics.feedback(style: .rigid)
+            viewModel.didPickQuantity(quantity)
+            showingEquivalentQuantities = false
+        } label: {
+            ZStack {
+                Capsule(style: .continuous)
+                    .foregroundColor(Color(.secondarySystemFill))
+                HStack(spacing: 5) {
+                    Text(quantity.value.cleanAmount)
+                        .foregroundColor(Color(.tertiaryLabel))
+                    Text(quantity.unit.shortDescription)
+                        .foregroundColor(Color(.secondaryLabel))
+                }
+                .frame(height: 25)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 5)
+            }
+            .fixedSize(horizontal: true, vertical: true)
+        }
+    }
+
     @ViewBuilder
     var unitPicker: some View {
         UnitPickerGridTiered(
@@ -522,7 +588,7 @@ public struct MealItemFormPreview: View {
         MealItemViewModel(
             food: FoodMock.peanutButter,
             day: DayMock.cutting,
-            meal: MealMock.preWorkoutEmpty,
+            dayMeal: DayMeal(from: MealMock.preWorkoutEmpty),
             dayMeals: []
         )
     }

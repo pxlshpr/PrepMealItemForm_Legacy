@@ -17,10 +17,10 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/pxlshpr/PrepCoreDataStack", from: "0.0.20"),
         .package(url: "https://github.com/pxlshpr/FoodLabel", from: "0.0.29"),
-        .package(url: "https://github.com/pxlshpr/PrepDataTypes", from: "0.0.202"),
+        .package(url: "https://github.com/pxlshpr/PrepDataTypes", from: "0.0.205"),
         .package(url: "https://github.com/pxlshpr/PrepFoodSearch", from: "0.0.48"),
         .package(url: "https://github.com/pxlshpr/PrepGoalSetsList", from: "0.0.1"),
-        .package(url: "https://github.com/pxlshpr/PrepViews", from: "0.0.100"),
+        .package(url: "https://github.com/pxlshpr/PrepViews", from: "0.0.102"),
         .package(url: "https://github.com/pxlshpr/SwiftUISugar", from: "0.0.235"),
         .package(url: "https://github.com/pxlshpr/Timeline", from: "0.0.68"),
     ],

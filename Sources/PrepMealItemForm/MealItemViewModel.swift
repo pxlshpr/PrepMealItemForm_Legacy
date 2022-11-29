@@ -30,17 +30,12 @@ public class MealItemViewModel: ObservableObject {
     
     @Published var isAnimatingAmountChange = false
 
-    public init(food: Food? = nil, day: Day? = nil, meal: Meal? = nil, dayMeals: [DayMeal] = []) {
+    public init(food: Food? = nil, day: Day? = nil, dayMeal: DayMeal? = nil, dayMeals: [DayMeal] = []) {
         self.day = day
         self.food = food
         self.dayMeals = dayMeals
         
-        if let meal {
-            self.dayMeal = DayMeal(from: meal)
-        } else {
-            self.dayMeal = DayMeal(name: "New Meal", time: Date().timeIntervalSince1970)
-        }
-        
+        self.dayMeal = dayMeal ?? DayMeal(name: "New Meal", time: Date().timeIntervalSince1970)
         
         //TODO: Handle this in a better way
         /// [ ] Try making `mealFoodItem` nil and set it as that if we don't get a food here
@@ -140,10 +135,13 @@ public class MealItemViewModel: ObservableObject {
     }
     
     func stepAmount(by step: Int) {
+        programmaticallyChangeAmount(to: (amount ?? 0) + Double(step))
+    }
+    
+    func programmaticallyChangeAmount(to newAmount: Double) {
         isAnimatingAmountChange = true
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-            let amount = self.amount ?? 0
-            self.amount = amount + Double(step)
+            self.amount = newAmount
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                 self.isAnimatingAmountChange = false
@@ -188,8 +186,10 @@ public class MealItemViewModel: ObservableObject {
     }
     
     func didPickQuantity(_ quantity: FoodQuantity) {
+//        programmaticallyChangeAmount(to: quantity.value)
         self.amount = quantity.value
         self.unit = quantity.unit
+        setFoodItem()
     }
     var amountHeaderString: String {
         unit.unitType.description

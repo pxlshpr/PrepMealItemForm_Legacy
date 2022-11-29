@@ -22,7 +22,7 @@ public extension MealItemForm {
         
         public init(
             day: Day? = nil,
-            meal: Meal? = nil,
+            dayMeal: DayMeal? = nil,
             viewModel: MealItemViewModel? = nil,
             isPresented: Binding<Bool>,
             didComplete: ((MealFoodItem, DayMeal, Day?) -> ())? = nil
@@ -34,7 +34,7 @@ public extension MealItemForm {
             } else {
                 let newViewModel = MealItemViewModel(
                     day: day,
-                    meal: meal,
+                    dayMeal: dayMeal,
                     dayMeals: day?.meals ?? []
                 )
                 _viewModel = ObservedObject(initialValue: newViewModel)
