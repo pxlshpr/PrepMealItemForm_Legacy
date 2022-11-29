@@ -47,7 +47,9 @@ public class MealItemViewModel: ObservableObject {
             amount: .init(0, .g)
         )
 
-        NotificationCenter.default.addObserver(self, selector: #selector(didPickMeal), name: .didPickMeal, object: nil)        
+        setDefaultUnit()
+        setFoodItem()
+        NotificationCenter.default.addObserver(self, selector: #selector(didPickMeal), name: .didPickMeal, object: nil)
     }
     
     @objc func didPickMeal(notification: Notification) {
@@ -68,7 +70,7 @@ public class MealItemViewModel: ObservableObject {
         //TODO: First see if we have a last-used unit and amount for this and use that
         /// Something like: `guard let lastUsedQuantity = DataManager.shared.lastUsedQuantity(for: food)`
         
-        guard let amountQuantity = food?.defaultQuantity else {
+        guard let amountQuantity = food?.defaultQuantity  else {
             return
         }
         self.amount = amountQuantity.value

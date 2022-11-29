@@ -13,16 +13,14 @@ public extension Notification.Name {
 
 public struct MealItemForm: View {
     @Environment(\.colorScheme) var colorScheme
+    @FocusState var isFocused: Bool
+    @State var showingUnitPicker = false
     @State var canBeSaved = true
+
+    let alreadyInNavigationStack: Bool
     
     @ObservedObject var viewModel: MealItemViewModel
     @Binding var isPresented: Bool
-    
-    @FocusState var isFocused: Bool
-    
-    @State var showingUnitPicker = false
-
-    let alreadyInNavigationStack: Bool
     
     public init(meal: Meal? = nil, food: Food? = nil, day: Day? = nil, isPresented: Binding<Bool>) {
         let viewModel = MealItemViewModel(
@@ -76,20 +74,6 @@ public extension MealItemForm {
     }
     
     @ViewBuilder
-    var unitPicker: some View {
-        UnitPickerGridTiered(
-            pickedUnit: viewModel.unit.formUnit,
-            includeServing: viewModel.shouldShowServingInUnitPicker,
-            includeWeights: viewModel.shouldShowWeightUnits,
-            includeVolumes: viewModel.shouldShowVolumeUnits,
-            sizes: viewModel.foodSizes,
-            servingDescription: viewModel.servingDescription,
-            allowAddSize: false,
-            didPickUnit: viewModel.didPickUnit
-        )
-    }
-    
-    @ViewBuilder
     func navigationDestination(for route: MealItemFormRoute) -> some View {
         switch route {
         case .food:
@@ -103,6 +87,60 @@ public extension MealItemForm {
             EmptyView()
         }
     }
+    
+    //MARK: - Details
+    
+    var detailsSection: some View {
+        var divider: some View {
+            Divider()
+                .padding(.top, 5)
+                .padding(.bottom, 10)
+                .padding(.leading, 50)
+        }
+        
+        var amountRow: some View {
+            HStack {
+                Text("Amount")
+                    .foregroundColor(.secondary)
+                    .onTapGesture {
+                        Haptics.feedback(style: .soft)
+                        isFocused = true
+                    }
+                Spacer()
+                textField
+                unitButton
+            }
+        }
+        
+        return FormStyledSection(horizontalPadding: 0) {
+            VStack {
+                foodLink
+                    .padding(.horizontal, 17)
+                divider
+                mealLink
+                    .padding(.horizontal, 17)
+                divider
+                amountRow
+                    .padding(.horizontal, 17)
+                .padding(.bottom, 5)
+            }
+        }
+    }
+    
+    @ViewBuilder
+    var unitPicker: some View {
+        UnitPickerGridTiered(
+            pickedUnit: viewModel.unit.formUnit,
+            includeServing: viewModel.shouldShowServingInUnitPicker,
+            includeWeights: viewModel.shouldShowWeightUnits,
+            includeVolumes: viewModel.shouldShowVolumeUnits,
+            sizes: viewModel.foodSizes,
+            servingDescription: viewModel.servingDescription,
+            allowAddSize: false,
+            didPickUnit: viewModel.didPickUnit
+        )
+    }
+
     
     @ViewBuilder
     var foodLink: some View {
@@ -162,45 +200,6 @@ public extension MealItemForm {
 //                Text("10:30 am • Pre-workout Meal")
                 .frame(maxWidth: .infinity, alignment: .leading)
 //                    .foregroundColor(.accentColor)
-        }
-    }
-    
-    var detailsSection: some View {
-        FormStyledSection(horizontalPadding: 0) {
-            VStack {
-                foodLink
-                    .padding(.leading, 17)
-                    .padding(.trailing, 17)
-
-                Divider()
-                    .padding(.top, 5)
-                    .padding(.bottom, 10)
-                    .padding(.leading, 50)
-
-                mealLink
-                    .padding(.leading, 17)
-                    .padding(.trailing, 17)
-
-                Divider()
-                    .padding(.top, 5)
-                    .padding(.bottom, 10)
-                    .padding(.leading, 20)
-                
-                HStack {
-                    Text("Amount")
-                        .foregroundColor(.secondary)
-                        .onTapGesture {
-                            Haptics.feedback(style: .soft)
-                            isFocused = true
-                        }
-                    Spacer()
-                    textField
-                    unitButton
-                }
-                .padding(.leading, 17)
-                .padding(.trailing, 17)
-                .padding(.bottom, 5)
-            }
         }
     }
     
@@ -390,16 +389,24 @@ extension MealItemForm {
 
 //MARK: - 👁‍🗨 Previews
 
-struct MealItemFormPreview: View {
+public struct MealItemFormPreview: View {
     var mockViewModel: MealItemViewModel {
         MealItemViewModel(
+            food: FoodMock.peanutButter,
+            day: DayMock.cutting,
+            meal: MealMock.preWorkoutEmpty,
             dayMeals: []
         )
     }
     
-    var body: some View {
+    public init() { }
+    
+    public var body: some View {
         NavigationView {
-            MealItemForm(viewModel: mockViewModel, isPresented: .constant(true))
+            MealItemForm(
+                viewModel: mockViewModel,
+                isPresented: .constant(true)
+            )
         }
     }
 }
