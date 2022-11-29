@@ -6,6 +6,7 @@ import PrepDataTypes
 import SwiftHaptics
 import PrepCoreDataStack
 import PrepMocks
+import PrepGoalSetsList
 
 public extension Notification.Name {
     static var didPickMeal: Notification.Name { return .init("didPickMeal") }
@@ -14,7 +15,11 @@ public extension Notification.Name {
 public struct MealItemForm: View {
     @Environment(\.colorScheme) var colorScheme
     @FocusState var isFocused: Bool
+    
     @State var showingUnitPicker = false
+    @State var showingMealTypesPicker = false
+    @State var showingDietsPicker = false
+    
     @State var canBeSaved = true
 
     let alreadyInNavigationStack: Bool
@@ -162,10 +167,7 @@ public extension MealItemForm {
                     )
                     .animation(.default, value: viewModel.mealFoodItem)
                     .fixedSize(horizontal: true, vertical: false)
-                    Image(systemName: "chevron.right")
-                        .imageScale(.small)
-                        .fontWeight(.medium)
-                        .foregroundColor(Color(.tertiaryLabel))
+                    navigationLinkArrow
                 }
                 .multilineTextAlignment(.leading)
             }
@@ -194,10 +196,7 @@ public extension MealItemForm {
                                 .foregroundColor(Color(.secondarySystemFill))
                         )
                 }
-                Image(systemName: "chevron.right")
-                    .imageScale(.small)
-                    .fontWeight(.medium)
-                    .foregroundColor(Color(.tertiaryLabel))
+                navigationLinkArrow
             }
 //                Text("10:30 am • Pre-workout Meal")
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -214,6 +213,39 @@ public extension MealItemForm {
             .scrollDismissesKeyboard(.interactively)
             .navigationBarBackButtonHidden(true)
             .sheet(isPresented: $showingUnitPicker) { unitPicker }
+            .sheet(isPresented: $showingMealTypesPicker) { mealTypesPicker }
+            .sheet(isPresented: $showingDietsPicker) { dietsPicker }
+    }
+    
+    var mealTypesPicker: some View {
+        Text("Meal Types Picker")
+    }
+    
+    var dietsPicker: some View {
+        NavigationView {
+            GoalSetsList(
+                showCloseButton: false,
+                allowsSelection: true,
+                forMealItemForm: true,
+                selectedGoalSet: viewModel.day?.goalSet
+            ) { tappedGoalSet in
+                do {
+                    //TODO: Only persist changes for goals once food item is added
+                    guard let day = viewModel.day else { return }
+                    if day.goalSet?.id == tappedGoalSet.id {
+//                        try DataManager.shared.removeGoalSet(on: day.date)
+                        viewModel.day?.goalSet = nil
+                    } else {
+//                        try DataManager.shared.setGoalSet(tappedGoalSet, on: day.date)
+                        viewModel.day?.goalSet = tappedGoalSet
+                    }
+//                    NotificationCenter.default.post(name: .didUpdateDiet, object: nil)
+                } catch {
+                    print("Error setting GoalSet: \(error)")
+                }
+            }
+        }
+        .presentationDetents([.medium, .large])
     }
     
     var form: some View {
@@ -230,14 +262,20 @@ public extension MealItemForm {
         MealItemMeters(
             foodItem: $viewModel.mealFoodItem,
             meal: $viewModel.dayMeal,
-            day: viewModel.day, //TODO: Get
+            day: $viewModel.day,
             userUnits: DataManager.shared.user?.units ?? .standard,
 //            bodyProfile: viewModel.day?.bodyProfile //TODO: We need to load the Day's bodyProfile here once supported
             bodyProfile: DataManager.shared.user?.bodyProfile,
-            didTapGoalSetButton: { forMeal in
-                
-            }
+            didTapGoalSetButton: didTapGoalSetButton
         )
+    }
+    
+    func didTapGoalSetButton(forMeal: Bool) {
+        if forMeal {
+            showingMealTypesPicker = true
+        } else {
+            showingDietsPicker = true
+        }
     }
     
     var mealPicker: some View {
