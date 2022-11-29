@@ -6,7 +6,7 @@ import PrepFoodSearch
 
 public extension MealItemForm {
     
-    struct FoodSearch: View {
+    struct Search: View {
         
         @Environment(\.dismiss) var dismiss
         @State var foodToShowMacrosFor: Food? = nil
@@ -15,6 +15,8 @@ public extension MealItemForm {
         
         @ObservedObject var viewModel: MealItemViewModel
         @Binding var isPresented: Bool
+        
+        @State var searchIsFocused: Bool = false
         
         public init(
             day: Day? = nil,
@@ -38,7 +40,7 @@ public extension MealItemForm {
     }
 }
 
-extension MealItemForm.FoodSearch {
+extension MealItemForm.Search {
     
     @ViewBuilder
     public var body: some View {
@@ -49,7 +51,9 @@ extension MealItemForm.FoodSearch {
                 foodSearch
             }
         }
-        .interactiveDismissDisabled(!viewModel.path.isEmpty)
+        //TODO: Bring this back once we can tell if the search field is focused and
+//        .interactiveDismissDisabled(!viewModel.path.isEmpty)
+        .interactiveDismissDisabled(!viewModel.path.isEmpty || searchIsFocused)
     }
 
     var navigationStack: some View {
@@ -60,7 +64,7 @@ extension MealItemForm.FoodSearch {
                 case .mealItemForm:
                     MealItemForm(viewModel: viewModel, isPresented: $isPresented)
                 case .food:
-                    MealItemForm.FoodSearch(
+                    MealItemForm.Search(
                         viewModel: viewModel,
                         isPresented: $isPresented
                     )
@@ -103,6 +107,7 @@ extension MealItemForm.FoodSearch {
         return FoodSearch(
             dataProvider: DataManager.shared,
             shouldDelayContents: isInitialFoodSearch,
+            searchIsFocused: $searchIsFocused,
             didTapClose: didTapClose,
             didTapFood: didTapFood,
             didTapMacrosIndicatorForFood: didTapMacrosIndicatorForFood

@@ -22,7 +22,7 @@ public class MealItemViewModel: ObservableObject {
     @Published var internalAmountDouble: Double? = 1
     @Published var internalAmountString: String = "1"
 
-    @Published var dayMeal: DayMeal? = nil
+    @Published var dayMeal: DayMeal
 
     @Published var day: Day? = nil
 
@@ -134,10 +134,7 @@ public class MealItemViewModel: ObservableObject {
     }
     
     var saveButtonTitle: String {
-        guard let dayMeal else {
-            return "Prep"
-        }
-        return dayMeal.time < Date().timeIntervalSince1970 ? "Log" : "Prep"
+        dayMeal.time < Date().timeIntervalSince1970 ? "Log" : "Prep"
     }
     
     func stepAmount(by step: Int) {

@@ -77,7 +77,7 @@ public extension MealItemForm {
     func navigationDestination(for route: MealItemFormRoute) -> some View {
         switch route {
         case .food:
-            FoodSearch(
+            Search(
                 viewModel: viewModel,
                 isPresented: $isPresented
             )
@@ -153,6 +153,7 @@ public extension MealItemForm {
                         food: food,
                         showMacrosIndicator: false
                     )
+                    .animation(.default, value: viewModel.mealFoodItem)
                     .fixedSize(horizontal: false, vertical: true)
                     Spacer()
                     NutritionSummary(
@@ -179,10 +180,10 @@ public extension MealItemForm {
                     .foregroundColor(.secondary)
                 Spacer()
                 VStack(alignment: .trailing, spacing: 2) {
-                    Text("Pre-Workout Meal")
+                    Text(viewModel.dayMeal.name)
                         .multilineTextAlignment(.trailing)
                         .foregroundColor(.accentColor)
-                    Text("10:30 am")
+                    Text(viewModel.dayMeal.timeString)
                         .font(.footnote)
                         .foregroundColor(.secondary)
                         .padding(.vertical, 3)
