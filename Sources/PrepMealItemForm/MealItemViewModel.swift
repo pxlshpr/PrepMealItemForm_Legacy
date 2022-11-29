@@ -275,18 +275,6 @@ extension MealItemViewModel {
 }
 
 extension MealItemViewModel: NutritionSummaryProvider {
-    public var forMeal: Bool {
-        false
-    }
-    
-    public var isMarkedAsCompleted: Bool {
-        false
-    }
-    
-    public var showQuantityAsSummaryDetail: Bool {
-        false
-    }
-    
     public var energyAmount: Double {
         mealFoodItem.scaledValue(for: .energy)
     }

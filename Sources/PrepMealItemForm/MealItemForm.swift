@@ -160,6 +160,7 @@ public extension MealItemForm {
                         dataProvider: viewModel,
                         showMacrosIndicator: true
                     )
+                    .animation(.default, value: viewModel.mealFoodItem)
                     .fixedSize(horizontal: true, vertical: false)
                     Image(systemName: "chevron.right")
                         .imageScale(.small)
