@@ -22,8 +22,6 @@ public class MealItemViewModel: ObservableObject {
     @Published var internalAmountDouble: Double? = 1
     @Published var internalAmountString: String = "1"
 
-//    @Published var meal: Meal? = nil
-    @Published var meal: Meal? = nil
     @Published var dayMeal: DayMeal? = nil
 
     @Published var day: Day? = nil
@@ -33,12 +31,15 @@ public class MealItemViewModel: ObservableObject {
     public init(food: Food? = nil, day: Day? = nil, meal: Meal? = nil, dayMeals: [DayMeal] = []) {
         self.day = day
         self.food = food
-        self.meal = meal
         self.dayMeals = dayMeals
         
         if let meal {
             self.dayMeal = DayMeal(from: meal)
+        } else {
+            self.dayMeal = DayMeal(name: "New Meal", time: Date().timeIntervalSince1970)
         }
+        
+        
         //TODO: Handle this in a better way
         /// [ ] Try making `mealFoodItem` nil and set it as that if we don't get a food here
         /// [ ] Try and get this fed in with an existing `FoodItem`, from which we create this when editing!
@@ -133,10 +134,10 @@ public class MealItemViewModel: ObservableObject {
     }
     
     var saveButtonTitle: String {
-        guard let meal else {
+        guard let dayMeal else {
             return "Prep"
         }
-        return meal.day.date < Date() ? "Log" : "Prep"
+        return dayMeal.time < Date().timeIntervalSince1970 ? "Log" : "Prep"
     }
     
     func stepAmount(by step: Int) {
