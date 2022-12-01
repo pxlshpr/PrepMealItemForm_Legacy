@@ -24,7 +24,8 @@ public struct MealItemForm: View {
     @State var showingEquivalentQuantities: Bool = false
     
     let alreadyInNavigationStack: Bool
-    let didComplete: ((MealFoodItem, DayMeal, Day?) -> ())?
+    let didTapSave: ((MealFoodItem, DayMeal) -> ())?
+    let didTapDelete: (() -> ())?
 
     @ObservedObject var viewModel: MealItemViewModel
     @Binding var isPresented: Bool
@@ -35,9 +36,10 @@ public struct MealItemForm: View {
         dayMeal: DayMeal? = nil,
         food: Food? = nil,
         isPresented: Binding<Bool>,
-        didComplete: ((MealFoodItem, DayMeal, Day?) -> ())? = nil
+        didTapSave: ((MealFoodItem, DayMeal) -> ())? = nil
     ) {
         let viewModel = MealItemViewModel(
+            existingMealFoodItemId: nil,
             date: date,
             day: day,
             dayMeal: dayMeal,
@@ -45,18 +47,44 @@ public struct MealItemForm: View {
             dayMeals: day?.meals ?? []
         )
         self.viewModel = viewModel
-        self.didComplete = didComplete
+        self.didTapDelete = nil
+        self.didTapSave = didTapSave
         _isPresented = isPresented
         alreadyInNavigationStack = false
     }
-    
+
+    public init(
+        mealFoodItemToEdit mealFoodItem: MealFoodItem,
+        date: Date,
+        day: Day,
+        dayMeal: DayMeal,
+        isPresented: Binding<Bool>,
+        didTapDelete: (() -> ())? = nil,
+        didTapSave: ((MealFoodItem, DayMeal) -> ())? = nil
+    ) {
+        self.viewModel = MealItemViewModel(
+            existingMealFoodItemId: mealFoodItem.id,
+            date: day.date,
+            day: day,
+            dayMeal: dayMeal,
+            food: mealFoodItem.food,
+            amount: mealFoodItem.amount,
+            dayMeals: day.meals
+        )
+        self.didTapSave = didTapSave
+        self.didTapDelete = didTapDelete
+        _isPresented = isPresented
+        alreadyInNavigationStack = false
+    }
+
     public init(
         viewModel: MealItemViewModel,
         isPresented: Binding<Bool>,
-        didComplete: ((MealFoodItem, DayMeal, Day?) -> ())? = nil
+        didTapSave: ((MealFoodItem, DayMeal) -> ())? = nil
     ) {
         self.viewModel = viewModel
-        self.didComplete = didComplete
+        self.didTapDelete = nil
+        self.didTapSave = didTapSave
         _isPresented = isPresented
         alreadyInNavigationStack = true
     }
@@ -124,7 +152,7 @@ public struct MealItemForm: View {
                         Haptics.feedback(style: .soft)
                         isFocused = true
                     }
-                equivalentSizesButton
+//                equivalentSizesButton
                 Spacer()
                 textField
                 unitButton
@@ -160,7 +188,6 @@ public struct MealItemForm: View {
                     .font(.caption)
                     .imageScale(.medium)
             }
-            .sheet(isPresented: $showingEquivalentQuantities) { equivalentSizesSheet }
         }
     }
     
@@ -288,7 +315,7 @@ public struct MealItemForm: View {
     var formLayer: some View {
         form
             .safeAreaInset(edge: .bottom) { bottomSafeAreaInset }
-            .navigationTitle("\(viewModel.saveButtonTitle) Food")
+            .navigationTitle(viewModel.navigationTitle)
             .toolbar { trailingContents }
             .toolbar { leadingContents }
             .scrollDismissesKeyboard(.interactively)
@@ -296,6 +323,7 @@ public struct MealItemForm: View {
             .sheet(isPresented: $showingUnitPicker) { unitPicker }
             .sheet(isPresented: $showingMealTypesPicker) { mealTypesPicker }
             .sheet(isPresented: $showingDietsPicker) { dietsPicker }
+            .sheet(isPresented: $showingEquivalentQuantities) { equivalentSizesSheet }
     }
     
     var mealTypesPicker: some View {
@@ -313,6 +341,7 @@ public struct MealItemForm: View {
                 if let day {
                     viewModel.day = day
                 }
+                viewModel.day?.goalSet = tappedGoalSet
                 
                 //TODO: Do these
                 /// [x] Look into what `forMealItemForm` is used for as it may be redundant
@@ -334,6 +363,24 @@ public struct MealItemForm: View {
         FormStyledScrollView {
             detailsSection
             metersSection
+            deleteButtonSection
+        }
+    }
+    
+    @ViewBuilder
+    var deleteButtonSection: some View {
+        if viewModel.isEditing {
+            FormStyledSection {
+                Button(role: .destructive) {
+                    didTapDelete?()
+                    isPresented = false
+                } label: {
+                    HStack {
+                        Label("Delete", systemImage: "trash")
+                            .imageScale(.small)
+                    }
+                }
+            }
         }
     }
     var bottomSafeAreaInset: some View {
@@ -368,14 +415,19 @@ public struct MealItemForm: View {
     }
     
     var trailingContents: some ToolbarContent {
-        ToolbarItem(placement: .navigationBarTrailing) {
+        ToolbarItemGroup(placement: .navigationBarTrailing) {
+//            if viewModel.isEditing {
+//                Button(role: .destructive) {
+//                } label: {
+//                }
+//            }
             if canBeSaved {
                 Button {
                     Haptics.feedback(style: .soft)
-                    didComplete?(viewModel.mealFoodItem, viewModel.dayMeal, viewModel.day)
+                    didTapSave?(viewModel.mealFoodItem, viewModel.dayMeal)
                     isPresented = false
                 } label: {
-                    Text("Add")
+                    Text(viewModel.saveButtonTitle)
                 }
             }
         }
@@ -478,9 +530,10 @@ extension MealItemForm {
             stepButton(step: -50)
             stepButton(step: -10)
             stepButton(step: -1)
-            dotSeparator
+//            dotSeparator
             unitBottomButton
-            dotSeparator
+            similarSizesBottomButton
+//            dotSeparator
             stepButton(step: 1)
             stepButton(step: 10)
             stepButton(step: 50)
@@ -488,11 +541,30 @@ extension MealItemForm {
     }
 
     func stepButton(step: Int) -> some View {
-        Button {
+        var number: String {
+            "\(abs(step))"
+        }
+        var sign: String {
+            step > 0 ? "+" : "-"
+        }
+        
+        var disabled: Bool {
+            !viewModel.amountCanBeStepped(by: step)
+        }
+        var fontWeight: Font.Weight {
+            disabled ? .thin : .semibold
+        }
+        
+        return Button {
             Haptics.feedback(style: .soft)
             viewModel.stepAmount(by: step)
         } label: {
-            Text("\(step > 0 ? "+" : "-") \(abs(step))")
+            HStack(spacing: 1) {
+                Text(sign)
+                    .font(.system(.caption, design: .rounded, weight: .regular))
+                Text(number)
+                    .font(.system(.footnote, design: .rounded, weight: fontWeight))
+            }
             .monospacedDigit()
             .foregroundColor(.accentColor)
             .frame(maxWidth: .infinity)
@@ -508,7 +580,7 @@ extension MealItemForm {
                     )
             )
         }
-        .disabled(!viewModel.amountCanBeStepped(by: step))
+        .disabled(disabled)
     }
     
     var unitBottomButton: some View {
@@ -517,7 +589,30 @@ extension MealItemForm {
             showingUnitPicker = true
         } label: {
             Image(systemName: "chevron.up.chevron.down")
-                .imageScale(.large)
+                .imageScale(.medium)
+//                .foregroundColor(.white)
+                .foregroundColor(.accentColor)
+                .frame(width: 44, height: 44)
+                .background(colorScheme == .light ? .ultraThickMaterial : .ultraThinMaterial)
+//                .background(Color.accentColor)
+                .cornerRadius(10)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        .stroke(
+                            Color.accentColor.opacity(0.7),
+                            style: StrokeStyle(lineWidth: 0.5, dash: [3])
+                        )
+                )
+        }
+    }
+    
+    var similarSizesBottomButton: some View {
+        Button {
+            Haptics.feedback(style: .soft)
+            showingEquivalentQuantities = true
+        } label: {
+            Image(systemName: "square.grid.3x2")
+                .imageScale(.medium)
 //                .foregroundColor(.white)
                 .foregroundColor(.accentColor)
                 .frame(width: 44, height: 44)
@@ -589,6 +684,7 @@ extension View {
 public struct MealItemFormPreview: View {
     var mockViewModel: MealItemViewModel {
         MealItemViewModel(
+            existingMealFoodItemId: nil,
             date: Date(),
             day: DayMock.cutting,
             dayMeal: DayMeal(from: MealMock.preWorkoutEmpty),

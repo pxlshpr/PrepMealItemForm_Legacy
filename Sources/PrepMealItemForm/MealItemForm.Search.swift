@@ -18,14 +18,14 @@ public extension MealItemForm {
         
         @State var searchIsFocused: Bool = false
         
-        let didComplete: ((MealFoodItem, DayMeal, Day?) -> ())?
+        let didTapSave: ((MealFoodItem, DayMeal) -> ())?
 
         public init(
             date: Date,
             day: Day? = nil,
             dayMeal: DayMeal? = nil,
             isPresented: Binding<Bool>,
-            didComplete: ((MealFoodItem, DayMeal, Day?) -> ())? = nil
+            didTapSave: ((MealFoodItem, DayMeal) -> ())? = nil
         ) {
             self.init(
                 date: date,
@@ -33,14 +33,14 @@ public extension MealItemForm {
                 dayMeal: dayMeal,
                 viewModel: nil,
                 isPresented: isPresented,
-                didComplete: didComplete
+                didTapSave: didTapSave
             )
         }
 
         public init(
             viewModel: MealItemViewModel,
             isPresented: Binding<Bool>,
-            didComplete: ((MealFoodItem, DayMeal, Day?) -> ())? = nil
+            didTapSave: ((MealFoodItem, DayMeal) -> ())? = nil
         ) {
             self.init(
                 date: viewModel.date,
@@ -48,7 +48,7 @@ public extension MealItemForm {
                 dayMeal: nil,
                 viewModel: viewModel,
                 isPresented: isPresented,
-                didComplete: didComplete
+                didTapSave: didTapSave
             )
         }
 
@@ -58,14 +58,15 @@ public extension MealItemForm {
             dayMeal: DayMeal? = nil,
             viewModel: MealItemViewModel? = nil,
             isPresented: Binding<Bool>,
-            didComplete: ((MealFoodItem, DayMeal, Day?) -> ())? = nil
+            didTapSave: ((MealFoodItem, DayMeal) -> ())? = nil
         ) {
-            self.didComplete = didComplete
+            self.didTapSave = didTapSave
             self.isInitialFoodSearch = viewModel == nil
             if let viewModel {
                 self.viewModel = viewModel
             } else {
                 let newViewModel = MealItemViewModel(
+                    existingMealFoodItemId: nil,
                     date: date,
                     day: day,
                     dayMeal: dayMeal,
@@ -103,7 +104,7 @@ extension MealItemForm.Search {
                     MealItemForm(
                         viewModel: viewModel,
                         isPresented: $isPresented,
-                        didComplete: didComplete
+                        didTapSave: didTapSave
                     )
                 case .food:
                     MealItemForm.Search(

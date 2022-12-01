@@ -14,7 +14,7 @@ public class MealItemViewModel: ObservableObject {
     
     let date: Date
     
-    @Published var path: [MealItemFormRoute] = []
+    @Published var path: [MealItemFormRoute]
 
     @Published var food: Food?
     @Published var dayMeals: [DayMeal]
@@ -32,13 +32,18 @@ public class MealItemViewModel: ObservableObject {
     
     @Published var isAnimatingAmountChange = false
 
+    let existingMealFoodItemId: UUID?
+    
     public init(
+        existingMealFoodItemId: UUID?,
         date: Date,
         day: Day? = nil,
         dayMeal: DayMeal? = nil,
         food: Food? = nil,
+        amount: FoodValue? = nil,
         dayMeals: [DayMeal] = [] //TODO: Do we need to pass this in if we have day?
     ) {
+        self.path = []
         self.date = date
         self.day = day
         self.food = food
@@ -54,7 +59,16 @@ public class MealItemViewModel: ObservableObject {
             amount: .init(0, .g)
         )
 
-        setDefaultUnit()
+        self.existingMealFoodItemId = existingMealFoodItemId
+
+        if let amount, let food,
+           let unit = FoodQuantity.Unit(foodValue: amount, in: food)
+        {
+            self.amount = amount.value
+            self.unit = unit
+        } else {
+            setDefaultUnit()
+        }
         setFoodItem()
         NotificationCenter.default.addObserver(self, selector: #selector(didPickMeal), name: .didPickMeal, object: nil)
     }
@@ -98,6 +112,7 @@ public class MealItemViewModel: ObservableObject {
     func setFoodItem() {
         guard let food else { return }
         self.mealFoodItem = MealFoodItem(
+            id: existingMealFoodItemId ?? UUID(),
             food: food,
             amount: amountValue
         )
@@ -139,8 +154,20 @@ public class MealItemViewModel: ObservableObject {
         ""
     }
     
+    var isEditing: Bool {
+        existingMealFoodItemId != nil
+    }
+    
+    var navigationTitle: String {
+        guard !isEditing else {
+            return "Edit Entry"
+        }
+        let prefix = dayMeal.time < Date().timeIntervalSince1970 ? "Log" : "Prep"
+        return "\(prefix) Food"
+    }
+    
     var saveButtonTitle: String {
-        dayMeal.time < Date().timeIntervalSince1970 ? "Log" : "Prep"
+        isEditing ? "Save" : "Add"
     }
     
     func stepAmount(by step: Int) {
