@@ -12,6 +12,8 @@ public enum MealItemFormRoute {
 
 public class MealItemViewModel: ObservableObject {
     
+    let date: Date
+    
     @Published var path: [MealItemFormRoute] = []
 
     @Published var food: Food?
@@ -30,7 +32,14 @@ public class MealItemViewModel: ObservableObject {
     
     @Published var isAnimatingAmountChange = false
 
-    public init(food: Food? = nil, day: Day? = nil, dayMeal: DayMeal? = nil, dayMeals: [DayMeal] = []) {
+    public init(
+        date: Date,
+        day: Day? = nil,
+        dayMeal: DayMeal? = nil,
+        food: Food? = nil,
+        dayMeals: [DayMeal] = [] //TODO: Do we need to pass this in if we have day?
+    ) {
+        self.date = date
         self.day = day
         self.food = food
         self.dayMeals = dayMeals

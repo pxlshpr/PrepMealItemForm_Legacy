@@ -19,8 +19,41 @@ public extension MealItemForm {
         @State var searchIsFocused: Bool = false
         
         let didComplete: ((MealFoodItem, DayMeal, Day?) -> ())?
-        
+
         public init(
+            date: Date,
+            day: Day? = nil,
+            dayMeal: DayMeal? = nil,
+            isPresented: Binding<Bool>,
+            didComplete: ((MealFoodItem, DayMeal, Day?) -> ())? = nil
+        ) {
+            self.init(
+                date: date,
+                day: day,
+                dayMeal: dayMeal,
+                viewModel: nil,
+                isPresented: isPresented,
+                didComplete: didComplete
+            )
+        }
+
+        public init(
+            viewModel: MealItemViewModel,
+            isPresented: Binding<Bool>,
+            didComplete: ((MealFoodItem, DayMeal, Day?) -> ())? = nil
+        ) {
+            self.init(
+                date: viewModel.date,
+                day: nil,
+                dayMeal: nil,
+                viewModel: viewModel,
+                isPresented: isPresented,
+                didComplete: didComplete
+            )
+        }
+
+        private init(
+            date: Date,
             day: Day? = nil,
             dayMeal: DayMeal? = nil,
             viewModel: MealItemViewModel? = nil,
@@ -33,6 +66,7 @@ public extension MealItemForm {
                 self.viewModel = viewModel
             } else {
                 let newViewModel = MealItemViewModel(
+                    date: date,
                     day: day,
                     dayMeal: dayMeal,
                     dayMeals: day?.meals ?? []

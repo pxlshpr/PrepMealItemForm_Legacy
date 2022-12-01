@@ -30,16 +30,18 @@ public struct MealItemForm: View {
     @Binding var isPresented: Bool
     
     public init(
+        date: Date,
+        day: Day? = nil,
         dayMeal: DayMeal? = nil,
         food: Food? = nil,
-        day: Day? = nil,
         isPresented: Binding<Bool>,
         didComplete: ((MealFoodItem, DayMeal, Day?) -> ())? = nil
     ) {
         let viewModel = MealItemViewModel(
-            food: food,
+            date: date,
             day: day,
             dayMeal: dayMeal,
+            food: food,
             dayMeals: day?.meals ?? []
         )
         self.viewModel = viewModel
@@ -303,8 +305,8 @@ public struct MealItemForm: View {
     var dietsPicker: some View {
         NavigationView {
             GoalSetPicker(
+                date: viewModel.date,
                 showCloseButton: false,
-                allowsSelection: true,
                 selectedGoalSet: viewModel.day?.goalSet
             ) { tappedGoalSet in
                 do {
@@ -600,9 +602,10 @@ extension View {
 public struct MealItemFormPreview: View {
     var mockViewModel: MealItemViewModel {
         MealItemViewModel(
-            food: FoodMock.peanutButter,
+            date: Date(),
             day: DayMock.cutting,
             dayMeal: DayMeal(from: MealMock.preWorkoutEmpty),
+            food: FoodMock.peanutButter,
             dayMeals: []
         )
     }
