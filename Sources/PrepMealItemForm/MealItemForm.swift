@@ -302,15 +302,29 @@ public struct MealItemForm: View {
     
     var dietsPicker: some View {
         NavigationView {
-            GoalSetsList(
+            GoalSetPicker(
                 showCloseButton: false,
                 allowsSelection: true,
-                forMealItemForm: true,
                 selectedGoalSet: viewModel.day?.goalSet
             ) { tappedGoalSet in
                 do {
-                    //TODO: Only persist changes for goals once food item is added
-                    guard let day = viewModel.day else { return }
+                    
+                    //TODO: Do these
+                    /// [ ] Look into what `forMealItemForm` is used for as it may be redundant
+                    /// [ ] Make `GoalSetsList` create the day and set the diet in one place
+                    /// [ ] Instead of this, get use `didChangeGoalSet(to goalSet: GoalSet?, and day: Day?)`
+                    /// [ ] Include the "+" add button when in goal selection mode too
+                    /// [ ] When in goal selection mode, adding a button should immediatly select it and dismiss, wile returning the callback
+                    /// [ ] If a `Day` was supplied, set that in the `viewModel` first
+                    ///
+                    /// Now reuse this for the meal types picker
+                    /// [ ] Do the same, except we don't care about `Day`, and simply set meal's `goalSet` to what was provided (a `GoalSet` or `nil`)
+                    /// [ ] Create a helper (on `GoalSetForm`) that completes the form with mock data when invoked
+                    
+                    guard let day = viewModel.day else {
+                        return
+                    }
+                    
                     if day.goalSet?.id == tappedGoalSet.id {
 //                        try DataManager.shared.removeGoalSet(on: day.date)
                         viewModel.day?.goalSet = nil
