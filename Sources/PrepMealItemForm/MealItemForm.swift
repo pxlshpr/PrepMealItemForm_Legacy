@@ -39,7 +39,7 @@ public struct MealItemForm: View {
         didTapSave: ((MealFoodItem, DayMeal) -> ())? = nil
     ) {
         let viewModel = MealItemViewModel(
-            existingMealFoodItemId: nil,
+            existingMealFoodItem: nil,
             date: date,
             day: day,
             dayMeal: dayMeal,
@@ -63,7 +63,7 @@ public struct MealItemForm: View {
         didTapSave: ((MealFoodItem, DayMeal) -> ())? = nil
     ) {
         self.viewModel = MealItemViewModel(
-            existingMealFoodItemId: mealFoodItem.id,
+            existingMealFoodItem: mealFoodItem,
             date: day.date,
             day: day,
             dayMeal: dayMeal,
@@ -689,7 +689,7 @@ extension View {
 public struct MealItemFormPreview: View {
     var mockViewModel: MealItemViewModel {
         MealItemViewModel(
-            existingMealFoodItemId: nil,
+            existingMealFoodItem: nil,
             date: Date(),
             day: DayMock.cutting,
             dayMeal: DayMeal(from: MealMock.preWorkoutEmpty),

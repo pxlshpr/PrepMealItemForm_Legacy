@@ -66,7 +66,7 @@ public extension MealItemForm {
                 self.viewModel = viewModel
             } else {
                 let newViewModel = MealItemViewModel(
-                    existingMealFoodItemId: nil,
+                    existingMealFoodItem: nil,
                     date: date,
                     day: day,
                     dayMeal: dayMeal,

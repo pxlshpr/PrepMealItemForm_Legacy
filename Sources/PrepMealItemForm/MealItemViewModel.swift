@@ -32,10 +32,10 @@ public class MealItemViewModel: ObservableObject {
     
     @Published var isAnimatingAmountChange = false
 
-    let existingMealFoodItemId: UUID?
+    let existingMealFoodItem: MealFoodItem?
     
     public init(
-        existingMealFoodItemId: UUID?,
+        existingMealFoodItem: MealFoodItem?,
         date: Date,
         day: Day? = nil,
         dayMeal: DayMeal? = nil,
@@ -59,7 +59,7 @@ public class MealItemViewModel: ObservableObject {
             amount: .init(0, .g)
         )
 
-        self.existingMealFoodItemId = existingMealFoodItemId
+        self.existingMealFoodItem = existingMealFoodItem
 
         if let amount, let food,
            let unit = FoodQuantity.Unit(foodValue: amount, in: food)
@@ -112,9 +112,10 @@ public class MealItemViewModel: ObservableObject {
     func setFoodItem() {
         guard let food else { return }
         self.mealFoodItem = MealFoodItem(
-            id: existingMealFoodItemId ?? UUID(),
+            id: existingMealFoodItem?.id ?? UUID(),
             food: food,
-            amount: amountValue
+            amount: amountValue,
+            sortPosition: existingMealFoodItem?.sortPosition ?? 1
         )
     }
     
@@ -155,7 +156,7 @@ public class MealItemViewModel: ObservableObject {
     }
     
     var isEditing: Bool {
-        existingMealFoodItemId != nil
+        existingMealFoodItem != nil
     }
     
     var navigationTitle: String {
