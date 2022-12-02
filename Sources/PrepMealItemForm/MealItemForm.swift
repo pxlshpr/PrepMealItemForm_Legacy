@@ -141,7 +141,6 @@ public struct MealItemForm: View {
             Divider()
                 .padding(.top, 5)
                 .padding(.bottom, 10)
-                .padding(.leading, 50)
         }
         
         var amountRow: some View {
@@ -164,9 +163,11 @@ public struct MealItemForm: View {
                 foodLink
                     .padding(.horizontal, 17)
                 divider
+                    .padding(.leading, 50)
                 mealLink
                     .padding(.horizontal, 17)
                 divider
+                    .padding(.leading, 20)
                 amountRow
                     .padding(.horizontal, 17)
                 .padding(.bottom, 5)
