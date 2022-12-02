@@ -417,31 +417,35 @@ public struct MealItemForm: View {
     
     var trailingContents: some ToolbarContent {
         ToolbarItemGroup(placement: .navigationBarTrailing) {
-//            if viewModel.isEditing {
-//                Button(role: .destructive) {
-//                } label: {
-//                }
-//            }
-            if canBeSaved {
-                Button {
-                    Haptics.feedback(style: .soft)
-                    didTapSave?(viewModel.mealFoodItem, viewModel.dayMeal)
-                    isPresented = false
-                } label: {
-                    Text(viewModel.saveButtonTitle)
-                }
-            }
+            closeButton
         }
     }
 
     var leadingContents: some ToolbarContent {
         ToolbarItem(placement: .navigationBarLeading) {
+            saveButton
+        }
+    }
+    
+    @ViewBuilder
+    var saveButton: some View {
+        if canBeSaved {
             Button {
                 Haptics.feedback(style: .soft)
+                didTapSave?(viewModel.mealFoodItem, viewModel.dayMeal)
                 isPresented = false
             } label: {
-                closeButtonLabel
+                Text(viewModel.saveButtonTitle)
             }
+        }
+    }
+    
+    var closeButton: some View {
+        Button {
+            Haptics.feedback(style: .soft)
+            isPresented = false
+        } label: {
+            closeButtonLabel
         }
     }
 
