@@ -110,6 +110,12 @@ public struct MealItemForm: View {
     var content: some View {
         ZStack {
             formLayer
+//                .safeAreaInset(edge: .bottom) {
+//                    FormPrimaryButton(title: "Save") {
+//                        
+//                    }
+//                    .padding(.bottom, isFocused ? 10 : 70)
+//                }
             VStack {
                 Spacer()
                 bottomButtons
