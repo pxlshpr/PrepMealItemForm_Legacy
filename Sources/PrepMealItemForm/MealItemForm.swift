@@ -112,7 +112,7 @@ public struct MealItemForm: View {
             formLayer
 //                .safeAreaInset(edge: .bottom) {
 //                    FormPrimaryButton(title: "Save") {
-//                        
+//
 //                    }
 //                    .padding(.bottom, isFocused ? 10 : 70)
 //                }
@@ -423,13 +423,13 @@ public struct MealItemForm: View {
     
     var trailingContents: some ToolbarContent {
         ToolbarItemGroup(placement: .navigationBarTrailing) {
-            closeButton
+            saveButton
         }
     }
 
     var leadingContents: some ToolbarContent {
         ToolbarItem(placement: .navigationBarLeading) {
-            saveButton
+            closeButton
         }
     }
     
