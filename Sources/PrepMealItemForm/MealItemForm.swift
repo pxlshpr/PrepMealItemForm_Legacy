@@ -273,14 +273,14 @@ public struct MealItemForm: View {
                         food: food,
                         showMacrosIndicator: false
                     )
-                    .animation(.default, value: viewModel.mealFoodItem)
+                    .animation(.default, value: viewModel.amount)
                     .fixedSize(horizontal: false, vertical: true)
                     Spacer()
                     NutritionSummary(
                         dataProvider: viewModel,
                         showMacrosIndicator: true
                     )
-                    .animation(.default, value: viewModel.mealFoodItem)
+                    .animation(.default, value: viewModel.amount)
                     .fixedSize(horizontal: true, vertical: false)
                     navigationLinkArrow
                 }
