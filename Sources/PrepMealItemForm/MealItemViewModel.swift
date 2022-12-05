@@ -56,7 +56,8 @@ public class MealItemViewModel: ObservableObject {
         /// [ ] Try and get this fed in with an existing `FoodItem`, from which we create this when editing!
         self.mealFoodItem = MealFoodItem(
             food: food ?? FoodMock.peanutButter,
-            amount: .init(0, .g)
+            amount: .init(0, .g),
+            isSoftDeleted: false
         )
 
         self.existingMealFoodItem = existingMealFoodItem
@@ -115,7 +116,8 @@ public class MealItemViewModel: ObservableObject {
             id: existingMealFoodItem?.id ?? UUID(),
             food: food,
             amount: amountValue,
-            sortPosition: existingMealFoodItem?.sortPosition ?? 1
+            sortPosition: existingMealFoodItem?.sortPosition ?? 1,
+            isSoftDeleted: existingMealFoodItem?.isSoftDeleted ?? false
         )
     }
     
