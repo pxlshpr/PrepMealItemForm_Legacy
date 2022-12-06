@@ -14,17 +14,17 @@ public extension MealItemForm {
         let isInitialFoodSearch: Bool
         
         @ObservedObject var viewModel: MealItemViewModel
-        @Binding var isPresented: Bool
-        
+
         @State var searchIsFocused: Bool = false
         
         let didTapSave: ((MealFoodItem, DayMeal) -> ())?
+        let didTapDismiss: (() -> ())
 
         public init(
             date: Date,
             day: Day? = nil,
             dayMeal: DayMeal? = nil,
-            isPresented: Binding<Bool>,
+            didTapDismiss: @escaping () -> (),
             didTapSave: ((MealFoodItem, DayMeal) -> ())? = nil
         ) {
             self.init(
@@ -32,14 +32,14 @@ public extension MealItemForm {
                 day: day,
                 dayMeal: dayMeal,
                 viewModel: nil,
-                isPresented: isPresented,
+                didTapDismiss: didTapDismiss,
                 didTapSave: didTapSave
             )
         }
 
         public init(
             viewModel: MealItemViewModel,
-            isPresented: Binding<Bool>,
+            didTapDismiss: @escaping () -> (),
             didTapSave: ((MealFoodItem, DayMeal) -> ())? = nil
         ) {
             self.init(
@@ -47,7 +47,7 @@ public extension MealItemForm {
                 day: nil,
                 dayMeal: nil,
                 viewModel: viewModel,
-                isPresented: isPresented,
+                didTapDismiss: didTapDismiss,
                 didTapSave: didTapSave
             )
         }
@@ -57,7 +57,7 @@ public extension MealItemForm {
             day: Day? = nil,
             dayMeal: DayMeal? = nil,
             viewModel: MealItemViewModel? = nil,
-            isPresented: Binding<Bool>,
+            didTapDismiss: @escaping () -> (),
             didTapSave: ((MealFoodItem, DayMeal) -> ())? = nil
         ) {
             self.didTapSave = didTapSave
@@ -74,7 +74,7 @@ public extension MealItemForm {
                 )
                 _viewModel = ObservedObject(initialValue: newViewModel)
             }
-            _isPresented = isPresented
+            self.didTapDismiss = didTapDismiss
         }
     }
 }
@@ -103,13 +103,13 @@ extension MealItemForm.Search {
                 case .mealItemForm:
                     MealItemForm(
                         viewModel: viewModel,
-                        isPresented: $isPresented,
+                        didTapDismiss: didTapDismiss,
                         didTapSave: didTapSave
                     )
                 case .food:
                     MealItemForm.Search(
                         viewModel: viewModel,
-                        isPresented: $isPresented
+                        didTapDismiss: didTapDismiss
                     )
                 case .meal:
                     mealPicker
@@ -119,7 +119,9 @@ extension MealItemForm.Search {
     }
     
     var mealPicker: some View {
-        MealItemForm.MealPicker(isPresented: $isPresented) { pickedMeal in
+        MealItemForm.MealPicker(
+            didTapDismiss: didTapDismiss
+        ) { pickedMeal in
             NotificationCenter.default.post(name: .didPickMeal, object: nil, userInfo: [Notification.Keys.dayMeal: pickedMeal])
         }
         .environmentObject(viewModel)
@@ -144,7 +146,7 @@ extension MealItemForm.Search {
         
         func didTapClose() {
             Haptics.feedback(style: .soft)
-            isPresented = false
+            didTapDismiss()
         }
         
         return FoodSearch(

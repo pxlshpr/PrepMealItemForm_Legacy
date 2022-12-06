@@ -10,14 +10,15 @@ extension MealItemForm {
         @EnvironmentObject var viewModel: MealItemViewModel
         
         @Environment(\.dismiss) var dismiss
-        @Binding var isPresented: Bool
       
         let didTapMeal: (DayMeal) -> ()
+        let didTapDismiss: () -> ()
+
         public init(
-            isPresented: Binding<Bool>,
+            didTapDismiss: @escaping () -> (),
             didTapMeal: @escaping ((DayMeal) -> ())
         ) {
-            _isPresented = isPresented
+            self.didTapDismiss = didTapDismiss
             self.didTapMeal = didTapMeal
         }
     }
@@ -51,7 +52,7 @@ public extension MealItemForm.MealPicker {
         ToolbarItem(placement: .navigationBarTrailing) {
             Button {
                 Haptics.feedback(style: .soft)
-                isPresented = false
+                didTapDismiss()
             } label: {
                 closeButtonLabel
             }

@@ -26,16 +26,16 @@ public struct MealItemForm: View {
     let alreadyInNavigationStack: Bool
     let didTapSave: ((MealFoodItem, DayMeal) -> ())?
     let didTapDelete: (() -> ())?
+    let didTapDismiss: () -> ()
 
     @ObservedObject var viewModel: MealItemViewModel
-    @Binding var isPresented: Bool
     
     public init(
         date: Date,
         day: Day? = nil,
         dayMeal: DayMeal? = nil,
         food: Food? = nil,
-        isPresented: Binding<Bool>,
+        didTapDismiss: @escaping (() -> ()),
         didTapSave: ((MealFoodItem, DayMeal) -> ())? = nil
     ) {
         let viewModel = MealItemViewModel(
@@ -49,7 +49,7 @@ public struct MealItemForm: View {
         self.viewModel = viewModel
         self.didTapDelete = nil
         self.didTapSave = didTapSave
-        _isPresented = isPresented
+        self.didTapDismiss = didTapDismiss
         alreadyInNavigationStack = false
     }
 
@@ -58,7 +58,7 @@ public struct MealItemForm: View {
         date: Date,
         day: Day,
         dayMeal: DayMeal,
-        isPresented: Binding<Bool>,
+        didTapDismiss: @escaping (() -> ()),
         didTapDelete: (() -> ())? = nil,
         didTapSave: ((MealFoodItem, DayMeal) -> ())? = nil
     ) {
@@ -73,19 +73,19 @@ public struct MealItemForm: View {
         )
         self.didTapSave = didTapSave
         self.didTapDelete = didTapDelete
-        _isPresented = isPresented
+        self.didTapDismiss = didTapDismiss
         alreadyInNavigationStack = false
     }
 
     public init(
         viewModel: MealItemViewModel,
-        isPresented: Binding<Bool>,
+        didTapDismiss: @escaping (() -> ()),
         didTapSave: ((MealFoodItem, DayMeal) -> ())? = nil
     ) {
         self.viewModel = viewModel
         self.didTapDelete = nil
         self.didTapSave = didTapSave
-        _isPresented = isPresented
+        self.didTapDismiss = didTapDismiss
         alreadyInNavigationStack = true
     }
     
@@ -131,7 +131,7 @@ public struct MealItemForm: View {
         case .food:
             Search(
                 viewModel: viewModel,
-                isPresented: $isPresented
+                didTapDismiss: didTapDismiss
             )
         case .meal:
             mealPicker
@@ -380,12 +380,14 @@ public struct MealItemForm: View {
             FormStyledSection {
                 Button(role: .destructive) {
                     didTapDelete?()
-                    isPresented = false
+                    didTapDismiss()
                 } label: {
                     HStack {
                         Label("Delete", systemImage: "trash")
                             .imageScale(.small)
                     }
+                    .frame(maxWidth: .infinity)
+                    .contentShape(Rectangle())
                 }
             }
         }
@@ -415,7 +417,9 @@ public struct MealItemForm: View {
     }
     
     var mealPicker: some View {
-        MealItemForm.MealPicker(isPresented: $isPresented) { pickedMeal in
+        MealItemForm.MealPicker(
+            didTapDismiss: didTapDismiss
+        ) { pickedMeal in
             NotificationCenter.default.post(name: .didPickMeal, object: nil, userInfo: [Notification.Keys.dayMeal: pickedMeal])
         }
         .environmentObject(viewModel)
@@ -439,7 +443,7 @@ public struct MealItemForm: View {
             Button {
                 Haptics.feedback(style: .soft)
                 didTapSave?(viewModel.mealFoodItem, viewModel.dayMeal)
-                isPresented = false
+                didTapDismiss()
             } label: {
                 Text(viewModel.saveButtonTitle)
             }
@@ -449,7 +453,7 @@ public struct MealItemForm: View {
     var closeButton: some View {
         Button {
             Haptics.feedback(style: .soft)
-            isPresented = false
+            didTapDismiss()
         } label: {
             closeButtonLabel
         }
@@ -710,7 +714,7 @@ public struct MealItemFormPreview: View {
         NavigationView {
             MealItemForm(
                 viewModel: mockViewModel,
-                isPresented: .constant(true)
+                didTapDismiss: { }
             )
         }
     }
