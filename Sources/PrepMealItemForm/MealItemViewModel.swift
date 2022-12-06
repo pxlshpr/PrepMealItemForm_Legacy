@@ -76,7 +76,7 @@ public class MealItemViewModel: ObservableObject {
     
     @objc func didPickMeal(notification: Notification) {
         guard let userInfo = notification.userInfo,
-              let dayMeal = userInfo[Notification.Keys.meal] as? DayMeal
+              let dayMeal = userInfo[Notification.Keys.dayMeal] as? DayMeal
         else { return }
         
         self.dayMeal = dayMeal

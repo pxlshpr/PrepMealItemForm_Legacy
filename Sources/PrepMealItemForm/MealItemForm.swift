@@ -416,7 +416,7 @@ public struct MealItemForm: View {
     
     var mealPicker: some View {
         MealItemForm.MealPicker(isPresented: $isPresented) { pickedMeal in
-            NotificationCenter.default.post(name: .didPickMeal, object: nil, userInfo: [Notification.Keys.meal: pickedMeal])
+            NotificationCenter.default.post(name: .didPickMeal, object: nil, userInfo: [Notification.Keys.dayMeal: pickedMeal])
         }
         .environmentObject(viewModel)
     }
