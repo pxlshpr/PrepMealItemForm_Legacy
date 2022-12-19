@@ -8,6 +8,7 @@ public enum MealItemFormRoute {
     case mealItemForm
     case food
     case meal
+    case quantity
 }
 
 public class MealItemViewModel: ObservableObject {
@@ -41,9 +42,11 @@ public class MealItemViewModel: ObservableObject {
         dayMeal: DayMeal? = nil,
         food: Food? = nil,
         amount: FoodValue? = nil,
-        dayMeals: [DayMeal] = [] //TODO: Do we need to pass this in if we have day?
+        dayMeals: [DayMeal] = [], //TODO: Do we need to pass this in if we have day?
+        initialPath: [MealItemFormRoute] = []
     ) {
-        self.path = []
+        print("🟣 MealItemViewModel.init()")
+        self.path = initialPath
         self.date = date
         self.day = day
         self.food = food

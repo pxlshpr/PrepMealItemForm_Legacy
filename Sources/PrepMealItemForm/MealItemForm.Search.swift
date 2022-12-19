@@ -21,60 +21,15 @@ public extension MealItemForm {
         let didTapDismiss: (() -> ())
 
         public init(
-            date: Date,
-            day: Day? = nil,
-            dayMeal: DayMeal? = nil,
-            didTapDismiss: @escaping () -> (),
-            didTapSave: ((MealFoodItem, DayMeal) -> ())? = nil
-        ) {
-            self.init(
-                date: date,
-                day: day,
-                dayMeal: dayMeal,
-                viewModel: nil,
-                didTapDismiss: didTapDismiss,
-                didTapSave: didTapSave
-            )
-        }
-
-        public init(
             viewModel: MealItemViewModel,
+            isInitialFoodSearch: Bool = false,
             didTapDismiss: @escaping () -> (),
             didTapSave: ((MealFoodItem, DayMeal) -> ())? = nil
         ) {
-            self.init(
-                date: viewModel.date,
-                day: nil,
-                dayMeal: nil,
-                viewModel: viewModel,
-                didTapDismiss: didTapDismiss,
-                didTapSave: didTapSave
-            )
-        }
-
-        private init(
-            date: Date,
-            day: Day? = nil,
-            dayMeal: DayMeal? = nil,
-            viewModel: MealItemViewModel? = nil,
-            didTapDismiss: @escaping () -> (),
-            didTapSave: ((MealFoodItem, DayMeal) -> ())? = nil
-        ) {
-            self.didTapSave = didTapSave
-            self.isInitialFoodSearch = viewModel == nil
-            if let viewModel {
-                self.viewModel = viewModel
-            } else {
-                let newViewModel = MealItemViewModel(
-                    existingMealFoodItem: nil,
-                    date: date,
-                    day: day,
-                    dayMeal: dayMeal,
-                    dayMeals: day?.meals ?? []
-                )
-                _viewModel = ObservedObject(initialValue: newViewModel)
-            }
+            self.viewModel = viewModel
+            self.isInitialFoodSearch = isInitialFoodSearch
             self.didTapDismiss = didTapDismiss
+            self.didTapSave = didTapSave
         }
     }
 }
@@ -92,7 +47,7 @@ extension MealItemForm.Search {
         }
         //TODO: Bring this back once we can tell if the search field is focused and
 //        .interactiveDismissDisabled(!viewModel.path.isEmpty)
-        .interactiveDismissDisabled(!viewModel.path.isEmpty || searchIsFocused)
+//        .interactiveDismissDisabled(!viewModel.path.isEmpty || searchIsFocused)
     }
 
     var navigationStack: some View {
@@ -103,6 +58,7 @@ extension MealItemForm.Search {
                 case .mealItemForm:
                     MealItemForm(
                         viewModel: viewModel,
+                        isEditing: false,
                         didTapDismiss: didTapDismiss,
                         didTapSave: didTapSave
                     )
@@ -113,7 +69,12 @@ extension MealItemForm.Search {
                     )
                 case .meal:
                     mealPicker
+                case .quantity:
+                    MealItemForm.Quantity(viewModel: viewModel)
                 }
+            }
+            .onChange(of: viewModel.path) { newValue in
+                print("🟣 viewModel.path is now: \(newValue)")
             }
         }
     }
@@ -152,6 +113,7 @@ extension MealItemForm.Search {
         return FoodSearch(
             dataProvider: DataManager.shared,
             shouldDelayContents: isInitialFoodSearch,
+            focusOnAppear: isInitialFoodSearch,
             searchIsFocused: $searchIsFocused,
             didTapClose: didTapClose,
             didTapFood: didTapFood,

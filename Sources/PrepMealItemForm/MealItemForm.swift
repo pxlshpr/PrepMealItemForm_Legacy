@@ -23,70 +23,27 @@ public struct MealItemForm: View {
     @State var canBeSaved = true
     @State var showingEquivalentQuantities: Bool = false
     
+    @State var hasAppeared: Bool = false
+    
     let alreadyInNavigationStack: Bool
     let didTapSave: ((MealFoodItem, DayMeal) -> ())?
     let didTapDelete: (() -> ())?
     let didTapDismiss: () -> ()
 
     @ObservedObject var viewModel: MealItemViewModel
-    
-    public init(
-        date: Date,
-        day: Day? = nil,
-        dayMeal: DayMeal? = nil,
-        food: Food? = nil,
-        didTapDismiss: @escaping (() -> ()),
-        didTapSave: ((MealFoodItem, DayMeal) -> ())? = nil
-    ) {
-        let viewModel = MealItemViewModel(
-            existingMealFoodItem: nil,
-            date: date,
-            day: day,
-            dayMeal: dayMeal,
-            food: food,
-            dayMeals: day?.meals ?? []
-        )
-        self.viewModel = viewModel
-        self.didTapDelete = nil
-        self.didTapSave = didTapSave
-        self.didTapDismiss = didTapDismiss
-        alreadyInNavigationStack = false
-    }
 
     public init(
-        mealFoodItemToEdit mealFoodItem: MealFoodItem,
-        date: Date,
-        day: Day,
-        dayMeal: DayMeal,
+        viewModel: MealItemViewModel,
+        isEditing: Bool = false,
         didTapDismiss: @escaping (() -> ()),
         didTapDelete: (() -> ())? = nil,
         didTapSave: ((MealFoodItem, DayMeal) -> ())? = nil
     ) {
-        self.viewModel = MealItemViewModel(
-            existingMealFoodItem: mealFoodItem,
-            date: day.date,
-            day: day,
-            dayMeal: dayMeal,
-            food: mealFoodItem.food,
-            amount: mealFoodItem.amount,
-            dayMeals: day.meals
-        )
-        self.didTapSave = didTapSave
-        self.didTapDelete = didTapDelete
-        self.didTapDismiss = didTapDismiss
-        alreadyInNavigationStack = false
-    }
-
-    public init(
-        viewModel: MealItemViewModel,
-        didTapDismiss: @escaping (() -> ()),
-        didTapSave: ((MealFoodItem, DayMeal) -> ())? = nil
-    ) {
         self.viewModel = viewModel
-        self.didTapDelete = nil
         self.didTapSave = didTapSave
         self.didTapDismiss = didTapDismiss
-        alreadyInNavigationStack = true
+        self.didTapDelete = didTapDelete
+        alreadyInNavigationStack = !isEditing
     }
     
     @ViewBuilder
@@ -107,22 +64,13 @@ public struct MealItemForm: View {
         }
     }
     
-    var content: some View {
-        ZStack {
-            formLayer
-//                .safeAreaInset(edge: .bottom) {
-//                    FormPrimaryButton(title: "Save") {
-//
-//                    }
-//                    .padding(.bottom, isFocused ? 10 : 70)
-//                }
-            VStack {
-                Spacer()
-                bottomButtons
-            }
-            .edgesIgnoringSafeArea(.bottom)
-            .transition(.move(edge: .bottom))
+    var bottomButtonsLayer: some View {
+        VStack {
+            Spacer()
+            bottomButtons
         }
+        .edgesIgnoringSafeArea(.bottom)
+        .transition(.move(edge: .bottom))
     }
     
     @ViewBuilder
@@ -137,7 +85,21 @@ public struct MealItemForm: View {
             mealPicker
         case .mealItemForm:
             EmptyView()
+        case .quantity:
+            MealItemForm.Quantity(viewModel: viewModel)
         }
+    }
+    
+    var content: some View {
+        MealItemFormNew(viewModel: viewModel)
+            .safeAreaInset(edge: .bottom) { bottomSafeAreaInset }
+            .navigationTitle(viewModel.navigationTitle)
+            .toolbar { trailingContents }
+            .scrollDismissesKeyboard(.interactively)
+            .sheet(isPresented: $showingUnitPicker) { unitPicker }
+            .sheet(isPresented: $showingMealTypesPicker) { mealTypesPicker }
+            .sheet(isPresented: $showingDietsPicker) { dietsPicker }
+            .sheet(isPresented: $showingEquivalentQuantities) { equivalentSizesSheet }
     }
     
     //MARK: - Details
@@ -324,9 +286,7 @@ public struct MealItemForm: View {
             .safeAreaInset(edge: .bottom) { bottomSafeAreaInset }
             .navigationTitle(viewModel.navigationTitle)
             .toolbar { trailingContents }
-            .toolbar { leadingContents }
             .scrollDismissesKeyboard(.interactively)
-            .navigationBarBackButtonHidden(true)
             .sheet(isPresented: $showingUnitPicker) { unitPicker }
             .sheet(isPresented: $showingMealTypesPicker) { mealTypesPicker }
             .sheet(isPresented: $showingDietsPicker) { dietsPicker }
@@ -369,7 +329,7 @@ public struct MealItemForm: View {
     var form: some View {
         FormStyledScrollView {
             detailsSection
-            metersSection
+//            metersSection
             deleteButtonSection
         }
     }
@@ -427,7 +387,8 @@ public struct MealItemForm: View {
     
     var trailingContents: some ToolbarContent {
         ToolbarItemGroup(placement: .navigationBarTrailing) {
-            saveButton
+            closeButton
+//            saveButton
         }
     }
 
@@ -725,3 +686,5 @@ struct MealItemForm_Previews: PreviewProvider {
         MealItemFormPreview()
     }
 }
+
+
