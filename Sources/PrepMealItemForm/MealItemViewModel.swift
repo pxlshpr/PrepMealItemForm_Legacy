@@ -119,6 +119,7 @@ public class MealItemViewModel: ObservableObject {
             id: existingMealFoodItem?.id ?? UUID(),
             food: food,
             amount: amountValue,
+            markedAsEatenAt: existingMealFoodItem?.markedAsEatenAt ?? nil,
             sortPosition: existingMealFoodItem?.sortPosition ?? 1,
             isSoftDeleted: existingMealFoodItem?.isSoftDeleted ?? false
         )

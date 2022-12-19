@@ -90,16 +90,64 @@ public struct MealItemForm: View {
         }
     }
     
+    var saveButtons: some View {
+        var saveButton: some View {
+            FormPrimaryButton(title: viewModel.saveButtonTitle) {
+                Haptics.feedback(style: .soft)
+                didTapSave?(viewModel.mealFoodItem, viewModel.dayMeal)
+                didTapDismiss()
+            }
+        }
+        
+        var cancelButton: some View {
+            FormSecondaryButton(title: "Cancel") {
+                didTapDismiss()
+            }
+        }
+        
+        return VStack(spacing: 0) {
+            Divider()
+            VStack {
+                saveButton
+                    .padding(.top)
+                cancelButton
+//                privateButton
+//                    .padding(.vertical)
+            }
+            .padding(.bottom, 30)
+        }
+        .background(.thinMaterial)
+    }
+    
     var content: some View {
-        MealItemFormNew(viewModel: viewModel)
-            .safeAreaInset(edge: .bottom) { bottomSafeAreaInset }
-            .navigationTitle(viewModel.navigationTitle)
-            .toolbar { trailingContents }
-            .scrollDismissesKeyboard(.interactively)
-            .sheet(isPresented: $showingUnitPicker) { unitPicker }
-            .sheet(isPresented: $showingMealTypesPicker) { mealTypesPicker }
-            .sheet(isPresented: $showingDietsPicker) { dietsPicker }
-            .sheet(isPresented: $showingEquivalentQuantities) { equivalentSizesSheet }
+        @ViewBuilder
+        var buttonsLayer: some View {
+            if canBeSaved {
+                VStack {
+                    Spacer()
+                    saveButtons
+                }
+                .edgesIgnoringSafeArea(.bottom)
+                .transition(.move(edge: .bottom))
+            }
+        }
+        
+        var formLayer: some View {
+            MealItemFormNew(viewModel: viewModel)
+                .safeAreaInset(edge: .bottom) { bottomSafeAreaInset }
+                .navigationTitle(viewModel.navigationTitle)
+//                .toolbar { trailingContents }
+                .scrollDismissesKeyboard(.interactively)
+                .sheet(isPresented: $showingUnitPicker) { unitPicker }
+                .sheet(isPresented: $showingMealTypesPicker) { mealTypesPicker }
+                .sheet(isPresented: $showingDietsPicker) { dietsPicker }
+                .sheet(isPresented: $showingEquivalentQuantities) { equivalentSizesSheet }
+        }
+
+        return ZStack {
+            formLayer
+            buttonsLayer
+        }
     }
     
     //MARK: - Details
