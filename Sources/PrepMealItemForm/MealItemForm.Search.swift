@@ -16,20 +16,23 @@ public extension MealItemForm {
         @ObservedObject var viewModel: MealItemViewModel
 
         @State var searchIsFocused: Bool = false
-        
-        let didTapSave: ((MealFoodItem, DayMeal) -> ())?
-        let didTapDismiss: (() -> ())
+
+        let actionHandler: (MealItemFormAction) -> ()
+//        let didTapSave: ((MealFoodItem, DayMeal) -> ())?
+//        let didTapDismiss: (() -> ())
 
         public init(
             viewModel: MealItemViewModel,
             isInitialFoodSearch: Bool = false,
-            didTapDismiss: @escaping () -> (),
-            didTapSave: ((MealFoodItem, DayMeal) -> ())? = nil
+            actionHandler: @escaping (MealItemFormAction) -> ()
+//            didTapDismiss: @escaping () -> (),
+//            didTapSave: ((MealFoodItem, DayMeal) -> ())? = nil
         ) {
             self.viewModel = viewModel
             self.isInitialFoodSearch = isInitialFoodSearch
-            self.didTapDismiss = didTapDismiss
-            self.didTapSave = didTapSave
+            self.actionHandler = actionHandler
+//            self.didTapDismiss = didTapDismiss
+//            self.didTapSave = didTapSave
         }
     }
 }
@@ -59,13 +62,15 @@ extension MealItemForm.Search {
                     MealItemForm(
                         viewModel: viewModel,
                         isEditing: false,
-                        didTapDismiss: didTapDismiss,
-                        didTapSave: didTapSave
+                        actionHandler: actionHandler
+//                        didTapDismiss: didTapDismiss,
+//                        didTapSave: didTapSave
                     )
                 case .food:
                     MealItemForm.Search(
                         viewModel: viewModel,
-                        didTapDismiss: didTapDismiss
+                        actionHandler: actionHandler
+//                        didTapDismiss: didTapDismiss
                     )
                 case .meal:
                     mealPicker
@@ -80,11 +85,15 @@ extension MealItemForm.Search {
     }
     
     var mealPicker: some View {
-        MealItemForm.MealPicker(
-            didTapDismiss: didTapDismiss
-        ) { pickedMeal in
-            NotificationCenter.default.post(name: .didPickMeal, object: nil, userInfo: [Notification.Keys.dayMeal: pickedMeal])
-        }
+        MealItemForm.MealPicker(didTapDismiss: {
+            actionHandler(.dismiss)
+        }, didTapMeal: { pickedMeal in
+            NotificationCenter.default.post(
+                name: .didPickDayMeal,
+                object: nil,
+                userInfo: [Notification.Keys.dayMeal: pickedMeal]
+            )
+        })
         .environmentObject(viewModel)
     }
 
@@ -107,7 +116,7 @@ extension MealItemForm.Search {
         
         func didTapClose() {
             Haptics.feedback(style: .soft)
-            didTapDismiss()
+            actionHandler(.dismiss)
         }
         
         return FoodSearch(

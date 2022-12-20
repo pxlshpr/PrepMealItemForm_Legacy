@@ -74,10 +74,15 @@ public class MealItemViewModel: ObservableObject {
             setDefaultUnit()
         }
         setFoodItem()
-        NotificationCenter.default.addObserver(self, selector: #selector(didPickMeal), name: .didPickMeal, object: nil)
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(didPickDayMeal),
+            name: .didPickDayMeal,
+            object: nil
+        )
     }
     
-    @objc func didPickMeal(notification: Notification) {
+    @objc func didPickDayMeal(notification: Notification) {
         guard let userInfo = notification.userInfo,
               let dayMeal = userInfo[Notification.Keys.dayMeal] as? DayMeal
         else { return }

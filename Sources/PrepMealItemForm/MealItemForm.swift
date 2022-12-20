@@ -8,41 +8,42 @@ import PrepCoreDataStack
 import PrepMocks
 import PrepGoalSetsList
 
-public extension Notification.Name {
-    static var didPickMeal: Notification.Name { return .init("didPickMeal") }
+public enum MealItemFormAction {
+    case save(MealFoodItem, DayMeal)
+    case delete
+    case dismiss
 }
 
 public struct MealItemForm: View {
+    
     @Environment(\.colorScheme) var colorScheme
     @FocusState var isFocused: Bool
     
+    @ObservedObject var viewModel: MealItemViewModel
+    @State var showingDeleteConfirmation = false
+    let alreadyInNavigationStack: Bool
+
+    //TODO: Shouldn't this be in ViewModel?
+    @State var canBeSaved = true
+
+    //TODO: Bring this back for delayed appearance if needed for slower devices like the iPhone X
+    @State var hasAppeared: Bool = false
+    
+    let actionHandler: (MealItemFormAction) -> ()
+
+    //TODO: Are these needed here anymore?
     @State var showingUnitPicker = false
     @State var showingMealTypesPicker = false
     @State var showingDietsPicker = false
-    
-    @State var canBeSaved = true
     @State var showingEquivalentQuantities: Bool = false
-    
-    @State var hasAppeared: Bool = false
-    
-    let alreadyInNavigationStack: Bool
-    let didTapSave: ((MealFoodItem, DayMeal) -> ())?
-    let didTapDelete: (() -> ())?
-    let didTapDismiss: () -> ()
-
-    @ObservedObject var viewModel: MealItemViewModel
 
     public init(
         viewModel: MealItemViewModel,
         isEditing: Bool = false,
-        didTapDismiss: @escaping (() -> ()),
-        didTapDelete: (() -> ())? = nil,
-        didTapSave: ((MealFoodItem, DayMeal) -> ())? = nil
+        actionHandler: @escaping ((MealItemFormAction) -> ())
     ) {
         self.viewModel = viewModel
-        self.didTapSave = didTapSave
-        self.didTapDismiss = didTapDismiss
-        self.didTapDelete = didTapDelete
+        self.actionHandler = actionHandler
         alreadyInNavigationStack = !isEditing
     }
     
@@ -79,7 +80,7 @@ public struct MealItemForm: View {
         case .food:
             Search(
                 viewModel: viewModel,
-                didTapDismiss: didTapDismiss
+                actionHandler: actionHandler
             )
         case .meal:
             mealPicker
@@ -94,23 +95,31 @@ public struct MealItemForm: View {
         var saveButton: some View {
             FormPrimaryButton(title: viewModel.saveButtonTitle) {
                 Haptics.feedback(style: .soft)
-                didTapSave?(viewModel.mealFoodItem, viewModel.dayMeal)
-                didTapDismiss()
+                actionHandler(.save(viewModel.mealFoodItem, viewModel.dayMeal))
+                actionHandler(.dismiss)
             }
         }
         
         var cancelButton: some View {
             FormSecondaryButton(title: "Cancel") {
-                didTapDismiss()
+                actionHandler(.dismiss)
             }
         }
-        
+
+        var deleteButton: some View {
+            FormSecondaryButton(title: "Delete") {
+                Haptics.selectionFeedback()
+                showingDeleteConfirmation = true
+            }
+        }
+
         return VStack(spacing: 0) {
             Divider()
             VStack {
                 saveButton
                     .padding(.top)
-                cancelButton
+                deleteButton
+//                cancelButton
 //                privateButton
 //                    .padding(.vertical)
             }
@@ -132,18 +141,35 @@ public struct MealItemForm: View {
             }
         }
         
+        var deleteConfirmationActions: some View {
+            Button("Delete Entry", role: .destructive) {
+                actionHandler(.delete)
+                actionHandler(.dismiss)
+            }
+        }
+
+        var deleteConfirmationMessage: some View {
+            Text("Are you sure you want to delete this entry?")
+        }
+
         var formLayer: some View {
             MealItemFormNew(viewModel: viewModel)
                 .safeAreaInset(edge: .bottom) { bottomSafeAreaInset }
                 .navigationTitle(viewModel.navigationTitle)
-//                .toolbar { trailingContents }
+                .toolbar { trailingContents }
                 .scrollDismissesKeyboard(.interactively)
                 .sheet(isPresented: $showingUnitPicker) { unitPicker }
                 .sheet(isPresented: $showingMealTypesPicker) { mealTypesPicker }
                 .sheet(isPresented: $showingDietsPicker) { dietsPicker }
                 .sheet(isPresented: $showingEquivalentQuantities) { equivalentSizesSheet }
+                .confirmationDialog(
+                    "",
+                    isPresented: $showingDeleteConfirmation,
+                    actions: { deleteConfirmationActions },
+                    message: { deleteConfirmationMessage }
+                )
         }
-
+        
         return ZStack {
             formLayer
             buttonsLayer
@@ -387,8 +413,8 @@ public struct MealItemForm: View {
         if viewModel.isEditing {
             FormStyledSection {
                 Button(role: .destructive) {
-                    didTapDelete?()
-                    didTapDismiss()
+                    actionHandler(.delete)
+                    actionHandler(.dismiss)
                 } label: {
                     HStack {
                         Label("Delete", systemImage: "trash")
@@ -425,18 +451,34 @@ public struct MealItemForm: View {
     }
     
     var mealPicker: some View {
-        MealItemForm.MealPicker(
-            didTapDismiss: didTapDismiss
-        ) { pickedMeal in
-            NotificationCenter.default.post(name: .didPickMeal, object: nil, userInfo: [Notification.Keys.dayMeal: pickedMeal])
-        }
+        MealItemForm.MealPicker(didTapDismiss: {
+            actionHandler(.dismiss)
+        }, didTapMeal: { pickedMeal in
+            NotificationCenter.default.post(
+                name: .didPickDayMeal,
+                object: nil,
+                userInfo: [Notification.Keys.dayMeal: pickedMeal]
+            )
+        })
         .environmentObject(viewModel)
     }
     
     var trailingContents: some ToolbarContent {
         ToolbarItemGroup(placement: .navigationBarTrailing) {
-            closeButton
-//            saveButton
+            if viewModel.isEditing {
+                closeButton
+//                deleteButton
+            }
+        }
+    }
+    
+    var deleteButton: some View {
+        Button {
+            actionHandler(.delete)
+            actionHandler(.dismiss)
+        } label: {
+            Text("Delete")
+                .foregroundColor(.red)
         }
     }
 
@@ -451,8 +493,8 @@ public struct MealItemForm: View {
         if canBeSaved {
             Button {
                 Haptics.feedback(style: .soft)
-                didTapSave?(viewModel.mealFoodItem, viewModel.dayMeal)
-                didTapDismiss()
+                actionHandler(.save(viewModel.mealFoodItem, viewModel.dayMeal))
+                actionHandler(.dismiss)
             } label: {
                 Text(viewModel.saveButtonTitle)
             }
@@ -462,7 +504,7 @@ public struct MealItemForm: View {
     var closeButton: some View {
         Button {
             Haptics.feedback(style: .soft)
-            didTapDismiss()
+            actionHandler(.dismiss)
         } label: {
             closeButtonLabel
         }
@@ -702,37 +744,3 @@ extension View {
         modifier(AnimatableMealItemAmountModifier(value: value))
     }
 }
-
-//MARK: - 👁‍🗨 Previews
-
-public struct MealItemFormPreview: View {
-    var mockViewModel: MealItemViewModel {
-        MealItemViewModel(
-            existingMealFoodItem: nil,
-            date: Date(),
-            day: DayMock.cutting,
-            dayMeal: DayMeal(from: MealMock.preWorkoutEmpty),
-            food: FoodMock.peanutButter,
-            dayMeals: []
-        )
-    }
-    
-    public init() { }
-    
-    public var body: some View {
-        NavigationView {
-            MealItemForm(
-                viewModel: mockViewModel,
-                didTapDismiss: { }
-            )
-        }
-    }
-}
-
-struct MealItemForm_Previews: PreviewProvider {
-    static var previews: some View {
-        MealItemFormPreview()
-    }
-}
-
-

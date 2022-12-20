@@ -76,6 +76,7 @@ struct MealItemFormNew: View {
             }
             return view
                 .foregroundColor(.secondary)
+                .multilineTextAlignment(.leading)
         }
         
         return ZStack {
@@ -94,8 +95,9 @@ struct MealItemFormNew: View {
                     }
                     VStack(alignment: .leading) {
                         Text(food.name)
-                                .foregroundColor(macroColor)
+                            .foregroundColor(macroColor)
                             .font(.system(size: 28, weight: .medium, design: .rounded))
+                            .multilineTextAlignment(.leading)
                         if food.hasDetails {
                             detailTexts
                         }
