@@ -627,9 +627,11 @@ extension MealItemForm {
         } label: {
             HStack(spacing: 1) {
                 Text(sign)
-                    .font(.system(.caption, design: .rounded, weight: .regular))
+//                    .font(.system(.caption, design: .rounded, weight: .regular))
+                    .font(.system(size: 13, weight: .regular, design: .rounded))
                 Text(number)
-                    .font(.system(.footnote, design: .rounded, weight: fontWeight))
+//                    .font(.system(.footnote, design: .rounded, weight: fontWeight))
+                    .font(.system(size: 11, weight: fontWeight, design: .rounded))
             }
             .monospacedDigit()
             .foregroundColor(.accentColor)
