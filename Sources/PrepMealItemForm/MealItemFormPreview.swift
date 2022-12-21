@@ -37,7 +37,7 @@ struct MealItemFormNew: View {
             }
             if let brand = food.brand, !brand.isEmpty {
                 view = view
-                + Text(", ")
+                + Text(food.hasDetail ? ", " : "")
                     .font(.system(size: 17, weight: .regular, design: .rounded))
                 + Text(brand)
                     .font(.system(size: 17, weight: .regular, design: .rounded))
