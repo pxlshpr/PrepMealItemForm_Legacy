@@ -78,9 +78,6 @@ extension MealItemForm.Search {
                     MealItemForm.Quantity(viewModel: viewModel)
                 }
             }
-            .onChange(of: viewModel.path) { newValue in
-                print("🟣 viewModel.path is now: \(newValue)")
-            }
         }
     }
     

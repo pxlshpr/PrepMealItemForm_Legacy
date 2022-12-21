@@ -45,7 +45,6 @@ public class MealItemViewModel: ObservableObject {
         dayMeals: [DayMeal] = [], //TODO: Do we need to pass this in if we have day?
         initialPath: [MealItemFormRoute] = []
     ) {
-        print("🟣 MealItemViewModel.init()")
         self.path = initialPath
         self.date = date
         self.day = day
