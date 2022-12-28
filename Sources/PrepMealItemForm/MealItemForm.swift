@@ -61,10 +61,16 @@ public struct MealItemForm: View {
     var navigationStack: some View {
         NavigationStack(path: $viewModel.path) {
             content
+                .background(background)
                 .navigationDestination(for: MealItemFormRoute.self, destination: navigationDestination)
         }
     }
     
+    var background: some View {
+        FormBackground()
+            .edgesIgnoringSafeArea(.all)
+    }
+
     var bottomButtonsLayer: some View {
         VStack {
             Spacer()

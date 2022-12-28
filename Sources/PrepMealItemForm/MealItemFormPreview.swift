@@ -76,7 +76,8 @@ struct MealItemFormNew: View {
         .padding(.horizontal, 16)
         .padding(.bottom, 13)
         .padding(.top, 13)
-        .background(Color(.secondarySystemGroupedBackground))
+//        .background(Color(.secondarySystemGroupedBackground))
+        .background(FormCellBackground())
         .cornerRadius(10)
         .padding(.bottom, 10)
     }
@@ -111,7 +112,8 @@ struct MealItemFormNew: View {
         .padding(.horizontal, 16)
         .padding(.bottom, 13)
         .padding(.top, 13)
-        .background(Color(.secondarySystemGroupedBackground))
+//        .background(Color(.secondarySystemGroupedBackground))
+        .background(FormCellBackground())
         .cornerRadius(10)
         .padding(.bottom, 10)
     }
@@ -146,7 +148,8 @@ struct MealItemFormNew: View {
         .padding(.horizontal, 16)
         .padding(.bottom, 13)
         .padding(.top, 13)
-        .background(Color(.secondarySystemGroupedBackground))
+//        .background(Color(.secondarySystemGroupedBackground))
+        .background(FormCellBackground())
         .cornerRadius(10)
         .padding(.bottom, 10)
     }
@@ -178,7 +181,13 @@ struct MealItemFormNew: View {
                     .frame(height: 60)
             }
         }
-        .background(Color(.systemGroupedBackground))
+        .scrollContentBackground(.hidden)
+        .background(background)
+    }
+    
+    var background: some View {
+        FormBackground()
+            .edgesIgnoringSafeArea(.all)
     }
 }
 
