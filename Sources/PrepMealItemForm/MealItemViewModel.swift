@@ -34,7 +34,8 @@ public class MealItemViewModel: ObservableObject {
     @Published var isAnimatingAmountChange = false
 
     let existingMealFoodItem: MealFoodItem?
-    
+    let initialDayMeal: DayMeal?
+
     public init(
         existingMealFoodItem: MealFoodItem?,
         date: Date,
@@ -52,6 +53,7 @@ public class MealItemViewModel: ObservableObject {
         self.dayMeals = dayMeals
         
         self.dayMeal = dayMeal ?? DayMeal(name: "New Meal", time: Date().timeIntervalSince1970)
+        self.initialDayMeal = dayMeal
         
         //TODO: Handle this in a better way
         /// [ ] Try making `mealFoodItem` nil and set it as that if we don't get a food here
@@ -106,6 +108,21 @@ public class MealItemViewModel: ObservableObject {
         self.unit = amountQuantity.unit
     }
     
+    var amountIsValid: Bool {
+        guard let amount else { return false }
+        return amount > 0
+    }
+    
+    var isDirty: Bool {        
+        guard let existing = existingMealFoodItem else {
+            return amountIsValid
+        }
+        
+        return existing.food.id != food?.id
+        || (existing.amount != amountValue && amountIsValid)
+        || initialDayMeal?.id != dayMeal.id
+    }
+
     var amount: Double? {
         get {
             return internalAmountDouble
@@ -130,9 +147,7 @@ public class MealItemViewModel: ObservableObject {
     }
     
     var amountString: String {
-        get {
-            return internalAmountString
-        }
+        get { internalAmountString }
         set {
             guard !newValue.isEmpty else {
                 internalAmountDouble = nil

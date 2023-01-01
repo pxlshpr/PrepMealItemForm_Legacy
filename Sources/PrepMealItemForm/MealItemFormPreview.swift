@@ -133,13 +133,19 @@ struct MealItemFormNew: View {
                         disclosureArrow
                     }
                     HStack(alignment: .firstTextBaseline, spacing: 3) {
-                        Text(viewModel.amountString)
-                            .foregroundColor(.primary)
-                            .font(.system(size: 28, weight: .medium, design: .rounded))
+                        if viewModel.amountIsValid {
+                            Text(viewModel.amountString)
+                                .foregroundColor(.primary)
+                                .font(.system(size: 28, weight: .medium, design: .rounded))
                             Text(viewModel.unitDescription)
                                 .font(.system(size: 17, weight: .semibold, design: .rounded))
                                 .bold()
                                 .foregroundColor(Color(.secondaryLabel))
+                        } else {
+                            Text("Required")
+                                .foregroundColor(Color(.tertiaryLabel))
+                                .font(.system(size: 28, weight: .medium, design: .rounded))
+                        }
                         Spacer()
                     }
                 }

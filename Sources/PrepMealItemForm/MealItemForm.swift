@@ -23,9 +23,6 @@ public struct MealItemForm: View {
     @State var showingDeleteConfirmation = false
     let alreadyInNavigationStack: Bool
 
-    //TODO: Shouldn't this be in ViewModel?
-    @State var canBeSaved = true
-
     //TODO: Bring this back for delayed appearance if needed for slower devices like the iPhone X
     @State var hasAppeared: Bool = false
     
@@ -114,8 +111,7 @@ public struct MealItemForm: View {
 
         var deleteButton: some View {
             FormSecondaryButton(title: "Delete") {
-                Haptics.selectionFeedback()
-                showingDeleteConfirmation = true
+                tappedDelete()
             }
         }
 
@@ -134,19 +130,30 @@ public struct MealItemForm: View {
         .background(.thinMaterial)
     }
     
-    var content: some View {
-        @ViewBuilder
-        var buttonsLayer: some View {
-            if canBeSaved {
-                VStack {
-                    Spacer()
-                    saveButtons
-                }
-                .edgesIgnoringSafeArea(.bottom)
-                .transition(.move(edge: .bottom))
+    var saveLayer: some View {
+        var optionalTappedDelete: (() -> ())? {
+            if viewModel.isEditing {
+                return tappedDelete
+            } else {
+                return nil
             }
         }
         
+        return FormSaveLayer(
+            collapsed: .constant(false),
+            saveIsDisabled: Binding<Bool>(
+                get: { !viewModel.isDirty },
+                set: { _ in }
+            ),
+            tappedCancel: tappedClose,
+            tappedSave: tappedSave,
+            tappedDelete: optionalTappedDelete
+        )
+        .edgesIgnoringSafeArea(.bottom)
+        .padding(.bottom, 30)
+    }
+    
+    var content: some View {
         var deleteConfirmationActions: some View {
             Button("Delete Entry", role: .destructive) {
                 actionHandler(.delete)
@@ -162,7 +169,6 @@ public struct MealItemForm: View {
             MealItemFormNew(viewModel: viewModel)
                 .safeAreaInset(edge: .bottom) { bottomSafeAreaInset }
                 .navigationTitle(viewModel.navigationTitle)
-                .toolbar { trailingContents }
                 .scrollDismissesKeyboard(.interactively)
                 .sheet(isPresented: $showingUnitPicker) { unitPicker }
                 .sheet(isPresented: $showingMealTypesPicker) { mealTypesPicker }
@@ -178,7 +184,7 @@ public struct MealItemForm: View {
         
         return ZStack {
             formLayer
-            buttonsLayer
+            saveLayer
         }
     }
     
@@ -365,7 +371,6 @@ public struct MealItemForm: View {
         form
             .safeAreaInset(edge: .bottom) { bottomSafeAreaInset }
             .navigationTitle(viewModel.navigationTitle)
-            .toolbar { trailingContents }
             .scrollDismissesKeyboard(.interactively)
             .sheet(isPresented: $showingUnitPicker) { unitPicker }
             .sheet(isPresented: $showingMealTypesPicker) { mealTypesPicker }
@@ -469,15 +474,6 @@ public struct MealItemForm: View {
         .environmentObject(viewModel)
     }
     
-    var trailingContents: some ToolbarContent {
-        ToolbarItemGroup(placement: .navigationBarTrailing) {
-            if viewModel.isEditing {
-                closeButton
-//                deleteButton
-            }
-        }
-    }
-    
     var deleteButton: some View {
         Button {
             actionHandler(.delete)
@@ -488,34 +484,22 @@ public struct MealItemForm: View {
         }
     }
 
-    var leadingContents: some ToolbarContent {
-        ToolbarItem(placement: .navigationBarLeading) {
-            closeButton
-        }
+    func tappedSave() {
+        Haptics.feedback(style: .soft)
+        actionHandler(.save(viewModel.mealFoodItem, viewModel.dayMeal))
+        actionHandler(.dismiss)
     }
     
-    @ViewBuilder
-    var saveButton: some View {
-        if canBeSaved {
-            Button {
-                Haptics.feedback(style: .soft)
-                actionHandler(.save(viewModel.mealFoodItem, viewModel.dayMeal))
-                actionHandler(.dismiss)
-            } label: {
-                Text(viewModel.saveButtonTitle)
-            }
-        }
+    func tappedClose() {
+        Haptics.feedback(style: .soft)
+        actionHandler(.dismiss)
     }
     
-    var closeButton: some View {
-        Button {
-            Haptics.feedback(style: .soft)
-            actionHandler(.dismiss)
-        } label: {
-            closeButtonLabel
-        }
+    func tappedDelete() {
+        Haptics.selectionFeedback()
+        showingDeleteConfirmation = true
     }
-
+    
     var textField: some View {
         let binding = Binding<String>(
             get: { viewModel.amountString },
