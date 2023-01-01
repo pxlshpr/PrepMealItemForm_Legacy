@@ -149,8 +149,6 @@ public struct MealItemForm: View {
             tappedSave: tappedSave,
             tappedDelete: optionalTappedDelete
         )
-        .edgesIgnoringSafeArea(.bottom)
-        .padding(.bottom, 30)
     }
     
     var content: some View {

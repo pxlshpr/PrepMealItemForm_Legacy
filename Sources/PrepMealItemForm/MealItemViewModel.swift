@@ -98,12 +98,10 @@ public class MealItemViewModel: ObservableObject {
     }
     
     func setDefaultUnit() {
-        //TODO: First see if we have a last-used unit and amount for this and use that
-        /// Something like: `guard let lastUsedQuantity = DataManager.shared.lastUsedQuantity(for: food)`
+        guard let food else { return }
+        let amountQuantity = DataManager.shared.lastUsedQuantity(for: food) ?? food.defaultQuantity
+        guard let amountQuantity else { return }
         
-        guard let amountQuantity = food?.defaultQuantity  else {
-            return
-        }
         self.amount = amountQuantity.value
         self.unit = amountQuantity.unit
     }
