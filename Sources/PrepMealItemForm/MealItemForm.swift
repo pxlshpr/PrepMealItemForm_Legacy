@@ -139,15 +139,46 @@ public struct MealItemForm: View {
             }
         }
         
+        var infoBinding: Binding<FormSaveInfo?> {
+            Binding<FormSaveInfo?>(
+                get: {
+                    guard !viewModel.amountIsValid else {
+                        return nil
+                    }
+                    return FormSaveInfo(title: "Quantity Required", systemImage: "exclamationmark.triangle.fill")
+                },
+                set: { _ in }
+            )
+        }
+        
+        var cancelAction: FormConfirmableAction {
+            FormConfirmableAction(
+                handler: tappedClose
+            )
+        }
+        
+        var saveAction: FormConfirmableAction {
+            FormConfirmableAction(
+                handler: { tappedSave() }
+            )
+        }
+        
+        var deleteAction: FormConfirmableAction {
+            FormConfirmableAction(
+                handler: { optionalTappedDelete?() }
+            )
+        }
+        
         return FormSaveLayer(
             collapsed: .constant(false),
             saveIsDisabled: Binding<Bool>(
                 get: { !viewModel.isDirty },
                 set: { _ in }
             ),
-            tappedCancel: tappedClose,
-            tappedSave: tappedSave,
-            tappedDelete: optionalTappedDelete
+            info: infoBinding,
+            cancelAction: cancelAction,
+            saveAction: saveAction,
+            deleteAction: deleteAction
         )
     }
     
