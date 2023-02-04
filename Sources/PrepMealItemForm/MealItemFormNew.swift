@@ -226,13 +226,33 @@ struct MealItemFormNew: View {
                 !viewModel.amountCanBeStepped(by: step)
             }
             var fontWeight: Font.Weight {
-                disabled ? .thin : .semibold
+//                disabled ? .thin : .semibold
+                .semibold
             }
             
-            return Button {
-                Haptics.feedback(style: .soft)
-                viewModel.stepAmount(by: step)
-            } label: {
+            var label: some View {
+                HStack(spacing: 1) {
+                    Text(sign)
+                        .font(.system(.body, design: .rounded, weight: .regular))
+//                        .font(.system(size: 13, weight: .regular, design: .rounded))
+                    Text(number)
+                        .font(.system(.callout, design: .rounded, weight: fontWeight))
+//                        .font(.system(size: 11, weight: fontWeight, design: .rounded))
+                }
+                .monospacedDigit()
+                .frame(maxWidth: .infinity)
+                .frame(height: 44)
+    //            .frame(width: 44, height: 44)
+                .foregroundColor(.accentColor)
+                .background(
+                    RoundedRectangle(cornerRadius: 7, style: .continuous)
+                        .fill(Color.accentColor.opacity(
+                            colorScheme == .dark ? 0.1 : 0.15
+                        ))
+                )
+            }
+            
+            var label_legacy: some View {
                 HStack(spacing: 1) {
                     Text(sign)
                         .font(.system(.caption, design: .rounded, weight: .regular))
@@ -255,6 +275,13 @@ struct MealItemFormNew: View {
                             style: StrokeStyle(lineWidth: 0.5, dash: [3])
                         )
                 )
+            }
+            
+            return Button {
+                Haptics.feedback(style: .soft)
+                viewModel.stepAmount(by: step)
+            } label: {
+                label
             }
             .disabled(disabled)
         }
