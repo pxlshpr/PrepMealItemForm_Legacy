@@ -32,6 +32,7 @@ public class MealItemViewModel: ObservableObject {
     @Published var mealFoodItem: MealFoodItem
     
     @Published var isAnimatingAmountChange = false
+    var startedAnimatingAmountChangeAt: Date = Date()
 
     let existingMealFoodItem: MealFoodItem?
     let initialDayMeal: DayMeal?
@@ -131,7 +132,20 @@ public class MealItemViewModel: ObservableObject {
             setFoodItem()
         }
     }
-    
+
+    var animatedAmount: Double? {
+        get {
+            return internalAmountDouble
+        }
+        set {
+            withAnimation {
+                internalAmountDouble = newValue
+            }
+            internalAmountString = newValue?.cleanAmount ?? ""
+            setFoodItem()
+        }
+    }
+
     func setFoodItem() {
         guard let food else { return }
         self.mealFoodItem = MealFoodItem(
@@ -182,16 +196,20 @@ public class MealItemViewModel: ObservableObject {
         existingMealFoodItem != nil
     }
     
+    var savePrefix: String {
+        dayMeal.time < Date().timeIntervalSince1970 ? "Log" : "Prep"
+    }
+    
     var navigationTitle: String {
         guard !isEditing else {
             return "Edit Entry"
         }
-        let prefix = dayMeal.time < Date().timeIntervalSince1970 ? "Log" : "Prep"
-        return "\(prefix) Food"
+        return "\(savePrefix) Food"
     }
     
     var saveButtonTitle: String {
-        isEditing ? "Save" : "Add"
+//        isEditing ? "Save" : "Add"
+        isEditing ? "Save" : "\(savePrefix) this Food"
     }
     
     func stepAmount(by step: Int) {
@@ -200,10 +218,14 @@ public class MealItemViewModel: ObservableObject {
     
     func programmaticallyChangeAmount(to newAmount: Double) {
         isAnimatingAmountChange = true
+        startedAnimatingAmountChangeAt = Date()
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-            self.amount = newAmount
-            
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+//            self.amount = newAmount
+            self.animatedAmount = newAmount
+
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                guard Date().timeIntervalSince(self.startedAnimatingAmountChangeAt) >= 0.55
+                else { return }
                 self.isAnimatingAmountChange = false
             }
         }
@@ -239,7 +261,9 @@ public class MealItemViewModel: ObservableObject {
                 food: food,
                 userVolumeUnits: DataManager.shared.userVolumeUnits
             )
-        else { return }
+        else {
+            return
+        }
         
         self.unit = unit
         setFoodItem()

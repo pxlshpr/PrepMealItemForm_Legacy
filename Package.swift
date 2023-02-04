@@ -18,10 +18,10 @@ let package = Package(
         .package(url: "https://github.com/pxlshpr/PrepCoreDataStack", from: "0.0.24"),
         .package(url: "https://github.com/pxlshpr/FoodLabel", from: "0.0.29"),
         .package(url: "https://github.com/pxlshpr/PrepDataTypes", from: "0.0.209"),
-        .package(url: "https://github.com/pxlshpr/PrepFoodSearch", from: "0.0.48"),
+        .package(url: "https://github.com/pxlshpr/PrepFoodSearch", from: "0.0.80"),
         .package(url: "https://github.com/pxlshpr/PrepGoalSetsList", from: "0.0.2"),
         .package(url: "https://github.com/pxlshpr/PrepViews", from: "0.0.123"),
-        .package(url: "https://github.com/pxlshpr/SwiftUISugar", from: "0.0.320"),
+        .package(url: "https://github.com/pxlshpr/SwiftUISugar", from: "0.0.346"),
         .package(url: "https://github.com/pxlshpr/Timeline", from: "0.0.68"),
     ],
     targets: [

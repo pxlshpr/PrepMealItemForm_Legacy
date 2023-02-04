@@ -33,7 +33,7 @@ public struct MealItemForm: View {
     @State var showingMealTypesPicker = false
     @State var showingDietsPicker = false
     @State var showingEquivalentQuantities: Bool = false
-
+    
     public init(
         viewModel: MealItemViewModel,
         isEditing: Bool = false,
@@ -163,8 +163,9 @@ public struct MealItemForm: View {
             )
         }
         
-        var deleteAction: FormConfirmableAction {
-            FormConfirmableAction(
+        var deleteAction: FormConfirmableAction? {
+            guard viewModel.isEditing else { return nil }
+            return FormConfirmableAction(
                 handler: { optionalTappedDelete?() }
             )
         }
@@ -175,6 +176,7 @@ public struct MealItemForm: View {
                 get: { !viewModel.isDirty },
                 set: { _ in }
             ),
+            saveTitle: viewModel.saveButtonTitle,
             info: infoBinding,
             cancelAction: cancelAction,
             saveAction: saveAction,

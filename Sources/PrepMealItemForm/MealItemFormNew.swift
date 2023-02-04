@@ -1,14 +1,109 @@
 import SwiftUI
 import PrepDataTypes
+import PrepCoreDataStack
+import SwiftHaptics
 
 struct MealItemFormNew: View {
     
     @Environment(\.colorScheme) var colorScheme
-    
     @ObservedObject var viewModel: MealItemViewModel
+    
+    @State var showingQuantityForm = false
 
     var body: some View {
         scrollView
+            .sheet(isPresented: $showingQuantityForm) { quantityForm }
+    }
+    
+    var scrollView: some View {
+        ScrollView(showsIndicators: false) {
+            LazyVStack(spacing: 0) {
+                Group {
+                    foodButton
+                    mealButton
+                    amountButton
+                    stepButtons
+                }
+                .padding(.horizontal, 20)
+                Divider()
+                    .padding(.top, 20)
+                metersSection
+            }
+            .safeAreaInset(edge: .bottom) {
+                Spacer()
+                    .frame(height: 60)
+            }
+        }
+        .scrollContentBackground(.hidden)
+        .background(background)
+    }
+    
+    @ViewBuilder
+    var foodButton: some View {
+        if let food = viewModel.food {
+            Button {
+                viewModel.path.append(.food)
+            } label: {
+                foodCell(food)
+            }
+        }
+    }
+    
+    var mealButton: some View {
+        Button {
+            viewModel.path.append(.meal)
+        } label: {
+            mealCell
+        }
+    }
+    
+    var amountButton: some View {
+        Button {
+            showingQuantityForm = true
+//                    viewModel.path.append(.quantity)
+        } label: {
+            amountCell
+        }
+    }
+    
+    var metersSection: some View {
+        MealItemMeters(
+            foodItem: $viewModel.mealFoodItem,
+            meal: $viewModel.dayMeal,
+            day: $viewModel.day,
+            userUnits: DataManager.shared.user?.units ?? .standard,
+//            bodyProfile: viewModel.day?.bodyProfile //TODO: We need to load the Day's bodyProfile here once supported
+            bodyProfile: DataManager.shared.user?.bodyProfile,
+            didTapGoalSetButton: didTapGoalSetButton
+        )
+        .padding(.top, 15)
+    }
+    
+    func didTapGoalSetButton(forMeal: Bool) {
+//        if forMeal {
+//            showingMealTypesPicker = true
+//        } else {
+//            showingDietsPicker = true
+//        }
+    }
+
+    var background: some View {
+        FormBackground()
+            .edgesIgnoringSafeArea(.all)
+    }
+    
+    @ViewBuilder
+    var quantityForm: some View {
+        if let food = viewModel.food {
+            QuantityForm(
+                food: food,
+                double: viewModel.amountValue.value,
+                unit: viewModel.unit.formUnit
+            ) { double, unit in
+                viewModel.amount = double
+                viewModel.didPickUnit(unit)
+            }
+        }
     }
     
     var disclosureArrow: some View {
@@ -118,6 +213,62 @@ struct MealItemFormNew: View {
         .padding(.bottom, 10)
     }
     
+    var stepButtons: some View {
+        func stepButton(step: Int) -> some View {
+            var number: String {
+                "\(abs(step))"
+            }
+            var sign: String {
+                step > 0 ? "+" : "-"
+            }
+            
+            var disabled: Bool {
+                !viewModel.amountCanBeStepped(by: step)
+            }
+            var fontWeight: Font.Weight {
+                disabled ? .thin : .semibold
+            }
+            
+            return Button {
+                Haptics.feedback(style: .soft)
+                viewModel.stepAmount(by: step)
+            } label: {
+                HStack(spacing: 1) {
+                    Text(sign)
+                        .font(.system(.caption, design: .rounded, weight: .regular))
+//                        .font(.system(size: 13, weight: .regular, design: .rounded))
+                    Text(number)
+                        .font(.system(.footnote, design: .rounded, weight: fontWeight))
+//                        .font(.system(size: 11, weight: fontWeight, design: .rounded))
+                }
+                .monospacedDigit()
+                .foregroundColor(.accentColor)
+                .frame(maxWidth: .infinity)
+                .frame(height: 44)
+    //            .frame(width: 44, height: 44)
+                .background(colorScheme == .light ? .ultraThickMaterial : .ultraThinMaterial)
+                .cornerRadius(10)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        .stroke(
+                            Color.accentColor.opacity(0.7),
+                            style: StrokeStyle(lineWidth: 0.5, dash: [3])
+                        )
+                )
+            }
+            .disabled(disabled)
+        }
+        
+        return HStack {
+            stepButton(step: -50)
+            stepButton(step: -10)
+            stepButton(step: -1)
+            stepButton(step: 1)
+            stepButton(step: 10)
+            stepButton(step: 50)
+        }
+    }
+    
     var amountCell: some View {
         ZStack {
             HStack {
@@ -134,13 +285,20 @@ struct MealItemFormNew: View {
                     }
                     HStack(alignment: .firstTextBaseline, spacing: 3) {
                         if viewModel.amountIsValid {
-                            Text(viewModel.amountString)
-                                .foregroundColor(.primary)
-                                .font(.system(size: 28, weight: .medium, design: .rounded))
-                            Text(viewModel.unitDescription)
-                                .font(.system(size: 17, weight: .semibold, design: .rounded))
-                                .bold()
-                                .foregroundColor(Color(.secondaryLabel))
+                            Color.clear
+                                .animatedMealItemQuantity(
+                                    value: viewModel.internalAmountDouble!,
+                                    unitString: viewModel.unitDescription,
+                                    isAnimating: viewModel.isAnimatingAmountChange
+                                )
+                                .frame(maxWidth: .infinity, alignment: .leading)
+//                            Text(viewModel.amountString)
+//                                .foregroundColor(.primary)
+//                                .font(.system(size: 28, weight: .medium, design: .rounded))
+//                            Text(viewModel.unitDescription)
+//                                .font(.system(size: 17, weight: .semibold, design: .rounded))
+//                                .bold()
+//                                .foregroundColor(Color(.secondaryLabel))
                         } else {
                             Text("Required")
                                 .foregroundColor(Color(.tertiaryLabel))
@@ -158,42 +316,6 @@ struct MealItemFormNew: View {
         .background(FormCellBackground())
         .cornerRadius(10)
         .padding(.bottom, 10)
-    }
-    
-    var scrollView: some View {
-        ScrollView {
-            LazyVStack(spacing: 0) {
-                if let food = viewModel.food {
-                    Button {
-                        viewModel.path.append(.food)
-                    } label: {
-                        foodCell(food)
-                    }
-                }
-                Button {
-                    viewModel.path.append(.meal)
-                } label: {
-                    mealCell
-                }
-                Button {
-                    viewModel.path.append(.quantity)
-                } label: {
-                    amountCell
-                }
-            }
-            .padding(.horizontal, 20)
-            .safeAreaInset(edge: .bottom) {
-                Spacer()
-                    .frame(height: 60)
-            }
-        }
-        .scrollContentBackground(.hidden)
-        .background(background)
-    }
-    
-    var background: some View {
-        FormBackground()
-            .edgesIgnoringSafeArea(.all)
     }
 }
 
@@ -302,5 +424,92 @@ extension MealItemForm.Quantity {
             allowAddSize: false,
             didPickUnit: viewModel.didPickUnit
         )
+    }
+}
+
+struct AnimatableMealItemQuantityModifier: AnimatableModifier {
+    
+    var value: Double
+    var unitString: String
+    var isAnimating: Bool
+    
+    let fontSize: CGFloat = 28
+    let fontWeight: Font.Weight = .medium
+    
+    var animatableData: Double {
+        get { value }
+        set { value = newValue }
+    }
+    
+    var uiFont: UIFont {
+        UIFont.systemFont(ofSize: fontSize, weight: fontWeight.uiFontWeight)
+    }
+    
+    var size: CGSize {
+        uiFont.fontSize(for: value.formattedNutrient)
+    }
+    
+    let unitFontSize: CGFloat = 17
+    let unitFontWeight: Font.Weight = .semibold
+    
+    var unitUIFont: UIFont {
+        UIFont.systemFont(ofSize: unitFontSize, weight: unitFontWeight.uiFontWeight)
+    }
+    
+    var unitWidth: CGFloat {
+        unitUIFont.fontSize(for: unitString).width
+    }
+    
+    var amountString: String {
+        if isAnimating {
+            print("isAnimating, so returning \(value.formattedMealItemAmount)")
+            return value.formattedMealItemAmount
+        } else {
+            print("NOT isAnimating, so returning \(value.cleanAmount)")
+            return value.cleanAmount
+        }
+    }
+    
+    func body(content: Content) -> some View {
+        content
+//            .frame(width: size.width, height: size.height)
+            .frame(width: 200 + unitWidth, height: size.height)
+            .overlay(
+                HStack(alignment: .firstTextBaseline, spacing: 3) {
+//                    Text(viewModel.amountString)
+//                        .foregroundColor(.primary)
+//                        .font(.system(size: 28, weight: .medium, design: .rounded))
+//                    Text(viewModel.unitDescription)
+//                        .font(.system(size: 17, weight: .semibold, design: .rounded))
+//                        .bold()
+//                        .foregroundColor(Color(.secondaryLabel))
+                    
+                    Text(amountString)
+                        .multilineTextAlignment(.leading)
+                        .foregroundColor(.primary)
+                        .font(.system(size: fontSize, weight: fontWeight, design: .rounded))
+                    Text(unitString)
+                        .font(.system(size: unitFontSize, weight: unitFontWeight, design: .rounded))
+                        .bold()
+                        .foregroundColor(Color(.secondaryLabel))
+//                        .offset(y: -0.5)
+
+//                    Text(value.formattedNutrient)
+//                        .font(.system(size: fontSize, weight: fontWeight, design: .default))
+//                        .multilineTextAlignment(.leading)
+//                        .foregroundColor(color)
+//                    Text(unitString)
+//                        .font(.system(size: unitFontSize, weight: unitFontWeight, design: .default))
+//                        .foregroundColor(color.opacity(0.5))
+//                        .offset(y: -0.5)
+                    Spacer()
+                }
+            )
+    }
+}
+
+public extension View {
+    func animatedMealItemQuantity(value: Double, unitString: String, isAnimating: Bool) -> some View {
+        modifier(AnimatableMealItemQuantityModifier(value: value, unitString: unitString, isAnimating: isAnimating))
     }
 }
