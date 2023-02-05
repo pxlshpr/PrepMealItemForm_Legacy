@@ -61,14 +61,15 @@ public struct MealItemForm: View {
             content
                 .background(background)
                 .navigationDestination(for: MealItemFormRoute.self, destination: navigationDestination)
-                .toolbar { trailingContent }
         }
     }
     
     var trailingContent: some ToolbarContent {
         ToolbarItemGroup(placement: .navigationBarTrailing) {
             HStack(spacing: 2) {
-                deleteButton
+                if viewModel.isEditing {
+                    deleteButton
+                }
                 closeButton
             }
         }
@@ -290,6 +291,7 @@ public struct MealItemForm: View {
             formLayer
             saveLayer
         }
+        .toolbar { trailingContent }
     }
     
     //MARK: - Details
