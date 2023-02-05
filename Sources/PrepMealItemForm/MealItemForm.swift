@@ -78,7 +78,7 @@ public struct MealItemForm: View {
     var closeButton: some View {
         Button {
             Haptics.feedback(style: .soft)
-            dismiss()
+            tappedClose()
         } label: {
             CloseButtonLabel(forNavigationBar: true)
         }
