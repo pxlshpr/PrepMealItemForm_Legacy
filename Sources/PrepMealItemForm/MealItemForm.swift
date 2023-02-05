@@ -17,6 +17,7 @@ public enum MealItemFormAction {
 public struct MealItemForm: View {
     
     @Environment(\.colorScheme) var colorScheme
+    @Environment(\.dismiss) var dismiss
     @FocusState var isFocused: Bool
     
     @ObservedObject var viewModel: MealItemViewModel
@@ -60,6 +61,25 @@ public struct MealItemForm: View {
             content
                 .background(background)
                 .navigationDestination(for: MealItemFormRoute.self, destination: navigationDestination)
+                .toolbar { trailingContent }
+        }
+    }
+    
+    var trailingContent: some ToolbarContent {
+        ToolbarItemGroup(placement: .navigationBarTrailing) {
+            HStack(spacing: 2) {
+                deleteButton
+                closeButton
+            }
+        }
+    }
+    
+    var closeButton: some View {
+        Button {
+            Haptics.feedback(style: .soft)
+            dismiss()
+        } label: {
+            CloseButtonLabel(forNavigationBar: true)
         }
     }
     
@@ -130,14 +150,73 @@ public struct MealItemForm: View {
         .background(.thinMaterial)
     }
     
-    var saveLayer: some View {
-        var optionalTappedDelete: (() -> ())? {
-            if viewModel.isEditing {
-                return tappedDelete
-            } else {
-                return nil
+    var optionalTappedDelete: (() -> ())? {
+        if viewModel.isEditing {
+            return tappedDelete
+        } else {
+            return nil
+        }
+    }
+
+    var deleteAction: FormConfirmableAction? {
+        guard viewModel.isEditing else { return nil }
+        return FormConfirmableAction(
+            handler: { optionalTappedDelete?() }
+        )
+    }
+    
+    @ViewBuilder
+    var deleteButton: some View {
+        if let deleteAction {
+            deleteButton(deleteAction)
+        }
+    }
+
+    func deleteButton(_ action: FormConfirmableAction) -> some View {
+        var shadowSize: CGFloat { 2 }
+
+        var confirmationActions: some View {
+            Button(action.confirmationButtonTitle ?? "Delete", role: .destructive) {
+                action.handler()
+                dismiss()
             }
         }
+
+        var confirmationMessage: some View {
+            Text(action.confirmationMessage ?? "Are you sure?")
+        }
+
+        var label: some View {
+            HStack {
+                Image(systemName: "trash.circle.fill")
+                    .font(.system(size: 24))
+                    .symbolRenderingMode(.palette)
+                    .foregroundStyle(
+                        Color.red.opacity(0.75),
+                        Color(.quaternaryLabel).opacity(0.5)
+                    )
+            }
+//            .confirmationDialog(
+//                "",
+//                isPresented: $showingDeleteConfirmation,
+//                actions: { confirmationActions },
+//                message: { confirmationMessage }
+//            )
+        }
+
+        return Button {
+            if action.shouldConfirm {
+                Haptics.warningFeedback()
+                showingDeleteConfirmation = true
+            } else {
+                action.handler()
+            }
+        } label: {
+            label
+        }
+    }
+    
+    var saveLayer: some View {
         
         var infoBinding: Binding<FormSaveInfo?> {
             Binding<FormSaveInfo?>(
@@ -163,14 +242,8 @@ public struct MealItemForm: View {
             )
         }
         
-        var deleteAction: FormConfirmableAction? {
-            guard viewModel.isEditing else { return nil }
-            return FormConfirmableAction(
-                handler: { optionalTappedDelete?() }
-            )
-        }
-        
         return FormSaveLayer(
+            showDismissButton: false,
             collapsed: .constant(false),
             saveIsDisabled: Binding<Bool>(
                 get: { !viewModel.isDirty },
@@ -179,8 +252,8 @@ public struct MealItemForm: View {
             saveTitle: viewModel.saveButtonTitle,
             info: infoBinding,
             cancelAction: cancelAction,
-            saveAction: saveAction,
-            deleteAction: deleteAction
+            saveAction: saveAction
+//            deleteAction: deleteAction
         )
     }
     
@@ -505,15 +578,15 @@ public struct MealItemForm: View {
         .environmentObject(viewModel)
     }
     
-    var deleteButton: some View {
-        Button {
-            actionHandler(.delete)
-            actionHandler(.dismiss)
-        } label: {
-            Text("Delete")
-                .foregroundColor(.red)
-        }
-    }
+//    var deleteButton: some View {
+//        Button {
+//            actionHandler(.delete)
+//            actionHandler(.dismiss)
+//        } label: {
+//            Text("Delete")
+//                .foregroundColor(.red)
+//        }
+//    }
 
     func tappedSave() {
         Haptics.feedback(style: .soft)
