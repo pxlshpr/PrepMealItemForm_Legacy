@@ -445,7 +445,7 @@ public struct MealItemForm: View {
     var form: some View {
         FormStyledScrollView {
             detailsSection
-//            metersSection
+//            portionAwareness
             deleteButtonSection
         }
     }
@@ -472,8 +472,8 @@ public struct MealItemForm: View {
         Spacer()
             .frame(height: 80)
     }
-    var metersSection: some View {
-        MealItemMeters(
+    var portionAwareness: some View {
+        PortionAwareness(
             foodItem: $viewModel.mealFoodItem,
             meal: $viewModel.dayMeal,
             day: $viewModel.day,

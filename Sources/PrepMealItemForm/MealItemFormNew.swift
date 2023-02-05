@@ -27,7 +27,7 @@ struct MealItemFormNew: View {
                 .padding(.horizontal, 20)
                 Divider()
                     .padding(.top, 20)
-                metersSection
+                portionAwareness
             }
             .safeAreaInset(edge: .bottom) {
                 Spacer()
@@ -66,8 +66,8 @@ struct MealItemFormNew: View {
         }
     }
     
-    var metersSection: some View {
-        MealItemMeters(
+    var portionAwareness: some View {
+        PortionAwareness(
             foodItem: $viewModel.mealFoodItem,
             meal: $viewModel.dayMeal,
             day: $viewModel.day,
