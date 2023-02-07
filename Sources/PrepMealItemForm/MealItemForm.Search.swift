@@ -115,7 +115,7 @@ extension MealItemForm.Search {
             Haptics.feedback(style: .soft)
             actionHandler(.dismiss)
         }
-        
+
         return FoodSearch(
             dataProvider: DataManager.shared,
             shouldDelayContents: isInitialFoodSearch,
