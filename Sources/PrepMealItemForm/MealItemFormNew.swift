@@ -7,8 +7,8 @@ struct MealItemFormNew: View {
     
     @Environment(\.colorScheme) var colorScheme
     @ObservedObject var viewModel: MealItemViewModel
-    
     @State var showingQuantityForm = false
+    @State var showingFoodLabel = false
 
     var body: some View {
         scrollView
