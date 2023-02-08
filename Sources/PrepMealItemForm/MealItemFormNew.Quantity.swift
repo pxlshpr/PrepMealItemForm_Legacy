@@ -86,7 +86,7 @@ extension MealItemFormNew.QuantityForm {
     
     var body: some View {
         NavigationStack {
-            QuickForm(title: "Amount") {
+            QuickForm(title: "Quantity") {
                 textFieldSection
             }
             .onChange(of: isFocused, perform: isFocusedChanged)
@@ -180,13 +180,18 @@ extension MealItemFormNew.QuantityForm {
         } label: {
             HStack(spacing: 2) {
                 Text(viewModel.internalUnit.shortDescription)
+                    .multilineTextAlignment(.trailing)
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.3)
                     .fontWeight(.semibold)
+                    .fixedSize(horizontal: false, vertical: true)
                 Image(systemName: "chevron.up.chevron.down")
                     .imageScale(.small)
             }
             .foregroundColor(.accentColor)
             .padding(.horizontal, 15)
-            .frame(height: 40)
+            .padding(.vertical, 5)
+            .frame(minHeight: 40)
             .background(
                 RoundedRectangle(cornerRadius: 7, style: .continuous)
                     .fill(Color.accentColor.opacity(

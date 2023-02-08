@@ -11,8 +11,10 @@ struct MealItemFormNew: View {
     @State var showingFoodLabel = false
     @State var hasAppeared: Bool = false
     
+    @State var bottomHeight: CGFloat = 0.0
+    
     var body: some View {
-        scrollView
+        content
             .sheet(isPresented: $showingQuantityForm) { quantityForm }
             .onAppear {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
@@ -23,26 +25,82 @@ struct MealItemFormNew: View {
             }
     }
     
+    var content: some View {
+        ZStack {
+            scrollView
+            saveLayer
+        }
+    }
+    
+    var saveLayer: some View {
+        VStack {
+            Spacer()
+            VStack(spacing: 0) {
+                Divider()
+                amountButton
+                stepButtons
+                    .padding(.bottom, 10)
+                saveButton
+            }
+            .padding(.horizontal, 20)
+            .padding(.bottom, 34)
+            .background(
+                Color.clear
+                    .background(.thinMaterial)
+            )
+            .readSize { size in
+                print("bottomHeight is: \(size.height)")
+                bottomHeight = size.height / 2.0
+            }
+        }
+        .edgesIgnoringSafeArea(.all)
+    }
+    
+    var saveButton: some View {
+        var saveIsDisabled: Bool {
+            !viewModel.isDirty
+        }
+        
+        return Button {
+
+        } label: {
+            Text(viewModel.saveButtonTitle)
+                .bold()
+                .foregroundColor((colorScheme == .light && saveIsDisabled) ? .black : .white)
+                .frame(height: 52)
+                .frame(maxWidth: .infinity)
+                .background(
+                    RoundedRectangle(cornerRadius: 10)
+                        .foregroundStyle(Color.accentColor.gradient)
+                )
+        }
+        .buttonStyle(.borderless)
+        .disabled(saveIsDisabled)
+        .opacity(saveIsDisabled ? (colorScheme == .light ? 0.2 : 0.2) : 1)
+    }
+
+    
     var scrollView: some View {
         ScrollView(showsIndicators: false) {
             LazyVStack(spacing: 0) {
                 Group {
                     foodButton
                     mealButton
-                    amountButton
-                    stepButtons
+//                    amountButton
+//                    stepButtons
                 }
                 .padding(.horizontal, 20)
-                Divider()
-                    .padding(.top, 20)
+//                Divider()
+//                    .padding(.top, 20)
                 if hasAppeared {
                     portionAwareness
-                        .transition(.move(edge: .bottom))
+                        .transition(.opacity)
+//                        .transition(.move(edge: .bottom))
                 }
             }
             .safeAreaInset(edge: .bottom) {
                 Spacer()
-                    .frame(height: 20)
+                    .frame(height: bottomHeight)
             }
         }
         .scrollContentBackground(.hidden)
@@ -70,10 +128,11 @@ struct MealItemFormNew: View {
     
     var amountButton: some View {
         Button {
+            Haptics.feedback(style: .soft)
             showingQuantityForm = true
-//                    viewModel.path.append(.quantity)
         } label: {
-            amountCell
+//            amountCell
+            amountField
         }
     }
     
@@ -256,10 +315,14 @@ struct MealItemFormNew: View {
     //            .frame(width: 44, height: 44)
                 .foregroundColor(.accentColor)
                 .background(
-                    RoundedRectangle(cornerRadius: 7, style: .continuous)
-                        .fill(Color.accentColor.opacity(
-                            colorScheme == .dark ? 0.1 : 0.15
-                        ))
+                    ZStack {
+                        if colorScheme == .dark {
+                            RoundedRectangle(cornerRadius: 7, style: .continuous)
+                                .fill(Color(.systemFill).opacity(0.5))
+                        }
+                        RoundedRectangle(cornerRadius: 7, style: .continuous)
+                            .fill(Color.accentColor.opacity(colorScheme == .dark ? 0.1 : 0.15))
+                    }
                 )
             }
             
@@ -354,6 +417,25 @@ struct MealItemFormNew: View {
         .background(FormCellBackground())
         .cornerRadius(10)
         .padding(.bottom, 10)
+    }
+    
+    var amountField: some View {
+        HStack {
+            Text("Quantity")
+                .font(.system(.title3, design: .rounded, weight: .semibold))
+//                .font(.system(size: 16, weight: .semibold, design: .rounded))
+                .foregroundColor(Color(.secondaryLabel))
+            Spacer()
+            HStack(alignment: .firstTextBaseline, spacing: 3) {
+                Color.clear
+                    .animatedMealItemQuantity(
+                        value: viewModel.internalAmountDouble!,
+                        unitString: viewModel.unitDescription,
+                        isAnimating: viewModel.isAnimatingAmountChange
+                    )
+            }
+        }
+        .padding(.vertical, 15)
     }
 }
 
@@ -467,6 +549,8 @@ extension MealItemForm.Quantity {
 
 struct AnimatableMealItemQuantityModifier: AnimatableModifier {
     
+    @Environment(\.colorScheme) var colorScheme
+    
     var value: Double
     var unitString: String
     var isAnimating: Bool
@@ -511,36 +595,39 @@ struct AnimatableMealItemQuantityModifier: AnimatableModifier {
     func body(content: Content) -> some View {
         content
 //            .frame(width: size.width, height: size.height)
-            .frame(width: 200 + unitWidth, height: size.height)
+//            .frame(width: 200 + unitWidth, height: size.height)
+            .frame(maxWidth: .infinity)
+            .frame(height: size.height)
             .overlay(
                 HStack(alignment: .firstTextBaseline, spacing: 3) {
-//                    Text(viewModel.amountString)
-//                        .foregroundColor(.primary)
-//                        .font(.system(size: 28, weight: .medium, design: .rounded))
-//                    Text(viewModel.unitDescription)
-//                        .font(.system(size: 17, weight: .semibold, design: .rounded))
-//                        .bold()
-//                        .foregroundColor(Color(.secondaryLabel))
-                    
-                    Text(amountString)
-                        .multilineTextAlignment(.leading)
-                        .foregroundColor(.primary)
-                        .font(.system(size: fontSize, weight: fontWeight, design: .rounded))
-                    Text(unitString)
-                        .font(.system(size: unitFontSize, weight: unitFontWeight, design: .rounded))
-                        .bold()
-                        .foregroundColor(Color(.secondaryLabel))
-//                        .offset(y: -0.5)
-
-//                    Text(value.formattedNutrient)
-//                        .font(.system(size: fontSize, weight: fontWeight, design: .default))
-//                        .multilineTextAlignment(.leading)
-//                        .foregroundColor(color)
-//                    Text(unitString)
-//                        .font(.system(size: unitFontSize, weight: unitFontWeight, design: .default))
-//                        .foregroundColor(color.opacity(0.5))
-//                        .offset(y: -0.5)
                     Spacer()
+                    
+                    HStack(alignment: .firstTextBaseline, spacing: 3) {
+                        Text(amountString)
+                            .multilineTextAlignment(.leading)
+                            .foregroundColor(.primary)
+//                            .foregroundColor(.accentColor)
+                            .font(.system(size: fontSize, weight: fontWeight, design: .rounded))
+                        Text(unitString)
+                            .font(.system(size: unitFontSize, weight: unitFontWeight, design: .rounded))
+                            .bold()
+                            .foregroundColor(Color(.secondaryLabel))
+                    }
+                    .padding(.vertical, 5)
+                    .padding(.horizontal, 10)
+                    .background(
+                        ZStack {
+//                            if colorScheme == .dark {
+                                RoundedRectangle(cornerRadius: 7, style: .continuous)
+                                    .fill(Color(.systemFill).opacity(0.5))
+//                            }
+//                            RoundedRectangle(cornerRadius: 7, style: .continuous)
+//                                .fill(Color.accentColor.opacity(colorScheme == .dark ? 0.1 : 0.15))
+                        }
+//
+//                        RoundedRectangle(cornerRadius: 7, style: .continuous)
+//                            .fill(Color.accentColor.gradient)
+                    )
                 }
             )
     }
