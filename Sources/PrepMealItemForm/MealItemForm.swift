@@ -24,9 +24,6 @@ public struct MealItemForm: View {
     @State var showingDeleteConfirmation = false
     let alreadyInNavigationStack: Bool
 
-    //TODO: Bring this back for delayed appearance if needed for slower devices like the iPhone X
-    @State var hasAppeared: Bool = false
-    
     let actionHandler: (MealItemFormAction) -> ()
 
     //TODO: Are these needed here anymore?
@@ -475,7 +472,7 @@ public struct MealItemForm: View {
     
     var formLayer: some View {
         form
-            .safeAreaInset(edge: .bottom) { bottomSafeAreaInset }
+//            .safeAreaInset(edge: .bottom) { bottomSafeAreaInset }
             .navigationTitle(viewModel.navigationTitle)
             .scrollDismissesKeyboard(.interactively)
             .sheet(isPresented: $showingUnitPicker) { unitPicker }

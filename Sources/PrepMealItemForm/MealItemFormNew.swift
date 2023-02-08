@@ -9,10 +9,18 @@ struct MealItemFormNew: View {
     @ObservedObject var viewModel: MealItemViewModel
     @State var showingQuantityForm = false
     @State var showingFoodLabel = false
-
+    @State var hasAppeared: Bool = false
+    
     var body: some View {
         scrollView
             .sheet(isPresented: $showingQuantityForm) { quantityForm }
+            .onAppear {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
+                    withAnimation {
+                        hasAppeared = true
+                    }
+                }
+            }
     }
     
     var scrollView: some View {
@@ -27,11 +35,14 @@ struct MealItemFormNew: View {
                 .padding(.horizontal, 20)
                 Divider()
                     .padding(.top, 20)
-                portionAwareness
+                if hasAppeared {
+                    portionAwareness
+                        .transition(.move(edge: .bottom))
+                }
             }
             .safeAreaInset(edge: .bottom) {
                 Spacer()
-                    .frame(height: 60)
+                    .frame(height: 20)
             }
         }
         .scrollContentBackground(.hidden)
