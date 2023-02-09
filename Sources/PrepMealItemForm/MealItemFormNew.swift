@@ -584,10 +584,8 @@ struct AnimatableMealItemQuantityModifier: AnimatableModifier {
     
     var amountString: String {
         if isAnimating {
-            print("isAnimating, so returning \(value.formattedMealItemAmount)")
             return value.formattedMealItemAmount
         } else {
-            print("NOT isAnimating, so returning \(value.cleanAmount)")
             return value.cleanAmount
         }
     }
