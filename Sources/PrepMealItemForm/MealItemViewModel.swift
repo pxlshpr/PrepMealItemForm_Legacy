@@ -1,7 +1,6 @@
 import SwiftUI
 import PrepDataTypes
 import PrepCoreDataStack
-import PrepMocks
 import PrepViews
 
 public enum MealItemFormRoute {
@@ -60,7 +59,7 @@ public class MealItemViewModel: ObservableObject {
         /// [ ] Try making `mealFoodItem` nil and set it as that if we don't get a food here
         /// [ ] Try and get this fed in with an existing `FoodItem`, from which we create this when editing!
         self.mealFoodItem = MealFoodItem(
-            food: food ?? FoodMock.peanutButter,
+            food: food ?? Food.placeholder,
             amount: .init(0, .g),
             isSoftDeleted: false
         )
@@ -382,5 +381,41 @@ extension MealItemViewModel: NutritionSummaryProvider {
     
     public var proteinAmount: Double {
         mealFoodItem.scaledValue(for: .protein)
+    }
+}
+
+extension Food {
+    static var placeholder: Food {
+        self.init(
+            id: UUID(),
+            type: .food,
+            name: "",
+            emoji: "",
+            detail: "",
+            brand: "",
+            numberOfTimesConsumedGlobally: 0,
+            numberOfTimesConsumed: 0,
+            lastUsedAt: 0,
+            firstUsedAt: 0,
+            info: .init(
+                amount: .init(.init(0)),
+                nutrients: .init(
+                    energyInKcal: 0,
+                    carb: 0,
+                    protein: 0,
+                    fat: 0,
+                    micros: []
+                ),
+                sizes: [],
+                barcodes: []
+            ),
+            publishStatus: .hidden,
+            jsonSyncStatus: .synced,
+            childrenFoods: [],
+            dataset: nil,
+            barcodes: nil,
+            syncStatus: .synced,
+            updatedAt: 0
+        )
     }
 }
