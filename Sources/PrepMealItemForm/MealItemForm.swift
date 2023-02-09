@@ -268,20 +268,23 @@ public struct MealItemForm: View {
         }
 
         var formLayer: some View {
-            MealItemFormNew(viewModel: viewModel)
-                .safeAreaInset(edge: .bottom) { bottomSafeAreaInset }
-                .navigationTitle(viewModel.navigationTitle)
-                .scrollDismissesKeyboard(.interactively)
-                .sheet(isPresented: $showingUnitPicker) { unitPicker }
-                .sheet(isPresented: $showingMealTypesPicker) { mealTypesPicker }
-                .sheet(isPresented: $showingDietsPicker) { dietsPicker }
-                .sheet(isPresented: $showingEquivalentQuantities) { equivalentSizesSheet }
-                .confirmationDialog(
-                    "",
-                    isPresented: $showingDeleteConfirmation,
-                    actions: { deleteConfirmationActions },
-                    message: { deleteConfirmationMessage }
-                )
+            MealItemFormNew(
+                viewModel: viewModel,
+                tappedSave: tappedSave
+            )
+            .safeAreaInset(edge: .bottom) { bottomSafeAreaInset }
+            .navigationTitle(viewModel.navigationTitle)
+            .scrollDismissesKeyboard(.interactively)
+            .sheet(isPresented: $showingUnitPicker) { unitPicker }
+            .sheet(isPresented: $showingMealTypesPicker) { mealTypesPicker }
+            .sheet(isPresented: $showingDietsPicker) { dietsPicker }
+            .sheet(isPresented: $showingEquivalentQuantities) { equivalentSizesSheet }
+            .confirmationDialog(
+                "",
+                isPresented: $showingDeleteConfirmation,
+                actions: { deleteConfirmationActions },
+                message: { deleteConfirmationMessage }
+            )
         }
         
         return ZStack {
@@ -545,10 +548,15 @@ public struct MealItemForm: View {
             .frame(height: 80)
     }
     var portionAwareness: some View {
-        PortionAwareness(
+        let lastUsedGoalSetBinding = Binding<GoalSet?>(
+            get: { DataManager.shared.lastUsedGoalSet },
+            set: { _ in }
+        )
+        return PortionAwareness(
             foodItem: $viewModel.mealFoodItem,
             meal: $viewModel.dayMeal,
             day: $viewModel.day,
+            lastUsedGoalSet: lastUsedGoalSetBinding,
             userUnits: DataManager.shared.user?.units ?? .standard,
 //            bodyProfile: viewModel.day?.bodyProfile //TODO: We need to load the Day's bodyProfile here once supported
             bodyProfile: DataManager.shared.user?.bodyProfile,

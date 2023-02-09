@@ -13,6 +13,8 @@ struct MealItemFormNew: View {
     
     @State var bottomHeight: CGFloat = 0.0
     
+    let tappedSave: () -> ()
+    
     var body: some View {
         content
             .sheet(isPresented: $showingQuantityForm) { quantityForm }
@@ -62,7 +64,7 @@ struct MealItemFormNew: View {
         }
         
         return Button {
-
+            tappedSave()
         } label: {
             Text(viewModel.saveButtonTitle)
                 .bold()
@@ -137,10 +139,17 @@ struct MealItemFormNew: View {
     }
     
     var portionAwareness: some View {
-        PortionAwareness(
+        let lastUsedGoalSetBinding = Binding<GoalSet?>(
+            get: {
+                DataManager.shared.lastUsedGoalSet
+            },
+            set: { _ in }
+        )
+        return PortionAwareness(
             foodItem: $viewModel.mealFoodItem,
             meal: $viewModel.dayMeal,
             day: $viewModel.day,
+            lastUsedGoalSet: lastUsedGoalSetBinding,
             userUnits: DataManager.shared.user?.units ?? .standard,
 //            bodyProfile: viewModel.day?.bodyProfile //TODO: We need to load the Day's bodyProfile here once supported
             bodyProfile: DataManager.shared.user?.bodyProfile,
@@ -597,10 +606,10 @@ struct AnimatableMealItemQuantityModifier: AnimatableModifier {
             .frame(maxWidth: .infinity)
             .frame(height: size.height)
             .overlay(
-                HStack(alignment: .firstTextBaseline, spacing: 3) {
+                HStack {
                     Spacer()
                     
-                    HStack(alignment: .firstTextBaseline, spacing: 3) {
+                    HStack(alignment: .center, spacing: 4) {
                         Text(amountString)
                             .multilineTextAlignment(.leading)
                             .foregroundColor(.primary)
@@ -608,23 +617,18 @@ struct AnimatableMealItemQuantityModifier: AnimatableModifier {
                             .font(.system(size: fontSize, weight: fontWeight, design: .rounded))
                         Text(unitString)
                             .font(.system(size: unitFontSize, weight: unitFontWeight, design: .rounded))
+                            .lineLimit(3)
+                            .minimumScaleFactor(0.5)
+                            .multilineTextAlignment(.leading)
+                            .fixedSize(horizontal: false, vertical: true)
                             .bold()
                             .foregroundColor(Color(.secondaryLabel))
                     }
                     .padding(.vertical, 5)
                     .padding(.horizontal, 10)
                     .background(
-                        ZStack {
-//                            if colorScheme == .dark {
-                                RoundedRectangle(cornerRadius: 7, style: .continuous)
-                                    .fill(Color(.systemFill).opacity(0.5))
-//                            }
-//                            RoundedRectangle(cornerRadius: 7, style: .continuous)
-//                                .fill(Color.accentColor.opacity(colorScheme == .dark ? 0.1 : 0.15))
-                        }
-//
-//                        RoundedRectangle(cornerRadius: 7, style: .continuous)
-//                            .fill(Color.accentColor.gradient)
+                        RoundedRectangle(cornerRadius: 7, style: .continuous)
+                            .fill(Color(.systemFill).opacity(0.5))
                     )
                 }
             )
