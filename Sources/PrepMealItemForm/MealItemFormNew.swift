@@ -113,7 +113,11 @@ struct MealItemFormNew: View {
     var foodButton: some View {
         if let food = viewModel.food {
             Button {
-                viewModel.path.append(.food)
+                if viewModel.isEditing {
+                    viewModel.path.append(.food)
+                } else {
+                    viewModel.path.removeLast()
+                }
             } label: {
                 foodCell(food)
             }
@@ -233,7 +237,7 @@ struct MealItemFormNew: View {
                         }
                         Spacer()
                         emoji
-                        disclosureArrow
+//                        disclosureArrow
                     }
                     VStack(alignment: .leading) {
                         Text(food.name)
@@ -272,7 +276,7 @@ struct MealItemFormNew: View {
                             .font(.system(size: 15, weight: .semibold, design: .rounded))
                             .bold()
                             .foregroundColor(Color(.secondaryLabel))
-                        disclosureArrow
+//                        disclosureArrow
                     }
                     HStack(alignment: .firstTextBaseline, spacing: 3) {
                         Text(viewModel.dayMeal.name)

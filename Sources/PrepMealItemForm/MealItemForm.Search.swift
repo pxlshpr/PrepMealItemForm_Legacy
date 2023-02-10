@@ -142,6 +142,7 @@ extension MealItemForm.Search {
             sources: foodFormSources,
             extractor: foodFormExtractor,
             dataProvider: DataManager.shared,
+            isRootInNavigationStack: isInitialFoodSearch,
             shouldDelayContents: isInitialFoodSearch,
             focusOnAppear: isInitialFoodSearch,
             searchIsFocused: $searchIsFocused,
