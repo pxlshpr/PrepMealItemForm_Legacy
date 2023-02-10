@@ -113,6 +113,7 @@ struct MealItemFormNew: View {
     var foodButton: some View {
         if let food = viewModel.food {
             Button {
+                Haptics.feedback(style: .soft)
                 if viewModel.isEditing {
                     viewModel.path.append(.food)
                 } else {
@@ -126,6 +127,7 @@ struct MealItemFormNew: View {
     
     var mealButton: some View {
         Button {
+            Haptics.feedback(style: .soft)
             viewModel.path.append(.meal)
         } label: {
             mealCell
