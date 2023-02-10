@@ -7,6 +7,9 @@ import SwiftHaptics
 import PrepCoreDataStack
 import PrepGoalSetsList
 
+import PrepFoodForm
+import FoodLabelExtractor
+
 public enum MealItemFormAction {
     case save(MealFoodItem, DayMeal)
     case delete
@@ -19,6 +22,10 @@ public struct MealItemForm: View {
     @Environment(\.dismiss) var dismiss
     @FocusState var isFocused: Bool
     
+    @ObservedObject var foodFormFields: FoodForm.Fields
+    @ObservedObject var foodFormSources: FoodForm.Sources
+    @ObservedObject var foodFormExtractor: Extractor
+
     @ObservedObject var viewModel: MealItemViewModel
     @State var showingDeleteConfirmation = false
     let alreadyInNavigationStack: Bool
@@ -32,10 +39,15 @@ public struct MealItemForm: View {
     @State var showingEquivalentQuantities: Bool = false
     
     public init(
+        fields: FoodForm.Fields, sources: FoodForm.Sources, extractor: Extractor,
         viewModel: MealItemViewModel,
         isEditing: Bool = false,
         actionHandler: @escaping ((MealItemFormAction) -> ())
     ) {
+        self.foodFormFields = fields
+        self.foodFormSources = sources
+        self.foodFormExtractor = extractor
+
         self.viewModel = viewModel
         self.actionHandler = actionHandler
         alreadyInNavigationStack = !isEditing
@@ -99,6 +111,9 @@ public struct MealItemForm: View {
         switch route {
         case .food:
             Search(
+                fields: foodFormFields,
+                sources: foodFormSources,
+                extractor: foodFormExtractor,
                 viewModel: viewModel,
                 actionHandler: actionHandler
             )

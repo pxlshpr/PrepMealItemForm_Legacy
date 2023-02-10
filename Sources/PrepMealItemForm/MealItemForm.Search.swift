@@ -4,11 +4,19 @@ import PrepCoreDataStack
 import PrepDataTypes
 import PrepFoodSearch
 
+import PrepFoodForm
+import FoodLabelExtractor
+
 public extension MealItemForm {
     
     struct Search: View {
         
         @Environment(\.dismiss) var dismiss
+        
+        @ObservedObject var foodFormFields: FoodForm.Fields
+        @ObservedObject var foodFormSources: FoodForm.Sources
+        @ObservedObject var foodFormExtractor: Extractor
+
         @State var foodToShowMacrosFor: Food? = nil
         
         let isInitialFoodSearch: Bool
@@ -22,12 +30,17 @@ public extension MealItemForm {
 //        let didTapDismiss: (() -> ())
 
         public init(
+            fields: FoodForm.Fields, sources: FoodForm.Sources, extractor: Extractor,
             viewModel: MealItemViewModel,
             isInitialFoodSearch: Bool = false,
             actionHandler: @escaping (MealItemFormAction) -> ()
 //            didTapDismiss: @escaping () -> (),
 //            didTapSave: ((MealFoodItem, DayMeal) -> ())? = nil
         ) {
+            self.foodFormFields = fields
+            self.foodFormSources = sources
+            self.foodFormExtractor = extractor
+
             self.viewModel = viewModel
             self.isInitialFoodSearch = isInitialFoodSearch
             self.actionHandler = actionHandler
@@ -60,6 +73,9 @@ extension MealItemForm.Search {
                 switch route {
                 case .mealItemForm:
                     MealItemForm(
+                        fields: foodFormFields,
+                        sources: foodFormSources,
+                        extractor: foodFormExtractor,
                         viewModel: viewModel,
                         isEditing: false,
                         actionHandler: actionHandler
@@ -68,6 +84,9 @@ extension MealItemForm.Search {
                     )
                 case .food:
                     MealItemForm.Search(
+                        fields: foodFormFields,
+                        sources: foodFormSources,
+                        extractor: foodFormExtractor,
                         viewModel: viewModel,
                         actionHandler: actionHandler
 //                        didTapDismiss: didTapDismiss
@@ -117,6 +136,9 @@ extension MealItemForm.Search {
         }
 
         return FoodSearch(
+            fields: foodFormFields,
+            sources: foodFormSources,
+            extractor: foodFormExtractor,
             dataProvider: DataManager.shared,
             shouldDelayContents: isInitialFoodSearch,
             focusOnAppear: isInitialFoodSearch,
