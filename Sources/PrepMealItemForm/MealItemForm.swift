@@ -11,6 +11,7 @@ import PrepFoodForm
 import FoodLabelExtractor
 
 public enum MealItemFormAction {
+    case addFood(FoodFormOutput)
     case save(MealFoodItem, DayMeal)
     case delete
     case dismiss

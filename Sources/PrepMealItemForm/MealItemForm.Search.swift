@@ -30,7 +30,9 @@ public extension MealItemForm {
 //        let didTapDismiss: (() -> ())
 
         public init(
-            fields: FoodForm.Fields, sources: FoodForm.Sources, extractor: Extractor,
+            fields: FoodForm.Fields,
+            sources: FoodForm.Sources,
+            extractor: Extractor,
             viewModel: MealItemViewModel,
             isInitialFoodSearch: Bool = false,
             actionHandler: @escaping (MealItemFormAction) -> ()
@@ -143,6 +145,7 @@ extension MealItemForm.Search {
             shouldDelayContents: isInitialFoodSearch,
             focusOnAppear: isInitialFoodSearch,
             searchIsFocused: $searchIsFocused,
+            didAddFood: { actionHandler(.addFood($0)) },
             didTapClose: didTapClose,
             didTapFood: didTapFood,
             didTapMacrosIndicatorForFood: didTapMacrosIndicatorForFood
