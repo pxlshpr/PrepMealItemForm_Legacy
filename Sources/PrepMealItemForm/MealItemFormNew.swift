@@ -457,15 +457,13 @@ struct MealItemFormNew: View {
 import PrepViews
 import SwiftUISugar
 
-extension MealItemForm {
-    struct Quantity: View {
-        @ObservedObject var viewModel: MealItemViewModel
-        @FocusState var isFocused: Bool
-        @State var showingUnitPicker = false
-    }
+struct MealItemFormQuantity: View {
+    @ObservedObject var viewModel: MealItemViewModel
+    @FocusState var isFocused: Bool
+    @State var showingUnitPicker = false
 }
 
-extension MealItemForm.Quantity {
+extension MealItemFormQuantity {
     var body: some View {
         FormStyledScrollView {
             textFieldSection

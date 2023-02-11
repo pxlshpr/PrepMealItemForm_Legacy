@@ -17,7 +17,7 @@ public enum MealItemFormAction {
     case dismiss
 }
 
-public struct MealItemForm: View {
+public struct MealItemForm<Content: View>: View {
     
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.dismiss) var dismiss
@@ -39,12 +39,17 @@ public struct MealItemForm: View {
     @State var showingDietsPicker = false
     @State var showingEquivalentQuantities: Bool = false
     
+//    let foodForm: Content
+    let foodForm: () -> Content
+
     public init(
+        @ViewBuilder foodForm: @escaping () -> Content,
 //        fields: FoodForm.Fields, sources: FoodForm.Sources, extractor: Extractor,
         viewModel: MealItemViewModel,
         isEditing: Bool = false,
         actionHandler: @escaping ((MealItemFormAction) -> ())
     ) {
+        self.foodForm = foodForm
 //        self.foodFormFields = fields
 //        self.foodFormSources = sources
 //        self.foodFormExtractor = extractor
@@ -111,7 +116,8 @@ public struct MealItemForm: View {
     func navigationDestination(for route: MealItemFormRoute) -> some View {
         switch route {
         case .food:
-            Search(
+            MealItemFormSearch(
+                foodForm: foodForm,
 //                fields: foodFormFields,
 //                sources: foodFormSources,
 //                extractor: foodFormExtractor,
@@ -123,7 +129,7 @@ public struct MealItemForm: View {
         case .mealItemForm:
             EmptyView()
         case .quantity:
-            MealItemForm.Quantity(viewModel: viewModel)
+            MealItemFormQuantity(viewModel: viewModel)
         }
     }
     
@@ -588,7 +594,7 @@ public struct MealItemForm: View {
     }
     
     var mealPicker: some View {
-        MealItemForm.MealPicker(didTapDismiss: {
+        MealItemFormMealPicker(didTapDismiss: {
             actionHandler(.dismiss)
         }, didTapMeal: { pickedMeal in
             NotificationCenter.default.post(

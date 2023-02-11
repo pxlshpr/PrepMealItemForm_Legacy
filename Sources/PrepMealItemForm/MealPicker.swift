@@ -4,27 +4,25 @@ import PrepDataTypes
 import SwiftUISugar
 import SwiftHaptics
 
-extension MealItemForm {
-    public struct MealPicker: View {
-        
-        @EnvironmentObject var viewModel: MealItemViewModel
-        
-        @Environment(\.dismiss) var dismiss
-      
-        let didTapMeal: (DayMeal) -> ()
-        let didTapDismiss: () -> ()
+public struct MealItemFormMealPicker: View {
+    
+    @EnvironmentObject var viewModel: MealItemViewModel
+    
+    @Environment(\.dismiss) var dismiss
+  
+    let didTapMeal: (DayMeal) -> ()
+    let didTapDismiss: () -> ()
 
-        public init(
-            didTapDismiss: @escaping () -> (),
-            didTapMeal: @escaping ((DayMeal) -> ())
-        ) {
-            self.didTapDismiss = didTapDismiss
-            self.didTapMeal = didTapMeal
-        }
+    public init(
+        didTapDismiss: @escaping () -> (),
+        didTapMeal: @escaping ((DayMeal) -> ())
+    ) {
+        self.didTapDismiss = didTapDismiss
+        self.didTapMeal = didTapMeal
     }
 }
 
-public extension MealItemForm.MealPicker {
+public extension MealItemFormMealPicker {
     
     var body: some View {
         Timeline(

@@ -7,52 +7,53 @@ import PrepFoodSearch
 //import PrepFoodForm
 //import FoodLabelExtractor
 
-public extension MealItemForm {
+public struct MealItemFormSearch<SearchContent: View>: View {
     
-    struct Search: View {
-        
-        @Environment(\.dismiss) var dismiss
-        
+    @Environment(\.dismiss) var dismiss
+    
 //        @ObservedObject var foodFormFields: FoodForm.Fields
 //        @ObservedObject var foodFormSources: FoodForm.Sources
 //        @ObservedObject var foodFormExtractor: Extractor
 
-        @State var foodToShowMacrosFor: Food? = nil
-        
-        let isInitialFoodSearch: Bool
-        
-        @ObservedObject var viewModel: MealItemViewModel
+    @State var foodToShowMacrosFor: Food? = nil
+    
+    let isInitialFoodSearch: Bool
+    
+    @ObservedObject var viewModel: MealItemViewModel
 
-        @State var searchIsFocused: Bool = false
+    @State var searchIsFocused: Bool = false
 
-        let actionHandler: (MealItemFormAction) -> ()
+    let actionHandler: (MealItemFormAction) -> ()
 //        let didTapSave: ((MealFoodItem, DayMeal) -> ())?
 //        let didTapDismiss: (() -> ())
 
-        public init(
+    let foodForm: () -> SearchContent
+    
+    public init(
+        @ViewBuilder foodForm: @escaping () -> SearchContent,
 //            fields: FoodForm.Fields,
 //            sources: FoodForm.Sources,
 //            extractor: Extractor,
-            viewModel: MealItemViewModel,
-            isInitialFoodSearch: Bool = false,
-            actionHandler: @escaping (MealItemFormAction) -> ()
+        viewModel: MealItemViewModel,
+        isInitialFoodSearch: Bool = false,
+        actionHandler: @escaping (MealItemFormAction) -> ()
 //            didTapDismiss: @escaping () -> (),
 //            didTapSave: ((MealFoodItem, DayMeal) -> ())? = nil
-        ) {
+    ) {
+        self.foodForm = foodForm
 //            self.foodFormFields = fields
 //            self.foodFormSources = sources
 //            self.foodFormExtractor = extractor
 
-            self.viewModel = viewModel
-            self.isInitialFoodSearch = isInitialFoodSearch
-            self.actionHandler = actionHandler
+        self.viewModel = viewModel
+        self.isInitialFoodSearch = isInitialFoodSearch
+        self.actionHandler = actionHandler
 //            self.didTapDismiss = didTapDismiss
 //            self.didTapSave = didTapSave
-        }
     }
 }
 
-extension MealItemForm.Search {
+extension MealItemFormSearch {
     
     @ViewBuilder
     public var body: some View {
@@ -75,6 +76,7 @@ extension MealItemForm.Search {
                 switch route {
                 case .mealItemForm:
                     MealItemForm(
+                        foodForm: { foodForm() },
 //                        fields: foodFormFields,
 //                        sources: foodFormSources,
 //                        extractor: foodFormExtractor,
@@ -85,7 +87,8 @@ extension MealItemForm.Search {
 //                        didTapSave: didTapSave
                     )
                 case .food:
-                    MealItemForm.Search(
+                    MealItemFormSearch(
+                        foodForm: foodForm,
 //                        fields: foodFormFields,
 //                        sources: foodFormSources,
 //                        extractor: foodFormExtractor,
@@ -96,14 +99,14 @@ extension MealItemForm.Search {
                 case .meal:
                     mealPicker
                 case .quantity:
-                    MealItemForm.Quantity(viewModel: viewModel)
+                    MealItemFormQuantity(viewModel: viewModel)
                 }
             }
         }
     }
     
     var mealPicker: some View {
-        MealItemForm.MealPicker(didTapDismiss: {
+        MealItemFormMealPicker(didTapDismiss: {
             actionHandler(.dismiss)
         }, didTapMeal: { pickedMeal in
             NotificationCenter.default.post(
@@ -138,6 +141,7 @@ extension MealItemForm.Search {
         }
 
         return FoodSearch(
+            foodForm: foodForm,
 //            fields: foodFormFields,
 //            sources: foodFormSources,
 //            extractor: foodFormExtractor,
