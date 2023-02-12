@@ -11,7 +11,7 @@ import PrepGoalSetsList
 //import FoodLabelExtractor
 
 public enum MealItemFormAction {
-    case addFood
+    case add(FoodType)
     case save(MealFoodItem, DayMeal)
     case delete
     case dismiss

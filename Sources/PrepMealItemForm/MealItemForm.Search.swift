@@ -150,7 +150,7 @@ extension MealItemFormSearch {
             shouldDelayContents: isInitialFoodSearch,
             focusOnAppear: isInitialFoodSearch,
             searchIsFocused: $searchIsFocused,
-            didTapAddFood: didTapAddFood,
+            didTapAdd: didTapAdd,
             didTapClose: didTapClose,
             didTapFood: didTapFood,
             didTapMacrosIndicatorForFood: didTapMacrosIndicatorForFood
@@ -159,10 +159,10 @@ extension MealItemFormSearch {
         .navigationBarBackButtonHidden(viewModel.food == nil)
     }
     
-    func didTapAddFood() {
-        actionHandler(.addFood)
+    func didTapAdd(_ foodType: FoodType) {
+        actionHandler(.add(foodType))
     }
-    
+
     func macrosView(for food: Food) -> some View {
         Text("Macros for: \(food.name)")
             .presentationDetents([.medium, .large])
