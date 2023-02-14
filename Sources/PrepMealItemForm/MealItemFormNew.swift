@@ -51,7 +51,7 @@ struct MealItemFormNew: View {
                     .background(.thinMaterial)
             )
             .readSize { size in
-                print("bottomHeight is: \(size.height)")
+                cprint("bottomHeight is: \(size.height)")
                 bottomHeight = size.height / 2.0
             }
         }

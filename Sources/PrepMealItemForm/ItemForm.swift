@@ -216,8 +216,8 @@
 //        
 //        func ended(_ value: DragGesture.Value) {
 //            let totalHeight = height + hardcodedSafeAreaBottomInset
-////            print("🥸 predictedEndLocation.y: \(value.predictedEndLocation.y)")
-////            print("🥸 height: \(totalHeight)")
+////            cprint("🥸 predictedEndLocation.y: \(value.predictedEndLocation.y)")
+////            cprint("🥸 height: \(totalHeight)")
 //            if value.predictedEndLocation.y > totalHeight / 2.0 {
 ////                isPresented = false
 ////                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
@@ -228,7 +228,7 @@
 //                    width:  value.predictedEndLocation.x - value.location.x,
 //                    height: value.predictedEndLocation.y - value.location.y
 //                )
-//                print("🥸 velocity: \(velocity)")
+//                cprint("🥸 velocity: \(velocity)")
 //
 //                let duration = (1.0 / velocity.height) * 45.0
 //                withAnimation(.easeInOut(duration: duration)) {

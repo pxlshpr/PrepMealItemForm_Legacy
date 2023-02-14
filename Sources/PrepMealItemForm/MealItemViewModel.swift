@@ -297,7 +297,7 @@ public class MealItemViewModel: ObservableObject {
 //    var foodItemBinding: Binding<MealFoodItem> {
 //        Binding<MealFoodItem>(
 //            get: {
-//                print("Getting MealFoodItem")
+//                cprint("Getting MealFoodItem")
 //                return MealFoodItem(
 //                    food: self.food,
 //                    amount: self.amountValue

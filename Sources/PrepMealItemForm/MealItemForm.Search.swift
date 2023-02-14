@@ -71,37 +71,43 @@ extension MealItemFormSearch {
 
     var navigationStack: some View {
         NavigationStack(path: $viewModel.path) {
-            foodSearch
-            .navigationDestination(for: MealItemFormRoute.self) { route in
-                switch route {
-                case .mealItemForm:
-                    MealItemForm(
-                        foodForm: { foodForm() },
+            Text("Hello")
+//            foodSearch
+                .navigationDestination(for: MealItemFormRoute.self) { route in
+                    navigationDestination(for: route)
+                }
+        }
+    }
+    
+    @ViewBuilder
+    func navigationDestination(for route: MealItemFormRoute) -> some View {
+        switch route {
+        case .mealItemForm:
+            MealItemForm(
+                foodForm: { foodForm() },
 //                        fields: foodFormFields,
 //                        sources: foodFormSources,
 //                        extractor: foodFormExtractor,
-                        viewModel: viewModel,
-                        isEditing: false,
-                        actionHandler: actionHandler
+                viewModel: viewModel,
+                isEditing: false,
+                actionHandler: actionHandler
 //                        didTapDismiss: didTapDismiss,
 //                        didTapSave: didTapSave
-                    )
-                case .food:
-                    MealItemFormSearch(
-                        foodForm: foodForm,
+            )
+        case .food:
+            MealItemFormSearch(
+                foodForm: foodForm,
 //                        fields: foodFormFields,
 //                        sources: foodFormSources,
 //                        extractor: foodFormExtractor,
-                        viewModel: viewModel,
-                        actionHandler: actionHandler
+                viewModel: viewModel,
+                actionHandler: actionHandler
 //                        didTapDismiss: didTapDismiss
-                    )
-                case .meal:
-                    mealPicker
-                case .quantity:
-                    MealItemFormQuantity(viewModel: viewModel)
-                }
-            }
+            )
+        case .meal:
+            mealPicker
+        case .quantity:
+            MealItemFormQuantity(viewModel: viewModel)
         }
     }
     
