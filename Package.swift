@@ -16,7 +16,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/pxlshpr/PrepCoreDataStack", from: "0.0.24"),
-        .package(url: "https://github.com/pxlshpr/FoodLabel", from: "0.0.58"),
+        .package(url: "https://github.com/pxlshpr/FoodLabel", from: "0.0.59"),
         .package(url: "https://github.com/pxlshpr/PrepDataTypes", from: "0.0.209"),
         .package(url: "https://github.com/pxlshpr/PrepFoodSearch", from: "0.0.83"),
         .package(url: "https://github.com/pxlshpr/PrepGoalSetsList", from: "0.0.2"),
