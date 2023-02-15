@@ -71,8 +71,7 @@ extension MealItemFormSearch {
 
     var navigationStack: some View {
         NavigationStack(path: $viewModel.path) {
-            Text("Hello")
-//            foodSearch
+            foodSearch
                 .navigationDestination(for: MealItemFormRoute.self) { route in
                     navigationDestination(for: route)
                 }
