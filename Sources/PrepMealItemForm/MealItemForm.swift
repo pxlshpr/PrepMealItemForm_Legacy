@@ -5,8 +5,7 @@ import PrepViews
 import PrepDataTypes
 import SwiftHaptics
 import PrepCoreDataStack
-import PrepGoalSetsList
-
+//import PrepGoalSetsList
 //import PrepFoodForm
 //import FoodLabelExtractor
 
@@ -297,8 +296,6 @@ public struct MealItemForm<Content: View>: View {
             .navigationTitle(viewModel.navigationTitle)
             .scrollDismissesKeyboard(.interactively)
             .sheet(isPresented: $showingUnitPicker) { unitPicker }
-            .sheet(isPresented: $showingMealTypesPicker) { mealTypesPicker }
-            .sheet(isPresented: $showingDietsPicker) { dietsPicker }
             .sheet(isPresented: $showingEquivalentQuantities) { equivalentSizesSheet }
             .confirmationDialog(
                 "",
@@ -500,42 +497,7 @@ public struct MealItemForm<Content: View>: View {
             .navigationTitle(viewModel.navigationTitle)
             .scrollDismissesKeyboard(.interactively)
             .sheet(isPresented: $showingUnitPicker) { unitPicker }
-            .sheet(isPresented: $showingMealTypesPicker) { mealTypesPicker }
-            .sheet(isPresented: $showingDietsPicker) { dietsPicker }
             .sheet(isPresented: $showingEquivalentQuantities) { equivalentSizesSheet }
-    }
-    
-    var mealTypesPicker: some View {
-        Text("Meal Types Picker")
-    }
-    
-    var dietsPicker: some View {
-        NavigationView {
-            GoalSetPicker(
-                date: viewModel.date,
-                showCloseButton: false,
-                selectedGoalSet: viewModel.day?.goalSet
-            ) { tappedGoalSet, day in
-                
-                if let day {
-                    viewModel.day = day
-                }
-                viewModel.day?.goalSet = tappedGoalSet
-                
-                //TODO: Do these
-                /// [x] Look into what `forMealItemForm` is used for as it may be redundant
-                /// [x] Make `GoalSetsList` create the day and set the diet in one place
-                /// [x] Instead of this, get use `didChangeGoalSet(to goalSet: GoalSet?, and day: Day?)`
-                /// [x] Include the "+" add button when in goal selection mode too
-                /// [x] When in goal selection mode, adding a button should immediatly select it and dismiss, wile returning the callback
-                /// [x] If a `Day` was supplied, set that in the `viewModel` first
-                ///
-                /// Now reuse this for the meal types picker
-                /// [ ] Do the same, except we don't care about `Day`, and simply set meal's `goalSet` to what was provided (a `GoalSet` or `nil`)
-                /// [ ] Create a helper (on `GoalSetForm`) that completes the form with mock data when invoked
-            }
-        }
-        .presentationDetents([.medium, .large])
     }
     
     var form: some View {
@@ -586,11 +548,11 @@ public struct MealItemForm<Content: View>: View {
     }
     
     func didTapGoalSetButton(forMeal: Bool) {
-        if forMeal {
-            showingMealTypesPicker = true
-        } else {
-            showingDietsPicker = true
-        }
+//        if forMeal {
+//            showingMealTypesPicker = true
+//        } else {
+//            showingDietsPicker = true
+//        }
     }
     
     var mealPicker: some View {
