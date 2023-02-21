@@ -52,7 +52,8 @@ public class MealItemViewModel: ObservableObject {
         self.food = food
         self.dayMeals = dayMeals
         
-        self.dayMeal = dayMeal ?? DayMeal(name: "New Meal", time: Date().timeIntervalSince1970)
+        let dayMealToSet = dayMeal ?? DayMeal(name: "New Meal", time: Date().timeIntervalSince1970)
+        self.dayMeal = dayMealToSet
         self.initialDayMeal = dayMeal
         
         //TODO: Handle this in a better way
@@ -61,7 +62,8 @@ public class MealItemViewModel: ObservableObject {
         self.mealFoodItem = MealFoodItem(
             food: food ?? Food.placeholder,
             amount: .init(0, .g),
-            isSoftDeleted: false
+            isSoftDeleted: false,
+            mealId: dayMealToSet.id
         )
 
         self.existingMealFoodItem = existingMealFoodItem
@@ -153,7 +155,8 @@ public class MealItemViewModel: ObservableObject {
             amount: amountValue,
             markedAsEatenAt: existingMealFoodItem?.markedAsEatenAt ?? nil,
             sortPosition: existingMealFoodItem?.sortPosition ?? 1,
-            isSoftDeleted: existingMealFoodItem?.isSoftDeleted ?? false
+            isSoftDeleted: existingMealFoodItem?.isSoftDeleted ?? false,
+            mealId: dayMeal.id
         )
     }
     
