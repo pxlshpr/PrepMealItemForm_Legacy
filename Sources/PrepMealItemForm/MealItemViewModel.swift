@@ -39,18 +39,19 @@ public class MealItemViewModel: ObservableObject {
     public init(
         existingMealFoodItem: MealFoodItem?,
         date: Date,
-        day: Day? = nil,
         dayMeal: DayMeal? = nil,
         food: Food? = nil,
         amount: FoodValue? = nil,
-        dayMeals: [DayMeal] = [], //TODO: Do we need to pass this in if we have day?
         initialPath: [MealItemFormRoute] = []
     ) {
         self.path = initialPath
         self.date = date
+        
+        let day = DataManager.shared.day(for: date)
         self.day = day
+        self.dayMeals = day?.meals ?? []
+
         self.food = food
-        self.dayMeals = dayMeals
         
         let dayMealToSet = dayMeal ?? DayMeal(name: "New Meal", time: Date().timeIntervalSince1970)
         self.dayMeal = dayMealToSet
