@@ -4,52 +4,25 @@ import PrepCoreDataStack
 import PrepDataTypes
 import PrepFoodSearch
 
-//import PrepFoodForm
-//import FoodLabelExtractor
-
-public struct MealItemFormSearch<SearchContent: View>: View {
+public struct MealItemFormSearch: View {
     
     @Environment(\.dismiss) var dismiss
-    
-//        @ObservedObject var foodFormFields: FoodForm.Fields
-//        @ObservedObject var foodFormSources: FoodForm.Sources
-//        @ObservedObject var foodFormExtractor: Extractor
 
-    @State var foodToShowMacrosFor: Food? = nil
-    
     let isInitialFoodSearch: Bool
     
     @ObservedObject var viewModel: MealItemViewModel
-
+    @State var foodToShowMacrosFor: Food? = nil
     @State var searchIsFocused: Bool = false
-
     let actionHandler: (MealItemFormAction) -> ()
-//        let didTapSave: ((MealFoodItem, DayMeal) -> ())?
-//        let didTapDismiss: (() -> ())
-
-    let foodForm: () -> SearchContent
     
     public init(
-        @ViewBuilder foodForm: @escaping () -> SearchContent,
-//            fields: FoodForm.Fields,
-//            sources: FoodForm.Sources,
-//            extractor: Extractor,
         viewModel: MealItemViewModel,
         isInitialFoodSearch: Bool = false,
         actionHandler: @escaping (MealItemFormAction) -> ()
-//            didTapDismiss: @escaping () -> (),
-//            didTapSave: ((MealFoodItem, DayMeal) -> ())? = nil
     ) {
-        self.foodForm = foodForm
-//            self.foodFormFields = fields
-//            self.foodFormSources = sources
-//            self.foodFormExtractor = extractor
-
         self.viewModel = viewModel
         self.isInitialFoodSearch = isInitialFoodSearch
         self.actionHandler = actionHandler
-//            self.didTapDismiss = didTapDismiss
-//            self.didTapSave = didTapSave
     }
 }
 
@@ -83,25 +56,14 @@ extension MealItemFormSearch {
         switch route {
         case .mealItemForm:
             MealItemForm(
-                foodForm: { foodForm() },
-//                        fields: foodFormFields,
-//                        sources: foodFormSources,
-//                        extractor: foodFormExtractor,
                 viewModel: viewModel,
                 isEditing: false,
                 actionHandler: actionHandler
-//                        didTapDismiss: didTapDismiss,
-//                        didTapSave: didTapSave
             )
         case .food:
             MealItemFormSearch(
-                foodForm: foodForm,
-//                        fields: foodFormFields,
-//                        sources: foodFormSources,
-//                        extractor: foodFormExtractor,
                 viewModel: viewModel,
                 actionHandler: actionHandler
-//                        didTapDismiss: didTapDismiss
             )
         case .meal:
             mealPicker
@@ -146,10 +108,6 @@ extension MealItemFormSearch {
         }
 
         return FoodSearch(
-            foodForm: foodForm,
-//            fields: foodFormFields,
-//            sources: foodFormSources,
-//            extractor: foodFormExtractor,
             dataProvider: DataManager.shared,
             isRootInNavigationStack: isInitialFoodSearch,
             shouldDelayContents: isInitialFoodSearch,

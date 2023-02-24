@@ -114,7 +114,7 @@ struct MealItemFormNew: View {
         if let food = viewModel.food {
             Button {
                 Haptics.feedback(style: .soft)
-                if viewModel.isEditing {
+                if viewModel.isRootInNavigationStack {
                     viewModel.path.append(.food)
                 } else {
                     viewModel.path.removeLast()

@@ -36,6 +36,8 @@ public class MealItemViewModel: ObservableObject {
     let existingMealFoodItem: MealFoodItem?
     let initialDayMeal: DayMeal?
 
+    let isRootInNavigationStack: Bool
+
     public init(
         existingMealFoodItem: MealFoodItem?,
         date: Date,
@@ -68,6 +70,8 @@ public class MealItemViewModel: ObservableObject {
         )
 
         self.existingMealFoodItem = existingMealFoodItem
+        
+        self.isRootInNavigationStack = existingMealFoodItem != nil || food != nil
 
         if let amount, let food,
            let unit = FoodQuantity.Unit(foodValue: amount, in: food)
@@ -94,6 +98,7 @@ public class MealItemViewModel: ObservableObject {
         self.dayMeal = dayMeal
     }
 
+    //TODO: MealItemAdd – Use this when setting food
     func setFood(_ food: Food) {
         self.food = food
         setDefaultUnit()
