@@ -51,8 +51,6 @@ public struct FoodSearch: View {
     let didTapFood: (Food) -> ()
     let didTapMacrosIndicatorForFood: (Food) -> ()
     
-    let didTapAdd: (FoodType) -> ()
-
     let focusOnAppear: Bool
     let isRootInNavigationStack: Bool
     
@@ -62,7 +60,6 @@ public struct FoodSearch: View {
         shouldDelayContents: Bool = true,
         focusOnAppear: Bool = false,
         searchIsFocused: Binding<Bool>,
-        didTapAdd: @escaping (FoodType) -> (),
         didTapClose: (() -> ())? = nil,
         didTapFood: @escaping ((Food) -> ()),
         didTapMacrosIndicatorForFood: @escaping ((Food) -> ())
@@ -84,8 +81,6 @@ public struct FoodSearch: View {
         self.didTapClose = didTapClose
         self.didTapFood = didTapFood
         self.didTapMacrosIndicatorForFood = didTapMacrosIndicatorForFood
-        
-        self.didTapAdd = didTapAdd
         
         _showingAddHeroButton = State(initialValue: focusOnAppear)
         _hasAppeared = State(initialValue: shouldDelayContents ? false : true)
@@ -275,7 +270,6 @@ public struct FoodSearch: View {
     
     var addPlateButton: some View {
         Button {
-            didTapAdd(.plate)
         } label: {
             Label("Plate", systemImage: FoodType.plate.systemImage)
         }
@@ -283,7 +277,6 @@ public struct FoodSearch: View {
     
     var addRecipeButton: some View {
         Button {
-            didTapAdd(.recipe)
 //            showingAddRecipe = true
 //            searchIsFocused = false
 //            showingAddHeroButton = false

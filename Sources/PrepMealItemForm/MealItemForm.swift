@@ -7,7 +7,7 @@ import SwiftHaptics
 import PrepCoreDataStack
 
 public enum MealItemFormAction {
-    case add(FoodType)
+//    case add(FoodType)
     case save(MealFoodItem, DayMeal)
     case delete
     case dismiss

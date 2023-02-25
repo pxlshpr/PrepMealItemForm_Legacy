@@ -77,7 +77,7 @@ struct RecipeForm: View {
                 shouldDelayContents: true,
                 focusOnAppear: true,
                 searchIsFocused: $searchIsFocused,
-                didTapAdd: didTapAdd,
+//                didTapAdd: didTapAdd,
                 didTapClose: didTapClose,
                 didTapFood: didTapFood,
                 didTapMacrosIndicatorForFood: didTapMacrosIndicatorForFood
