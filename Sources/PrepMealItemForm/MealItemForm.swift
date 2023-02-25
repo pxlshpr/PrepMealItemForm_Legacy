@@ -5,9 +5,6 @@ import PrepViews
 import PrepDataTypes
 import SwiftHaptics
 import PrepCoreDataStack
-//import PrepGoalSetsList
-//import PrepFoodForm
-//import FoodLabelExtractor
 
 public enum MealItemFormAction {
     case add(FoodType)
@@ -16,20 +13,15 @@ public enum MealItemFormAction {
     case dismiss
 }
 
-public struct MealItemForm<Content: View>: View {
+public struct MealItemForm: View {
     
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.dismiss) var dismiss
     @FocusState var isFocused: Bool
-    
-//    @ObservedObject var foodFormFields: FoodForm.Fields
-//    @ObservedObject var foodFormSources: FoodForm.Sources
-//    @ObservedObject var foodFormExtractor: Extractor
 
     @ObservedObject var viewModel: MealItemViewModel
     @State var showingDeleteConfirmation = false
     let alreadyInNavigationStack: Bool
-
     let actionHandler: (MealItemFormAction) -> ()
 
     //TODO: Are these needed here anymore?
@@ -37,22 +29,12 @@ public struct MealItemForm<Content: View>: View {
     @State var showingMealTypesPicker = false
     @State var showingDietsPicker = false
     @State var showingEquivalentQuantities: Bool = false
-    
-//    let foodForm: Content
-    let foodForm: () -> Content
 
     public init(
-        @ViewBuilder foodForm: @escaping () -> Content,
-//        fields: FoodForm.Fields, sources: FoodForm.Sources, extractor: Extractor,
         viewModel: MealItemViewModel,
         isEditing: Bool = false,
         actionHandler: @escaping ((MealItemFormAction) -> ())
     ) {
-        self.foodForm = foodForm
-//        self.foodFormFields = fields
-//        self.foodFormSources = sources
-//        self.foodFormExtractor = extractor
-
         self.viewModel = viewModel
         self.actionHandler = actionHandler
         alreadyInNavigationStack = !isEditing
@@ -116,10 +98,6 @@ public struct MealItemForm<Content: View>: View {
         switch route {
         case .food:
             MealItemFormSearch(
-                foodForm: foodForm,
-//                fields: foodFormFields,
-//                sources: foodFormSources,
-//                extractor: foodFormExtractor,
                 viewModel: viewModel,
                 actionHandler: actionHandler
             )
