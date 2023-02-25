@@ -24,8 +24,8 @@ let package = Package(
         .package(url: "https://github.com/pxlshpr/SwiftUISugar", from: "0.0.361"),
         .package(url: "https://github.com/pxlshpr/Timeline", from: "0.0.68"),
 
-//        .package(url: "https://github.com/pxlshpr/PrepFoodForm", from: "0.1.115"),
-//        .package(url: "https://github.com/pxlshpr/FoodLabelExtractor", from: "0.0.31"),
+        .package(url: "https://github.com/pxlshpr/PrepFoodForm", from: "0.1.118"),
+        .package(url: "https://github.com/pxlshpr/FoodLabelExtractor", from: "0.0.31"),
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
